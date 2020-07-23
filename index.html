@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
 
   
@@ -26,10 +26,10 @@
   
 <link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 4.2.1"></head>
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body>
-  <div id="container">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
     <div id="wrap">
       <header id="header">
   <div id="banner"></div>
@@ -86,23 +86,56 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文积累学习 Swift 过程中获取到的好技巧, 以及 Swift Standard Library 使用的优秀范式 (tricks).</p>
-<h2 id="普通-Practices"><a href="#普通-Practices" class="headerlink" title="普通 Practices"></a>普通 Practices</h2><h3 id="Availability-checks"><a href="#Availability-checks" class="headerlink" title="Availability checks"></a>Availability checks</h3><p>使用 availability checks 将超出指定的”Base SDK”版本的代码块隔离起来. 在运行时, 系统会根据运行环境动态 check 该代码是否执行. </p>
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E6%99%AE%E9%80%9A-practices">普通 Practices</a>
+<ul>
+<li><a href="#availability-checks">Availability checks</a></li>
+<li><a href="#%E6%B4%BB%E7%94%A8-string-backed-enum">活用 “String-backed” enum</a>
+<ul>
+<li><a href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86">背景知识</a></li>
+<li><a href="#%E6%A1%88%E4%BE%8B">案例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#tricks">Tricks</a>
+<ul>
+<li><a href="#%E7%BB%99-protocol-%E5%A2%9E%E5%8A%A0-recursive-constraints-before-swift-41">给 protocol 增加 recursive constraints (before Swift 4.1)</a></li>
+<li><a href="#%E6%B3%9B%E5%9E%8B%E5%AF%B9%E8%B1%A1%E6%8E%92%E9%99%A4%E7%89%B9%E4%BE%8B%E8%B0%83%E7%94%A8">泛型对象排除特例调用</a>
+<ul>
+<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF">场景</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB%E5%9E%8B%E6%8C%89%E6%9D%A1%E4%BB%B6%E9%81%B5%E5%BE%AA-protocol-before-swift-41">泛型类型按条件遵循 protocol (before Swift 4.1)</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<p>本文积累学习 Swift 过程中获取到的好技巧, 以及 Swift Standard Library 使用的优秀范式 (tricks).</p>
+<h2 id="普通-practices"><a class="markdownIt-Anchor" href="#普通-practices"></a> 普通 Practices</h2>
+<h3 id="availability-checks"><a class="markdownIt-Anchor" href="#availability-checks"></a> Availability checks</h3>
+<p>使用 availability checks 将超出指定的&quot;Base SDK&quot;版本的代码块隔离起来. 在运行时, 系统会根据运行环境动态 check 该代码是否执行.</p>
 <ul>
 <li><code>@available(iOS 9.0, *)</code>, method, type 定义时.</li>
 <li><code>if #available(iOS 9.0, *)</code>, 使用 method, type 时.</li>
 <li>支持 guard 作为 early exit.</li>
 </ul>
-<p>可以替代相对应的早期的以下调用:<br><code>UIDevice.current.systemVersion.compare(&quot;9.0&quot;, options: .numeric) == .orderedAscending</code></p>
-<h3 id="活用-“String-backed”-enum"><a href="#活用-“String-backed”-enum" class="headerlink" title="活用 “String-backed” enum"></a>活用 “String-backed” enum</h3><h4 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h4><p>在众多基于 raw value 的 enum 中, raw value 是<code>String</code>的最为特殊, 因为这样的 enum 在定义各个 case 时, 可以省去显式写出用来初始化该 enum 的 raw value. 这种情况下, 编译器默认追加代码, 使用各个 case identifier 的同名字符串作为 raw value.</p>
+<p>可以替代相对应的早期的以下调用:<br>
+<code>UIDevice.current.systemVersion.compare(&quot;9.0&quot;, options: .numeric) == .orderedAscending</code></p>
+<h3 id="活用-string-backed-enum"><a class="markdownIt-Anchor" href="#活用-string-backed-enum"></a> 活用 “String-backed” enum</h3>
+<h4 id="背景知识"><a class="markdownIt-Anchor" href="#背景知识"></a> 背景知识</h4>
+<p>在众多基于 raw value 的 enum 中, raw value 是<code>String</code>的最为特殊, 因为这样的 enum 在定义各个 case 时, 可以省去显式写出用来初始化该 enum 的 raw value. 这种情况下, 编译器默认追加代码, 使用各个 case identifier 的同名字符串作为 raw value.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 各行 case 可以省略 // 之后的部分</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ImageIdentifier</span>: <span class="title">String</span> </span>&#123;</span><br><span class="line">  <span class="keyword">case</span> centerButton <span class="comment">// = "centerButton"</span></span><br><span class="line">  <span class="keyword">case</span> myFavorites <span class="comment">// = "myFavorites"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>另一方面, 这样的 enum 默认遵循<code>RawRepresentable</code>, 且关联类型<code>RawValue == String</code>. 这方便我们对于一系列有相同特征的 enum 依靠 protocol 提供统一操作.</p>
-<h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>该 video 已经被 apple 从公开列表中移除, 此处提供的是 web.archive 上的缓存.<br>也可以尝试直接获取 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_hd_swift_in_practice.mp4?dl=1" target="_blank" rel="noopener">video</a> 和 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_swift_in_practice.pdf?dl=1" target="_blank" rel="noopener">pdf</a>.</p>
-<p>在使用 segue 的 app 中每一个<code>UIViewController</code>都含有一组 segue identifier, 通过调用<code>func performSegue(withIdentifier identifier: String, sender: Any?)</code>来执行页面跳转. </p>
+<h4 id="案例"><a class="markdownIt-Anchor" href="#案例"></a> 案例</h4>
+<p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>
+该 video 已经被 apple 从公开列表中移除, 此处提供的是 web.archive 上的缓存.<br>
+也可以尝试直接获取 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_hd_swift_in_practice.mp4?dl=1" target="_blank" rel="noopener">video</a> 和 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_swift_in_practice.pdf?dl=1" target="_blank" rel="noopener">pdf</a>.</p>
+<p>在使用 segue 的 app 中每一个<code>UIViewController</code>都含有一组 segue identifier, 通过调用<code>func performSegue(withIdentifier identifier: String, sender: Any?)</code>来执行页面跳转.</p>
 <p>但是直接调用该方法有风险: 传入的<code>identifier</code>有可能有拼写错误. 因此容易想到, 定义一个使用<code>String</code>作为 raw value 的 enum, 并同时给<code>UIViewController</code>增加一个接受该 enum 的重载方法.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">SegueIdentifier</span>: <span class="title">String</span></span>&#123;</span><br><span class="line">  <span class="keyword">case</span> jumpToHome</span><br><span class="line">  <span class="keyword">case</span> jumpToMyFavorites</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">HomeViewController</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">performSegue</span><span class="params">(identifer: SegueIdentifier)</span></span> &#123;</span><br><span class="line">    <span class="keyword">self</span>.performSegue(withIdentifier: identifer.rawValue, sender: <span class="literal">nil</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用时</span></span><br><span class="line">performSegue(identifer: .jumpToHome)</span><br></pre></td></tr></table></figure>
-
 <p>但仅仅如此, 有多个副作用</p>
 <ul>
 <li>不同的 view controller 理所当然有不同的 segue, 因此应该给不同的 view controller 定义不同的<code>SegueIdentifier</code> enum, 使他们彼此独立</li>
@@ -110,83 +143,91 @@
 </ul>
 <p>可以看到这样虽然提供了一种 type safe 的调用方法, 但是显著增加了工作量. 为了解决这个问题, 可以抽象出一个 protocol, 表示包含<code>SegueIdentifier</code>的 view controller, 进而针对该 protocol 统一增加一个方法即可.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 这里使用的 swift 语法, 可以直接给 protocol 的遵循者增加约束</span><br><span class="line">&#x2F;&#x2F; 在最初的 WWDC session 中还不支持这么做</span><br><span class="line">protocol SegueNavigation where Self: UIViewController &#123;</span><br><span class="line">  associatedtype SegueIdentifier: RawRepresentable where SegueIdentifier.RawValue &#x3D;&#x3D; String</span><br><span class="line"></span><br><span class="line">  func performSegue(identifier: SegueIdentifier)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension SegueNavigation &#123;</span><br><span class="line">  func performSegue(identifier: SegueIdentifier) &#123;</span><br><span class="line">    performSegue(withIdentifier: identifier.rawValue, sender: nil)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>此时, 只要任意<code>UIViewController</code>, 通过提供自己 local 的<code>SegueIdentifier</code>, 就可以遵循<code>SegueNavigation</code>, 进而可以调用 type safe 的<code>func performSegue(identifier: SegueIdentifier)</code>方法.</p>
-<h2 id="Tricks"><a href="#Tricks" class="headerlink" title="Tricks"></a>Tricks</h2><p>由于 Swift 语言在不断变化之中, 很多将来加入的语法特性在当下版本没有直接对应的表达方式. 但凭借 Swift 已有的丰富的 generics 和 protocol 表达技巧, 可以实现一些等价的功能 (虽然可能并不优雅). </p>
-<h3 id="给-protocol-增加-recursive-constraints-before-Swift-4-1"><a href="#给-protocol-增加-recursive-constraints-before-Swift-4-1" class="headerlink" title="给 protocol 增加 recursive constraints (before Swift 4.1)"></a>给 protocol 增加 recursive constraints (before Swift 4.1)</h3><p>定义 Swift 的 protocol 时, 可以要求遵循者同时提供<code>associatedtype</code>, 该<code>associatedtype</code>可以附带一些额外约束, 例如<code>: SomeType</code>, <code>where ...</code>. 当前版本下, 这样的约束内允许递归引用到 protocol 本身<a href="https://github.com/apple/swift-evolution/blob/master/proposals/0157-recursive-protocol-constraints.md" target="_blank" rel="noopener">^Recursive Protocol Constraints</a>.</p>
+<h2 id="tricks"><a class="markdownIt-Anchor" href="#tricks"></a> Tricks</h2>
+<p>由于 Swift 语言在不断变化之中, 很多将来加入的语法特性在当下版本没有直接对应的表达方式. 但凭借 Swift 已有的丰富的 generics 和 protocol 表达技巧, 可以实现一些等价的功能 (虽然可能并不优雅).</p>
+<h3 id="给-protocol-增加-recursive-constraints-before-swift-41"><a class="markdownIt-Anchor" href="#给-protocol-增加-recursive-constraints-before-swift-41"></a> 给 protocol 增加 recursive constraints (before Swift 4.1)</h3>
+<p>定义 Swift 的 protocol 时, 可以要求遵循者同时提供<code>associatedtype</code>, 该<code>associatedtype</code>可以附带一些额外约束, 例如<code>: SomeType</code>, <code>where ...</code>. 当前版本下, 这样的约束内允许递归引用到 protocol 本身<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">  <span class="keyword">associatedtype</span> <span class="type">T</span>: <span class="type">A</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>在允许 associated type 递归引用前, 为了实现该功能, 使用了以下技巧.</p>
-<p>(1) 先定义一个和<code>A</code>有相同接口或大部分关键接口的”隐形 protocol”.</p>
+<p>(1) 先定义一个和<code>A</code>有相同接口或大部分关键接口的&quot;隐形 protocol&quot;.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">__PrivateA</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 这里包含了 A 本来的方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>(2) 然后使<code>A</code>本身继承这个 protocol, 并要求 associatedtype 也遵循这个 protocol.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">A</span>: <span class="title">__PrivateA</span> </span>&#123;</span><br><span class="line">  <span class="keyword">associatedtype</span> <span class="type">T</span>: __PrivateA</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>(3) 此时所有引用<code>A</code>和<code>A.T</code>的地方, 都可以调用到 <code>__PrivateA</code> 中的那些方法了</p>
 <p>这种避免显式出现 recursion 的方式, 虽然可以解决语法问题, 但带来的后果就是多了不得不暴露给用户的中间层. 在 Swift 4.1 之前的标准库中, <code>Collection</code> 就通过该技巧定义了<code>SubSequence</code>和<code>Indices</code>这2个 associated type. 诚然这也给当时的学习者带来了一些困难:</p>
 <ul>
 <li>太多 protocol, 不容易理清类库关联性.</li>
-<li>这种引入的中间层 protocol 语法上来讲是可见的, 但是标准库在导出 interface 时有一个 hack 步骤: 把所有”__”开头的声明 strip 掉了, 此时这个方法可以被调用, 但不会出现在 interface 和 documentation 里. 这反而导致这个 protocol 中的某些关键方法无法被使用者注意到. 例如<code>Collection</code>中有一个关键方法<code>func index(after i: Index) -&gt; Index</code>, 在当时正因为定义在实现此 trick 对应的<code>_IndexableBase</code>中, 导致无法在文档中查询.</li>
+<li>这种引入的中间层 protocol 语法上来讲是可见的, 但是标准库在导出 interface 时有一个 hack 步骤: 把所有&quot;__&quot;开头的声明 strip 掉了, 此时这个方法可以被调用, 但不会出现在 interface 和 documentation 里. 这反而导致这个 protocol 中的某些关键方法无法被使用者注意到. 例如<code>Collection</code>中有一个关键方法<code>func index(after i: Index) -&gt; Index</code>, 在当时正因为定义在实现此 trick 对应的<code>_IndexableBase</code>中, 导致无法在文档中查询.</li>
 </ul>
-<h3 id="泛型对象排除特例调用"><a href="#泛型对象排除特例调用" class="headerlink" title="泛型对象排除特例调用"></a>泛型对象排除特例调用</h3><h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>一般而言, 经常需要在泛型类型的模板参数满足某个条件时, 增加一些特例调用. 这时候我们可以通过带限制条件的 extension 给这个类型扩展方法.</p>
+<h3 id="泛型对象排除特例调用"><a class="markdownIt-Anchor" href="#泛型对象排除特例调用"></a> 泛型对象排除特例调用</h3>
+<h4 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h4>
+<p>一般而言, 经常需要在泛型类型的模板参数满足某个条件时, 增加一些特例调用. 这时候我们可以通过带限制条件的 extension 给这个类型扩展方法.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Container</span> <span class="title">where</span> <span class="title">T</span> == <span class="title">Int</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">special</span><span class="params">()</span></span> &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Int</span>&gt;().special()		<span class="comment">// OK</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Double</span>&gt;().special()	<span class="comment">// Compiler Error!</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">String</span>&gt;().special()	<span class="comment">// Compiler Error!</span></span><br></pre></td></tr></table></figure>
-
 <p>这边提出的是一个反向问题: 对于某个泛型类型, 要求模板参数在某个条件下, 不能调用某个方法. 这个乍看 Swift 不可能支持的需求, 在某种程度上可以实现.</p>
-<h4 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h4><p>这个需求貌似不符合逻辑, 但 Swift Standard Library 中就有曾经有个这样的例子. 在之前版本的 Swift 中, <code>CountableRange</code>用来表示左开右闭, 且取值离散的区间. 例如<code>0..&lt;10</code>就是一个<code>CountableRange</code>. 很自然地, <code>CountableRange</code>可以遵循<code>Collection</code>. 既然可以遵循<code>Collection</code>, 那么接下来就需要确定<code>CountableRange</code>的<code>Index</code>.</p>
+<h4 id="场景"><a class="markdownIt-Anchor" href="#场景"></a> 场景</h4>
+<p>这个需求貌似不符合逻辑, 但 Swift Standard Library 中就有曾经有个这样的例子. 在之前版本的 Swift 中, <code>CountableRange</code>用来表示左开右闭, 且取值离散的区间. 例如<code>0..&lt;10</code>就是一个<code>CountableRange</code>. 很自然地, <code>CountableRange</code>可以遵循<code>Collection</code>. 既然可以遵循<code>Collection</code>, 那么接下来就需要确定<code>CountableRange</code>的<code>Index</code>.</p>
 <p>在 Swift 中, 一个<code>Collection</code>的<code>Index</code>, 不一定为<code>Int</code>; 即使是<code>Int</code>, 也不一定从0开始. 并且, <code>Collection</code>和其<code>SubSequence</code>之间, 应该存在<code>Index</code>的复用关系. 例如:</p>
 <ul>
 <li><code>Array</code>的<code>SubSequence</code>: <code>ArraySlice</code>, 复用<code>Array</code>的 index, 即<code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;].dropFirst()</code>的<code>startIndex</code>是1, 而不是0.</li>
-<li><code>String</code>的<code>SubSequence</code>: <code>SubString</code>, 复用<code>String</code>的 index, 即<code>&quot;hello word&quot;.prefix(6)</code>的<code>endIndex</code>, 在原来 string 中可以索引出”w”.</li>
+<li><code>String</code>的<code>SubSequence</code>: <code>SubString</code>, 复用<code>String</code>的 index, 即<code>&quot;hello word&quot;.prefix(6)</code>的<code>endIndex</code>, 在原来 string 中可以索引出&quot;w&quot;.</li>
 </ul>
-<p><code>CountableRange</code>也应如此, 那么<code>(-10..&lt;10)[0]</code> 应该是多少呢, 如果把<code>CountableRange</code>的<code>firstIndex</code>一律定位0, 那么上述表达式会返回 range 中的第一个值”-10”. 但这是不符合<code>Collection</code>约定的, 因为<code>(-10..&lt;10).dropFirst()</code>的结果<code>-9..&lt;10</code>, <code>firstIndex</code>显然不应该是0, 因为<code>(-9..&lt;10)[0]</code>会返回9, 这就违反<code>Collection</code>和<code>SubSequence</code>中, 同一个 index 应该取得同样的 element 这个约定.</p>
+<p><code>CountableRange</code>也应如此, 那么<code>(-10..&lt;10)[0]</code> 应该是多少呢, 如果把<code>CountableRange</code>的<code>firstIndex</code>一律定位0, 那么上述表达式会返回 range 中的第一个值&quot;-10&quot;. 但这是不符合<code>Collection</code>约定的, 因为<code>(-10..&lt;10).dropFirst()</code>的结果<code>-9..&lt;10</code>, <code>firstIndex</code>显然不应该是0, 因为<code>(-9..&lt;10)[0]</code>会返回9, 这就违反<code>Collection</code>和<code>SubSequence</code>中, 同一个 index 应该取得同样的 element 这个约定.</p>
 <p>所以 Swift Standard Library 决定, 针对一个<code>CountableRange</code>: <code>a..&lt;b</code>, 使用<code>a</code>作为其 <code>firstIndex</code>, 从而<code>(a..&lt;b)[a] == a</code>. 这一个理性但也许出人意料的表现, 确实可能导致一部分人的困惑. 于是 Swift 标准库采取了这样的办法: 当<code>CountableRange</code>的泛型参数就是<code>Int</code>时, 禁止调用<code>subscript</code>, 当泛型参数不是<code>Int</code>时, 没这个问题, 因为本身下标就不会是0, 因此不会出现理解问题.</p>
-<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>这个 trick 在 Swift 标准库源码的实现中称为: “Statically Unavailable &amp; Dynamically Available”. 换言之, 这个方法动态是存在的, 但是你的静态代码无法调到. </p>
+<h4 id="实现"><a class="markdownIt-Anchor" href="#实现"></a> 实现</h4>
+<p>这个 trick 在 Swift 标准库源码的实现中称为: “Statically Unavailable &amp; Dynamically Available”. 换言之, 这个方法动态是存在的, 但是你的静态代码无法调到.</p>
 <p>考虑一般的情况</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>: <span class="title">Equatable</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(<span class="number">_</span> t: T)</span></span> &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 要求 T == Int 时, 无法调用 check</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Int</span>&gt;().check(<span class="number">1</span>)   	<span class="comment">// 期望 Compiler Error</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">String</span>&gt;().check(<span class="string">""</span>)   <span class="comment">// OK</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Double</span>&gt;().check(<span class="number">1</span>)  	<span class="comment">// OK</span></span><br></pre></td></tr></table></figure>
-
 <p>具体实现原理是: 在特定情况下, 针对不允许调用的方法定义一个特殊的重载, 使用户调用该方法时, 会出现二义性, 从而无法通过编译.</p>
 <p>(1) 首先给<code>Container</code>的泛型参数的条件中, 插入一个特殊的标记, 这个标记默认指向一个人畜无害的类型</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">__UnavailableFlag</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">SpecialEquatable</span>: <span class="title">Equatable</span> </span>&#123;</span><br><span class="line">  <span class="keyword">associatedtype</span> _Unavailable = __UnavailableFlag</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>(2) 接着针对想特殊处理的泛型类型, 改写这个标记, 使之引用自身</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Int</span>: <span class="title">SpecialEquatable</span> </span>&#123;</span><br><span class="line">  <span class="keyword">typealias</span> _Unavailable = <span class="type">Int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Double</span>: <span class="title">SpecialEquatable</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">String</span>: <span class="title">SpecialEquatable</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
-
 <p>(3) 给我们的泛型类型, 增加一个重载, 使仅针对我们要规避的参数类型, 产生二义性</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>: <span class="title">SpecialEquatable</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(<span class="number">_</span> t: T)</span></span> &#123;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(<span class="number">_</span> t: T._Unavailable)</span></span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>此时, 当我们调用<code>Container.check</code>时, 当且仅当<code>T == Int</code>时, 因为<code>Int._Unavailable == Int</code>, 因此同时命中2个<code>check</code>方法, 且毫无优先级区别, 导致编译失败; 而当<code>T</code>是其他类型时, 此时<code>T._Unavailable == __UnavailableFlag</code>, 而<code>__UnavailableFlag</code>是一个 non-inhabitant type, 又称 “caseless-enum”, 因此调用者不可能产生一个这样类型的实例, 因此永远不可能产生二义性.</p>
-<p>需要说明的是, 在上面的实现中我们把<code>Container&lt;T: Equatable&gt;</code>改写成了<code>Container&lt;T: SpecialEquatable&gt;</code>, 这会导致我们不得不把所有类型都重新遵循<code>SpecialEquatable</code>才能使之用于<code>Container</code>.<br>而在标准库设计<code>CountableRange</code>时, 是不需要的, 因为<code>CountableRange</code>本身就要求<code>T: Strideable</code>, 而<code>Strideable</code>的源码 Swift 开发人员是可控的, 因此他们只要偷偷给<code>Strideable</code>塞入一个有默认实现的 associated type, 就可以使所有原先就遵循<code>Strideable</code>的类型不改动任何代码就 work 了.</p>
+<p>需要说明的是, 在上面的实现中我们把<code>Container&lt;T: Equatable&gt;</code>改写成了<code>Container&lt;T: SpecialEquatable&gt;</code>, 这会导致我们不得不把所有类型都重新遵循<code>SpecialEquatable</code>才能使之用于<code>Container</code>.<br>
+而在标准库设计<code>CountableRange</code>时, 是不需要的, 因为<code>CountableRange</code>本身就要求<code>T: Strideable</code>, 而<code>Strideable</code>的源码 Swift 开发人员是可控的, 因此他们只要偷偷给<code>Strideable</code>塞入一个有默认实现的 associated type, 就可以使所有原先就遵循<code>Strideable</code>的类型不改动任何代码就 work 了.</p>
 <p>可以看到这个 trick 也有一些恼人之处:</p>
 <ul>
-<li>这个实现实际上巧妙地借用编译阶段的”二义性”错误避免了调用, 并非是真的规避调用, 我们这么实现后 error message 也并没有传达给用户我们不希望他们如此调用的出发点.</li>
+<li>这个实现实际上巧妙地借用编译阶段的&quot;二义性&quot;错误避免了调用, 并非是真的规避调用, 我们这么实现后 error message 也并没有传达给用户我们不希望他们如此调用的出发点.</li>
 <li>这个实现需要泛型类型本身对泛型参数有 protocol 约束, 并且我们想规避的方法也得至少有1个参数, 否则这个 trick 是无法进行的.</li>
 <li>这个实现会至少在 ABI 层面暴露给用户多余的 associated type 定义和一个用不到的类型, 即上面的<code>associatedtype _Unavailable</code>和<code>enum __UnavailableFlag {}</code>. 当然作为 Swift Standard Library, 在输出给我们用时, API interface 里是看不到的, 但也只有 Swift 开发者能有这个优势.</li>
 </ul>
-<p>也许是这样的 trick 太过惊艳, 在最新的 Swift 中, 借重构<code>Range</code>族的机会, Swift 标准库把这个 trick 从曾经的<code>CountableRange</code> (注: 现在<code>CountableRange</code>只是<code>Range</code>的一个带约束同义语) 中去掉了<a href="https://swiftdoc.org/v3.1/type/countablerange/" target="_blank" rel="noopener">^Removed CountableRange</a>. 当然, 这样的代价就是需要我们开发者确保自己清楚<code>Range</code>的<code>Index</code>是如何生效的.</p>
-<h3 id="泛型类型按条件遵循-protocol-before-Swift-4-1"><a href="#泛型类型按条件遵循-protocol-before-Swift-4-1" class="headerlink" title="泛型类型按条件遵循 protocol (before Swift 4.1)"></a>泛型类型按条件遵循 protocol (before Swift 4.1)</h3><p>当前的 Swift 含有一个强大功能: Conditional Conformance<a href="https://github.com/apple/swift-evolution/blob/master/proposals/0143-conditional-conformances.md" target="_blank" rel="noopener">^Conditional Conformance</a>. 允许我们针对泛型类型在其泛型参数满足特定条件时, 使泛型类型本身遵循 protocol. 当泛型参数有一系列变化时, 泛型类型本身遵循的 protocol 还可以产生层级. 这个功能从 Swift 4.1 部分加入 (只支持编译期决议), 并在 Swift 4.2 得到彻底实现 (支持动态判断).</p>
+<p>也许是这样的 trick 太过惊艳, 在最新的 Swift 中, 借重构<code>Range</code>族的机会, Swift 标准库把这个 trick 从曾经的<code>CountableRange</code> (注: 现在<code>CountableRange</code>只是<code>Range</code>的一个带约束同义语) 中去掉了<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. 当然, 这样的代价就是需要我们开发者确保自己清楚<code>Range</code>的<code>Index</code>是如何生效的.</p>
+<h3 id="泛型类型按条件遵循-protocol-before-swift-41"><a class="markdownIt-Anchor" href="#泛型类型按条件遵循-protocol-before-swift-41"></a> 泛型类型按条件遵循 protocol (before Swift 4.1)</h3>
+<p>当前的 Swift 含有一个强大功能: Conditional Conformance<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>. 允许我们针对泛型类型在其泛型参数满足特定条件时, 使泛型类型本身遵循 protocol. 当泛型参数有一系列变化时, 泛型类型本身遵循的 protocol 还可以产生层级. 这个功能从 Swift 4.1 部分加入 (只支持编译期决议), 并在 Swift 4.2 得到彻底实现 (支持动态判断).</p>
 <p>在 Swift 4.1 之前, 由于语言不支持此特性, 我们只能手动另辟蹊径. 例如, 期望实现下面等价的效果.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// protocol hierarchy</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">General</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Special</span>: <span class="title">General</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Container</span>: <span class="title">General</span> <span class="title">where</span> <span class="title">T</span>: <span class="title">General</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Container</span>: <span class="title">Special</span> <span class="title">where</span> <span class="title">T</span>: <span class="title">Special</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
-
 <p>当我们使用不同的模板参数实例化<code>Container</code>时, 形成的不同的类型本来彼此就是异构 (heterogeneous) 的, 无法再使用单个类型指示他们, 因此我们只需考虑静态情况下的问题. 并且, 某个<code>Container</code>实例是否遵循 protocol 在实例化瞬间就已经确定了, 因此可以尽早对不同的<code>Container</code>进行区分.</p>
 <p>(1) 首先针对不同的约束情况建立一组不同的实例类型</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">GeneralContainer</span>&lt;<span class="title">T</span>: <span class="title">General</span>&gt;: <span class="title">General</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SpecialContainer</span>&lt;<span class="title">T</span>: <span class="title">Special</span>&gt;: <span class="title">Special</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>(2) 然后编写一个”静态”的工厂方法即可, 这个方法其实针对不同的输入参数类型, 进行重载决议, 在编译时确定遵循到一层 protocol.</p>
+<p>(2) 然后编写一个&quot;静态&quot;的工厂方法即可, 这个方法其实针对不同的输入参数类型, 进行重载决议, 在编译时确定遵循到一层 protocol.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">Container</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">Container</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: General&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">GeneralContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">GeneralContainer</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: Special&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">SpecialContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">SpecialContainer</span>(item: item) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>这种方案的缺陷在于: 当同时存在多组彼此正交的 protocol 体系时, 我们要定义的泛型类型族会很庞大, 需要定义的类型个数是各个 protocol 体系深度的积.</p>
 <p>在 Swift 4.1 前, Swift Standard Library 对<code>Slice&lt;Base: Collection&gt;</code>就是这么处理的, 由于 <code>Collection</code>丰富的继承体系, 要定义的<code>Slice</code>变体也非常多. 实际上:</p>
 <ul>
 <li>在 index 构建方面, <code>Collection</code>派生出<code>BidirectionalCollection</code>和<code>RandomAccessCollection</code></li>
 <li>在 in-place mutation 方面, <code>Collection</code>派生出<code>MutableCollection</code></li>
-<li>在可变长方面, <code>Collection</code>派生出<code>RangeReplaceableCollection</code><br>因此只能建立总计$ (1 + 1) \cdot (1 + 1) \cdot (1 + 2) = 12 $个 concrete 的<code>Slice</code>变体.</li>
+<li>在可变长方面, <code>Collection</code>派生出<code>RangeReplaceableCollection</code><br>
+因此只能建立总计<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">(1 + 1) \cdot (1 + 1) \cdot (1 + 2) = 12</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">2</span></span></span></span>个 concrete 的<code>Slice</code>变体.</li>
 </ul>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0157-recursive-protocol-constraints.md" target="_blank" rel="noopener">https://github.com/apple/swift-evolution/blob/master/proposals/0157-recursive-protocol-constraints.md</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p><a href="https://swiftdoc.org/v3.1/type/countablerange/" target="_blank" rel="noopener">https://swiftdoc.org/v3.1/type/countablerange/</a> <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0143-conditional-conformances.md" target="_blank" rel="noopener">https://github.com/apple/swift-evolution/blob/master/proposals/0143-conditional-conformances.md</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/" data-id="ckcyy605u00004hf70lc3h0gl" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/" data-id="ckcz0jnyw0000cjf75tmz75o7" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -223,23 +264,24 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
+<h2 id="quick-start"><a class="markdownIt-Anchor" href="#quick-start"></a> Quick Start</h2>
+<h3 id="create-a-new-post"><a class="markdownIt-Anchor" href="#create-a-new-post"></a> Create a new post</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
+<h3 id="run-server"><a class="markdownIt-Anchor" href="#run-server"></a> Run server</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
+<h3 id="generate-static-files"><a class="markdownIt-Anchor" href="#generate-static-files"></a> Generate static files</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
+<h3 id="deploy-to-remote-sites"><a class="markdownIt-Anchor" href="#deploy-to-remote-sites"></a> Deploy to remote sites</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/07/14/hello-world/" data-id="ckcn7bwiw0001qof7esnteris" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/07/14/hello-world/" data-id="ckcz0jnz10001cjf79v5t7lj6" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/07/14/hello-world/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -343,6 +385,8 @@
 
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
 
 
   
@@ -359,6 +403,6 @@
 
 
 
-  </div>
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </body>
 </html>

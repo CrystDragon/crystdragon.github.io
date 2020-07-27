@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>Computer Security Notes | Lincoln de 小站</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="密码学概念 互联网中的 Certificate Authority 操作系统中的 chmod &amp; chown  Xcode 下 build 时自动化把文件拷贝到受限目录   Case: Mac OS Privilege Jobs    密码学概念  对称加密  需要 private 通道传递密钥.   非对称加密  实现 encryption (保证发送的东西没有别人知道): 传递方用接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Computer Security Notes">
+<meta property="og:url" content="https://crystdragon.github.io/2020/Notes/Computer-Security-Notes/index.html">
+<meta property="og:site_name" content="Lincoln de 小站">
+<meta property="og:description" content="密码学概念 互联网中的 Certificate Authority 操作系统中的 chmod &amp; chown  Xcode 下 build 时自动化把文件拷贝到受限目录   Case: Mac OS Privilege Jobs    密码学概念  对称加密  需要 private 通道传递密钥.   非对称加密  实现 encryption (保证发送的东西没有别人知道): 传递方用接">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-07-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-27T09:23:44.433Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta property="article:tag" content="Cryptography">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln de 小站" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln de 小站</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Computer-Security-Notes" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/Notes/Computer-Security-Notes/" class="article-date">
+  <time datetime="2020-07-26T16:00:00.000Z" itemprop="datePublished">2020-07-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Computer Security Notes
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E5%AF%86%E7%A0%81%E5%AD%A6%E6%A6%82%E5%BF%B5">密码学概念</a></li>
+<li><a href="#%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%AD%E7%9A%84-certificate-authority">互联网中的 Certificate Authority</a></li>
+<li><a href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84-chmod-chown">操作系统中的 chmod &amp; chown</a>
+<ul>
+<li><a href="#xcode-%E4%B8%8B-build-%E6%97%B6%E8%87%AA%E5%8A%A8%E5%8C%96%E6%8A%8A%E6%96%87%E4%BB%B6%E6%8B%B7%E8%B4%9D%E5%88%B0%E5%8F%97%E9%99%90%E7%9B%AE%E5%BD%95">Xcode 下 build 时自动化把文件拷贝到受限目录</a></li>
+</ul>
+</li>
+<li><a href="#case-mac-os-privilege-jobs">Case: Mac OS Privilege Jobs</a></li>
+</ul>
+</p>
+<h2 id="密码学概念"><a class="markdownIt-Anchor" href="#密码学概念"></a> 密码学概念</h2>
+<ul>
+<li>对称加密
+<ul>
+<li>需要 private 通道传递密钥.</li>
+</ul>
+</li>
+<li>非对称加密
+<ul>
+<li>实现 encryption (保证发送的东西没有别人知道): 传递方用接收方发布的公钥加密, 接收方用私钥解密.</li>
+<li>实现 authentication (保证发送的人不会是别人):  传递把 message 用自己的私钥加密, 作为 signature 和 message 一起发给接收方, 接收方收到后用传递方早前公开提供的公钥对 signature 进行解密, 验证能还原到 message.</li>
+</ul>
+</li>
+<li>混合加密: 用对称秘钥加密明文, 并用非对称秘钥加密对称秘钥.</li>
+</ul>
+<h2 id="互联网中的-certificate-authority"><a class="markdownIt-Anchor" href="#互联网中的-certificate-authority"></a> 互联网中的 Certificate Authority</h2>
+<p>如果传递方只发送 public key 和 signature, 有一个隐患, 就是中间者攻击. 如果发送方和接收方之前没有任何通信过, 中间者可以使用自己的 private/public key, 全程把拦截到的信息转发给接收方, 让接收方误以为自己是发送方. 关键问题是要有一个机制, 让中间者无法把 public/private key pair 替换掉.</p>
+<ul>
+<li>使用证书, 传递方把自己的证书一起发送. 证书实际上是 authentication 的应用: 证书包含一些用 private key 加密的数据. 接收方可以验证 public key 和证书是对应的.
+<ul>
+<li>中间者拦截到真正的证书后, 如果选择向发送方透传这个包含真的 public key 的证书, 他就无法达到他的非法目的. 因为一旦这样, 整个通信过程就会使用这个证书的 key pair, 中间人就无法作假.</li>
+<li>中间者如果选择发送自己设法伪造的证书, 就不可能不被察觉. 因为接收方有办法发觉这个证书的伪造之处.</li>
+</ul>
+</li>
+<li>要确定证书是正当的还是伪造的, 关键在于需要有权威机构签发 (issue) 证书.
+<ul>
+<li>世界上有可以数尽的根认证机构, 其各有自认证的根证书.</li>
+<li>这些公司按树型关系逐级会签发证书给别的机构, 子证书和父证书的所属关系是可以合法验证的, 造假者不可能自己单独建一个假的子证书关联到父证书.
+<ul>
+<li>验证某个子证书是由父证书签发, 同样也是 authentication 的应用: 验证者可以使用父证书公开的 public key 在本地确认是否可以正确 decrypt 子证书.</li>
+</ul>
+</li>
+<li>软件公司在自己的 Browser/Operating System 中加入最顶级的根证书</li>
+<li>当收到发送方传来的证书时, 按照链式关系验证证书是否最终会导向根证书, 如果 ok 则信任, 否则交由用户处理(称之为自认证证书).</li>
+</ul>
+</li>
+<li>互联网证书系统实际上是把&quot;public key公开&quot;这一步, 转移到以权威机构签发证书, 来解决问题.</li>
+</ul>
+<p>日常开发中的 Charles, 正是中间人攻击的一种<a href="https://www.charlesproxy.com/documentation/using-charles/ssl-certificates/" target="_blank" rel="noopener">正面应用</a>.</p>
+<ul>
+<li>Charles 自己有自己的 root 证书.</li>
+<li>在检测到对某个域名的访问时, Charles 会针对该域名基于 root 证书现场创建一个子证书, 并把该证书提供给发送方设备.
+<ul>
+<li>设备需要手动信任该证书.</li>
+<li>也可以提前把 Charles 的 root 证书添加到信任列表.</li>
+</ul>
+</li>
+<li>发送方设备使用 Charles 的证书对应的 public key 加密后, Charles 有能力 decrypt, 并用真正的服务端 public key 重新加密, 发送给服务端.</li>
+</ul>
+<h2 id="操作系统中的-chmod-chown"><a class="markdownIt-Anchor" href="#操作系统中的-chmod-chown"></a> 操作系统中的 chmod &amp; chown</h2>
+<p>unix下每个文件都有3类不同的访问者: user, group, other.<br>
+对每类访问者都支持三种不同操作: read, write, execute</p>
+<ul>
+<li>chmod: 用来改变文件针对不同访问者的访问权限</li>
+<li>chown: 用来改变文件所属的user</li>
+</ul>
+<h3 id="xcode-下-build-时自动化把文件拷贝到受限目录"><a class="markdownIt-Anchor" href="#xcode-下-build-时自动化把文件拷贝到受限目录"></a> Xcode 下 build 时自动化把文件拷贝到受限目录</h3>
+<ul>
+<li>增加 copy file phase. 无法解决&quot;permission denied&quot;问题.</li>
+<li>依赖 Deployment 设置中的 installation location. 不一定能满足需求, 因为它会在目标位置建立完整的目录, 也会面临permission问题.</li>
+<li>目前找到的唯一的办法: 使用 custom script phase, 里面用<code>sudo cp</code>来解决.
+<ul>
+<li>但是 Xcode 执行 script 的环境默认不支持 sudo, 也不可能交互式地输入密码, 所以需要用<code>sudo -A</code>指定一个 password 输出程序.</li>
+<li>这个文件可以直接用shell写, 内容是<code>echo password</code>即可, 但注意这个文件需要对 xcode 而言有 x 权限</li>
+</ul>
+</li>
+</ul>
+<h2 id="case-mac-os-privilege-jobs"><a class="markdownIt-Anchor" href="#case-mac-os-privilege-jobs"></a> Case: Mac OS Privilege Jobs</h2>
+<p>我们的 mac app 经常需要临时获得特权来访问一些受保护的系统资源. 当然需要由用户的确认, 但我们又不想把整个 app 权限提的太高. 因此可以使用2个进程, 一个 daemon , 一个 main app. Main app 把 daemon 作为 privilege helper tools 注册给系统, 系统(经过用户确认)安装到位后, 两者进行 IPC 传递数据.</p>
+<p>相关 frameworks:</p>
+<ul>
+<li>Security - Authorization Services: 权限相关的定义.</li>
+<li>ServiceManagement: 注册privilege tools.</li>
+<li>XPC: 用于轻量级的进程间通信.</li>
+</ul>
+<p>(注: 不建议再使用AuthorizationExecuteWithPrivileges, 此方法因为没有对待启动的tool作更严格的校验, 已被标记deprecated.)</p>
+<p>这些库用到了的 mac 系统技术有:</p>
+<ul>
+<li>launchd: 管理系统daemon和agent的启动.</li>
+<li>launchctl: 可以解析相关service的plist.</li>
+</ul>
+<p>参考:</p>
+<ul>
+<li><a href="http://www.stevestreeting.com/2011/11/25/escalating-privileges-on-mac-os-x-securely-and-without-using-deprecated-methods/" target="_blank" rel="noopener">Useful References</a></li>
+<li><a href="https://developer.apple.com/library/content/documentation/Security/Conceptual/authorization_concepts/03authtasks/authtasks.html#//apple_ref/doc/uid/TP30000995-CH206-TPXREF33" target="_blank" rel="noopener">Authorization Service Programming Guide</a></li>
+<li><a href="https://developer.apple.com/library/content/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingXPCServices.html#//apple_ref/doc/uid/10000172i-SW6-SW1" target="_blank" rel="noopener">Daemons and Services Programming Guide</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/Notes/Computer-Security-Notes/" data-id="ckd4b488y00003df7f3gv4is6" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/Notes/Computer-Security-Notes/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/uncategorized/Swift-Practices-Perls-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Swift Practices &amp; Perls (1)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Swift/" rel="tag">Swift</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/Swift/" style="font-size: 10px;">Swift</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/Notes/Computer-Security-Notes/">Computer Security Notes</a>
+          </li>
+        
+          <li>
+            <a href="/2020/uncategorized/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/uncategorized/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2020/Notes/Computer-Security-Notes/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

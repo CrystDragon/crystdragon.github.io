@@ -10,12 +10,12 @@
   <meta name="description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Swift Practices &amp; Perls (1)">
-<meta property="og:url" content="https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/index.html">
+<meta property="og:url" content="https://crystdragon.github.io/2020/uncategorized/Swift-Practices-Perls-1/index.html">
 <meta property="og:site_name" content="Lincoln de 小站">
 <meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-23T15:23:51.000Z">
-<meta property="article:modified_time" content="2020-07-23T15:52:20.547Z">
+<meta property="article:modified_time" content="2020-07-24T12:02:09.501Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Swift">
 <meta name="twitter:card" content="summary">
@@ -69,7 +69,7 @@
       <div class="outer">
         <section id="main"><article id="post-Swift-Practices-Perls-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/07/23/Swift-Practices-Perls-1/" class="article-date">
+    <a href="/2020/uncategorized/Swift-Practices-Perls-1/" class="article-date">
   <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
@@ -205,16 +205,16 @@
 <p>当我们使用不同的模板参数实例化<code>Container</code>时, 形成的不同的类型本来彼此就是异构 (heterogeneous) 的, 无法再使用单个类型指示他们, 因此我们只需考虑静态情况下的问题. 并且, 某个<code>Container</code>实例是否遵循 protocol 在实例化瞬间就已经确定了, 因此可以尽早对不同的<code>Container</code>进行区分.</p>
 <p>(1) 首先针对不同的约束情况建立一组不同的实例类型</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">GeneralContainer</span>&lt;<span class="title">T</span>: <span class="title">General</span>&gt;: <span class="title">General</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SpecialContainer</span>&lt;<span class="title">T</span>: <span class="title">Special</span>&gt;: <span class="title">Special</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>(2) 然后编写一个&quot;静态&quot;的工厂方法即可, 这个方法其实针对不同的输入参数类型, 进行重载决议, 在编译时确定遵循到一层 protocol.</p>
+<p>(2) 然后编写一个&quot;静态&quot;的工厂方法即可, 这个方法其实针对不同的输入参数类型, 进行重载决议, 在编译时确定遵循到哪一层 protocol.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">Container</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">Container</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: General&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">GeneralContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">GeneralContainer</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: Special&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">SpecialContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">SpecialContainer</span>(item: item) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这种方案的缺陷在于: 当同时存在多组彼此正交的 protocol 体系时, 我们要定义的泛型类型族会很庞大, 需要定义的类型个数是各个 protocol 体系深度的积.</p>
 <p>在 Swift 4.1 前, Swift Standard Library 对<code>Slice&lt;Base: Collection&gt;</code>就是这么处理的, 由于 <code>Collection</code>丰富的继承体系, 要定义的<code>Slice</code>变体也非常多. 实际上:</p>
 <ul>
 <li>在 index 构建方面, <code>Collection</code>派生出<code>BidirectionalCollection</code>和<code>RandomAccessCollection</code></li>
 <li>在 in-place mutation 方面, <code>Collection</code>派生出<code>MutableCollection</code></li>
-<li>在可变长方面, <code>Collection</code>派生出<code>RangeReplaceableCollection</code><br>
-因此只能建立总计<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">(1 + 1) \cdot (1 + 1) \cdot (1 + 2) = 12</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">2</span></span></span></span>个 concrete 的<code>Slice</code>变体.</li>
+<li>在可变长方面, <code>Collection</code>派生出<code>RangeReplaceableCollection</code></li>
 </ul>
+<p>因此只能建立总计<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">(1 + 1) \cdot (1 + 1) \cdot (1 + 2) = 12</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">2</span></span></span></span>个 concrete 的<code>Slice</code>变体.</p>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
@@ -230,9 +230,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/" data-id="ckcz0jnyw0000cjf75tmz75o7" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/uncategorized/Swift-Practices-Perls-1/" data-id="ckcz0jnyw0000cjf75tmz75o7" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/uncategorized/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Swift/" rel="tag">Swift</a></li></ul>
@@ -243,8 +243,17 @@
     
 <nav id="article-nav">
   
+    <a href="/2020/Notes/Computer-Security-Notes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Computer Security Notes
+        
+      </div>
+    </a>
   
-    <a href="/2020/07/14/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+  
+    <a href="/2020/uncategorized/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">Hello World</div>
     </a>
@@ -265,13 +274,20 @@
           <aside id="sidebar">
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li></ul>
+    </div>
+  </div>
+
 
   
     
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Swift/" rel="tag">Swift</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Swift/" rel="tag">Swift</a></li></ul>
     </div>
   </div>
 
@@ -281,7 +297,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Swift/" style="font-size: 10px;">Swift</a>
+      <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/Swift/" style="font-size: 10px;">Swift</a>
     </div>
   </div>
 
@@ -303,11 +319,15 @@
       <ul>
         
           <li>
-            <a href="/2020/07/23/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+            <a href="/2020/Notes/Computer-Security-Notes/">Computer Security Notes</a>
           </li>
         
           <li>
-            <a href="/2020/07/14/hello-world/">Hello World</a>
+            <a href="/2020/uncategorized/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/uncategorized/hello-world/">Hello World</a>
           </li>
         
       </ul>
@@ -339,7 +359,7 @@
 <script>
   var disqus_shortname = 'crystdragon';
   
-  var disqus_url = 'https://crystdragon.github.io/2020/07/23/Swift-Practices-Perls-1/';
+  var disqus_url = 'https://crystdragon.github.io/2020/uncategorized/Swift-Practices-Perls-1/';
   
   (function(){
     var dsq = document.createElement('script');

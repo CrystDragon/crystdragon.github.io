@@ -64,9 +64,9 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-Computer-Security-Notes" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-computer-security-notes" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/Notes/Computer-Security-Notes/" class="article-date">
+    <a href="/2020/Notes/computer-security-notes/" class="article-date">
   <time datetime="2020-07-26T16:00:00.000Z" itemprop="datePublished">2020-07-27</time>
 </a>
     
@@ -82,7 +82,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/Notes/Computer-Security-Notes/">Computer Security Notes</a>
+      <a class="article-title" href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
     </h1>
   
 
@@ -101,6 +101,9 @@
 <li><a href="#case-mac-os-privilege-jobs">Case: Mac OS Privilege Jobs</a></li>
 </ul>
 </p>
+<hr>
+<p>原文成于2019年</p>
+<hr>
 <h2 id="密码学概念"><a class="markdownIt-Anchor" href="#密码学概念"></a> 密码学概念</h2>
 <ul>
 <li>对称加密
@@ -192,9 +195,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Notes/Computer-Security-Notes/" data-id="ckd4beglv000091f77bzf5y7g" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Notes/computer-security-notes/" data-id="ckd4ek5un0000zff7fdd62jhj" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/Notes/Computer-Security-Notes/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/Notes/computer-security-notes/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li></ul>
@@ -206,9 +209,135 @@
 
 
   
-    <article id="post-Swift-Practices-Perls-1" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-deallocation-thread-safety" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/Swift/Swift-Practices-Perls-1/" class="article-date">
+    <a href="/2020/Apple-Platforms/deallocation-thread-safety/" class="article-date">
+  <time datetime="2020-07-26T16:00:00.000Z" itemprop="datePublished">2020-07-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Apple-Platforms/">Apple Platforms</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E8%83%8C%E6%99%AF">背景</a></li>
+<li><a href="#%E5%88%86%E6%9E%90">分析</a>
+<ul>
+<li><a href="#%E6%97%A0%E7%BA%BF%E7%A8%8B%E7%AB%9E%E4%BA%89">无线程竞争</a></li>
+<li><a href="#%E6%9C%89%E7%BA%BF%E7%A8%8B%E7%AB%9E%E4%BA%89">有线程竞争</a>
+<ul>
+<li><a href="#%E5%BC%BA%E5%BC%95%E7%94%A8">强引用</a></li>
+<li><a href="#%E5%BC%B1%E5%BC%95%E7%94%A8">弱引用</a></li>
+<li><a href="#unsafe%E5%BC%95%E7%94%A8">unsafe引用</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<hr>
+<p>原文成于2017年11月</p>
+<hr>
+<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+<p>最近在浏览 Swift Talk 的过程中, 思考了一个很有意思的问题.</p>
+<p>如果一个对象通过<code>NotificationCenter</code>注册了一个通知, 然后在这个对象的<code>deinit</code>方法中执行了<code>removeObserver</code>. 假如在对象调用<code>deinit</code>的过程中对应的事件发生了, 并产生了一个通知, 此时会有什么现象? 当事件发生/投递的线程和对象<code>deinit</code>的线程不是一个线程时, 会导致崩溃吗? <a href="https://talk.objc.io/episodes/S01E28-typed-notifications-part-2" target="_blank" rel="noopener">Swift Talk #28最后5分钟内容</a></p>
+<p>这个问题我觉得很有意思, 之前都没有意识到过.</p>
+<p>事实上虽然这个问题是在&quot;Swift Talk&quot;中抛出, 但是并不是Swift独有的, OC 下的<code>dealloc</code>方法同样有这个问题. 另外, 虽然问题是以 Notification 为例, 但显然问题并不限于通知, 任何别的含有通知/回调机制的场景都会面临同样的问题.</p>
+<h2 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h2>
+<p>首先需要明确的是, 从安全角度来讲, 是有必要反注册的. 即使新的 API 也许不要求我们开发者显示调用<code>removeObserver</code>, 其内部也一定在合适的时机执行了等价的反注册. 下面都是以调用了<code>removeObserver</code>这个为前提进行讨论.</p>
+<p>其次, 考虑一下, 如果这边有问题, 会是什么类型的问题? 我认为至少可能有以下2类问题</p>
+<ul>
+<li>线程不安全. 如果这个对象的类没有设计成线程安全, 那么本身在2个不同的线程调用<em>任何</em>成员方法都是不安全的, 因此<code>deinit</code>和回调方法两者自然会产生竞争.</li>
+<li>野指针. 注意到和普通的成员方法不同, <code>deinit</code>有特殊性. 一旦<code>deinit</code>开始调用, 意味着这个对象已经进入不稳定的状态, 此时这个对象的任何属性/ivar可能都开始瓦解. 一旦对这个对象的成员进行其他操作, 极有可能访问到无效的内存区域, 产生更严重的问题.</li>
+</ul>
+<p>这篇文章, 主要是分析上述2个问题中的<em>后者</em>是否可能出现. 下面把问题分成几类来考虑.</p>
+<h3 id="无线程竞争"><a class="markdownIt-Anchor" href="#无线程竞争"></a> 无线程竞争</h3>
+<p>也就是说<code>deinit</code>调用和 notification 的投递发生在一个线程的情况.</p>
+<p>可以直接给出结论: 没有问题. 这是因为如果两者是在一个线程发生, 那么一定有先来后到的顺序, <code>deinit</code>和投递 notification 不可能同时执行.</p>
+<ul>
+<li>如果<code>deinit</code>先执行, 那么<code>removeObserver</code>会先被调用, 此时一个良好<br>
+的<code>NotificationCenter</code>的实现就会断开对这个对象的任何引用, 也就保证了, 当后续事件产生时, 不可能再通知/回调这个对象.</li>
+<li>如果事件先产生并投递到这个对象, 再<code>deinit</code>. 只要这个对象对事件的消费/响应都是立即的(非 异步的), 自然没有任何问题.</li>
+</ul>
+<h3 id="有线程竞争"><a class="markdownIt-Anchor" href="#有线程竞争"></a> 有线程竞争</h3>
+<p>也就是说<code>deinit</code>调用和 notification 的投递不是运行在同一个线程.</p>
+<p>为了专注分析, 我们假设这个对象的类已经是设计成线程安全的, 也就是说在不同的线程同时调用这个类的不同方法本身没有任何问题. 即假设&quot;不会因为不在同一个线程调用,本身就导致线程不安全&quot;.</p>
+<p>和上面&quot;无线程竞争&quot;区别的一点是, 讨论<code>deinit</code>和事件投递谁先谁后已经没有意义了, 因为这2个调用既然发生在2个线程, 一定有可能在执行时间上重叠. 我们应该讨论的是<code>deinit</code>中<br>
+的<code>removeObserver</code>调用期和事件投递的先后顺序.<br>
+同样为了专注分析, 我们还要假设的是<code>NotificationCenter</code>的实现也是线程安全的, 即&quot;某个事件产生&quot;和&quot;这个事件的监听者调用<code>removeObserver</code>&quot;发生在不同的线程时, 事件的投递不会出现问题. 一个合理的<code>NotificationCenter</code>的实现在遇到这样的情况时, 应该根据内部原子操作发生的顺序决定监听者能收到这个事件或收不到这个事件.</p>
+<p>这时候, 我们就需要深入考虑<code>NotificationCenter</code>的实现了. 应该意识到一个显然的事实, 既然发生的事件可以通知到这个对象, 那么<code>NotificationCenter</code>一定有一个指针/引用指向这个对象, 因为如果连这个引用都不存在, 那么根本不可能和这个对象产生任何关联. 下文的分析就按这个引用的类型来进行划分.</p>
+<h4 id="强引用"><a class="markdownIt-Anchor" href="#强引用"></a> 强引用</h4>
+<p>如果<code>NotificationCenter</code>的实现, 是在<code>addObserver</code>之后, 保留了一个对观察者的强引用.</p>
+<p>那么, 肯定不会产生<em>野指针</em>的问题. 因为只要<code>NotificationCenter</code>的实现者没有犯2, 自作主张去掉了对事件监听者的引用, 那么在调用<code>removeObserver</code>之前, 这个对象的引用计数一定是大于0的.<br>
+然而, 假若<code>NotificationCenter</code>的实现真的使用了强引用来保存监听者, 那么我们再也不能在监听者的<code>deinit</code>中执行<code>removeObserver</code>, 但凡偏要这么做, 因为强引用的缘故, 这个<code>deinit</code>永远没有机会被调用, 内存就泄露了. 我们不得不考虑在别的合适时机主动调用<code>removeObserver</code>, 这样对于类库的使用者来言是一种负担.<br>
+事实上官方<code>NotificationCenter</code>也没有实现成使用强引用来保存监听者.</p>
+<h4 id="弱引用"><a class="markdownIt-Anchor" href="#弱引用"></a> 弱引用</h4>
+<p>如果<code>NotificationCenter</code>的实现, 是在<code>addObserver</code>之后, 保留了一个对这个对象的弱引用.</p>
+<p>弱应用和强引用不同, 那么可能发生问题中的现象吗? 如果<code>NotificationCenter</code>在事件产生后能通知到这个对象, 意味着在通知/回调的瞬间, 这个对象还是活着的. 那么当回调方法开始调用之后, 但处理完之前, 有可能所有对这个对象的强引用消失, 从而在另一个线程触发了<code>deinit</code>吗?</p>
+<p>按<code>removeObserver</code>调用和事件投递发生的先后分为两类.</p>
+<ul>
+<li>假如事件的投递先于<code>deinit</code>中<code>removeObserver</code>执行. 那么, 在事件产生的瞬间, 对象一定是活着的, 然后对象无论怎么处理这个事件, 只要<code>NotificationCenter</code>保证对象在回调结束前始终保证对监听者有一个 strong 引用, 那么在处理完成之前, 监听者<code>deinit</code>是不可能被调用的, 因此不会产生时序重叠. 而这是很容易保证的, 一方面无论是 Swift 还是 OC, 所有方法调用开始时的引用类型入参默认 +1 reference count, 因此<code>NotificationCenter</code>无论是直接向监听者发送方法, 还是把监听者作为参数传给回调方法, 在投递完成前都不会产生野指针问题.</li>
+<li>假如<code>deinit</code>中<code>removeObserver</code>的执行先于事件投递呢. …事实上, 这个 case 是不可能出现的, 但出现的原因和强引用的情况不同, 并不是&quot;<code>deinit</code>不可能被调用&quot;, 而是事件不可能完成投递. ARC 保证, 一旦一个对象的开始销毁, 所有对这个对象的弱引用都会在这个对象的<code>deinit</code>调用之前, 率先被设置成<code>nil</code>. 换句话说, 一旦监听者的<code>deinit</code>开始被触发, 即使<code>removeObserver</code>没有在第一 时间被调用, <code>NotificationCenter</code>也没有任何可能性知晓监听者的存在了, 从而没有任何办法触发通知到这个对象, 问题自然也不可能产生.</li>
+</ul>
+<p>事实上, 新版本的 iOS SDK (<a href="https://stackoverflow.com/questions/41119725/notificationcenter-addobserver/41120287%2341120287" target="_blank" rel="noopener">没记错的话是 &gt;= 9.0</a>) 中<code>NotificationCenter</code>就是使用了对监听者的 weak reference/类似技术来实现的. 这是皆大欢喜的局面了.</p>
+<h4 id="unsafe引用"><a class="markdownIt-Anchor" href="#unsafe引用"></a> unsafe引用</h4>
+<p>最后来考虑一下当今 ARC 环境下很少出现, 但不是不可能的情况: <code>NotificationCenter</code>的实现, 是在<code>addObserver</code>之后, 保留了一个对这个对象的 unsafe 引用.<br>
+注意: 即使我们在100%使用 ARC 的情况下编写 iOS 程序, 仍然有可能遇到这个情况, 这是因为即使我 们保证我们的代码里不出现任何 unsafe 引用, 我们链接到的官方 Cocoa 类库的内部仍然有可能因为历史原因使用了 unsafe 引用. 事实上, 在旧版本的 SDK 中, <code>NotificationCenter</code> 应该就是这样的.</p>
+<p><code>NotificationCenter</code>保存对监听者的 unsafe 引用, 和使用弱引用相比, 区别在于: 如果对象被释放, <code>NotificationCenter</code>仍然有一个野指针指向这个对象的尸骸, 因此确实可能在<code>deinit</code>开始调用但在<code>removeObserver</code>被调用前, 事件投递到监听者, 但在处理这个事件的过程中<code>this</code>指针所指向的内存区域已经部分/全部失效了.<br>
+事实上, 在多线程环境下对触发了对象的<code>deinit</code>是 Cocoa 早期开发一个经典的崩溃来源, 这类被称为&quot;The Dealloc Problem&quot;的问题当时非常难以100%避免. (<a href="https://www.objc.io/issues/2-concurrency/thread-safe-class-design/#the-deallocation-problem" target="_blank" rel="noopener">“The Dealloc Problem”</a><a href="https://developer.apple.com/library/archive/technotes/tn2109/_index.html#//apple_ref/doc/uid/DTS40010274-CH1-SUBSECTION11" target="_blank" rel="noopener">多数情况发生在UIKit</a>, 因为相当一部分UIKit组件不允许在非主线程被释放, 和此处问题背后的 principle 是相关的.)</p>
+<p>当然也不是没有解决办法, 例如可以:</p>
+<ul>
+<li>消除多线程的可能性, 以<code>NotificationCenter</code>为例, 它有<a href="https://developer.apple.com/documentation/foundation/notificationcenter/1411723-addobserver" target="_blank" rel="noopener">一个 API</a> 允许我们指定消息投递发生的 queue. 即使消息产生在另一个 queue, <code>NotificationCenter</code>也会在我们指定的 queue 回调我们的方法, 如果我们可以保证对这个对象的所有操作也在这同一个线程中进行, 那么自然我们就从根本上避开了多线程的问题.</li>
+<li>另一个消除多线程的方法, 是在<code>deinit</code>中进行一些阻塞操作. 例如假设事件产生在 main thread, 但是这个对象的最后一个强引用消失在 non-main thread. 此时有些人会选择在对象的<code>deinit</code>中使<br>
+用<code>DispatchQueue.sync()</code> / <code>NSObject.perform(_:on:with:waitUntilDone:)</code> sync 到 main thread 结束来规避问题. 诚然这种方式也可以解决问题, 但也带来了 deadlock 的风险.</li>
+<li>最后一个方式是手动尽早消除<code>NotificationCenter</code>对监听者的引用, 例如尽早(在保证监听者一定存活的时候)调用<code>removeObserver</code>来断开两者的引用. 这种方式有时候只是尽可能减小问题发生的概率空间, 而没有完全消除问题, 因为并不是所有情况下你都可以保证你说的多早是不是够早.</li>
+</ul>
+<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
+<p>说了这么多, 并不是让我们人人自危, 让我们怀疑自己写的最普遍最平实的代码. 但确实值得我们作 一些思考, 而这些思考也许可以帮助加深对 reference counting, thread safety 的理解.</p>
+<p><strong>TL,DR:</strong></p>
+<ul>
+<li>在使用需要主动反注册的回调机制时, 有必要思考一下调用反注册方法的时机. 如果在<code>deinit</code>中进行反注册, 并不是完全无风险的, 在涉及到多线程的情况下, 应该思考一下安全问题.</li>
+<li>在极大多数情况下, 如果涉及到多线程的回调, 我们只要保证监听方和被监听方各自的类是线程安全即可. 在不产生循环引用的前提下, 是在<code>deinit</code>中反注册还是在别的地方反注册并不是一个 big deal.</li>
+<li>在非 ARC 下, 需要作特殊注意, 在<code>deinit</code>中反注册有可能产生&quot;The Dealloc Problem&quot;. 此时需要一些额外的手段来尽可能规避问题. 感谢上帝, <a href="https://stackoverflow.com/questions/13910613/nsnotificationcenter-removeobserver-in-dealloc-and-thread-safety" target="_blank" rel="noopener">这类问题</a>现在已经非常罕见了.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/Apple-Platforms/deallocation-thread-safety/" data-id="ckd4ek5us0001zff7hrx590jf" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/Apple-Platforms/deallocation-thread-safety/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-swift-practices-perls-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/Swift/swift-practices-perls-1/" class="article-date">
   <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
@@ -224,7 +353,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/Swift/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+      <a class="article-title" href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
     </h1>
   
 
@@ -259,6 +388,9 @@
 </li>
 </ul>
 </p>
+<hr>
+<p>原文成于2018年</p>
+<hr>
 <p>本文积累学习 Swift 过程中获取到的好技巧, 以及 Swift Standard Library 使用的优秀范式 (tricks).</p>
 <h2 id="普通-practices"><a class="markdownIt-Anchor" href="#普通-practices"></a> 普通 Practices</h2>
 <h3 id="availability-checks"><a class="markdownIt-Anchor" href="#availability-checks"></a> Availability checks</h3>
@@ -373,9 +505,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/" data-id="ckd4begm0000191f7c6bo99gm" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/" data-id="ckd4ek5ux0005zff78rw7eub5" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -425,7 +557,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/uncategorized/hello-world/" data-id="ckd4begm3000491f759o48x82" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/uncategorized/hello-world/" data-id="ckd4ek5uv0004zff7d3xa9qgo" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/uncategorized/hello-world/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -447,7 +579,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apple-Platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
     </div>
   </div>
 
@@ -457,7 +589,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li></ul>
     </div>
   </div>
 
@@ -467,7 +599,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a>
+      <a href="/tags/ARC/" style="font-size: 10px;">ARC</a> <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/NotificationCenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/Thread-Safety/" style="font-size: 10px;">Thread Safety</a>
     </div>
   </div>
 
@@ -489,11 +621,15 @@
       <ul>
         
           <li>
-            <a href="/2020/Notes/Computer-Security-Notes/">Computer Security Notes</a>
+            <a href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
           </li>
         
           <li>
-            <a href="/2020/Swift/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+            <a href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
           </li>
         
           <li>

@@ -10,12 +10,12 @@
   <meta name="description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Swift Practices &amp; Perls (1)">
-<meta property="og:url" content="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/index.html">
+<meta property="og:url" content="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/index.html">
 <meta property="og:site_name" content="Lincoln de 小站">
 <meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-23T15:23:51.000Z">
-<meta property="article:modified_time" content="2020-07-27T09:30:32.468Z">
+<meta property="article:modified_time" content="2020-07-27T09:39:45.795Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
@@ -66,9 +66,9 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-Swift-Practices-Perls-1" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-swift-practices-perls-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/Swift/Swift-Practices-Perls-1/" class="article-date">
+    <a href="/2020/Swift/swift-practices-perls-1/" class="article-date">
   <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
@@ -119,6 +119,9 @@
 </li>
 </ul>
 </p>
+<hr>
+<p>原文成于2018年</p>
+<hr>
 <p>本文积累学习 Swift 过程中获取到的好技巧, 以及 Swift Standard Library 使用的优秀范式 (tricks).</p>
 <h2 id="普通-practices"><a class="markdownIt-Anchor" href="#普通-practices"></a> 普通 Practices</h2>
 <h3 id="availability-checks"><a class="markdownIt-Anchor" href="#availability-checks"></a> Availability checks</h3>
@@ -233,9 +236,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/" data-id="ckd4begm0000191f7c6bo99gm" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/" data-id="ckd4ek5ux0005zff78rw7eub5" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -244,11 +247,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2020/Notes/Computer-Security-Notes/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/Apple-Platforms/deallocation-thread-safety/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Computer Security Notes
+          Deallocation 中的线程安全
         
       </div>
     </a>
@@ -278,7 +281,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apple-Platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
     </div>
   </div>
 
@@ -288,7 +291,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li></ul>
     </div>
   </div>
 
@@ -298,7 +301,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a>
+      <a href="/tags/ARC/" style="font-size: 10px;">ARC</a> <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/NotificationCenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/Thread-Safety/" style="font-size: 10px;">Thread Safety</a>
     </div>
   </div>
 
@@ -320,11 +323,15 @@
       <ul>
         
           <li>
-            <a href="/2020/Notes/Computer-Security-Notes/">Computer Security Notes</a>
+            <a href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
           </li>
         
           <li>
-            <a href="/2020/Swift/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+            <a href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
           </li>
         
           <li>
@@ -360,7 +367,7 @@
 <script>
   var disqus_shortname = 'crystdragon';
   
-  var disqus_url = 'https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/';
+  var disqus_url = 'https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/';
   
   (function(){
     var dsq = document.createElement('script');

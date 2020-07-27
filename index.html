@@ -208,10 +208,14 @@
   
     <article id="post-Swift-Practices-Perls-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/uncategorized/Swift-Practices-Perls-1/" class="article-date">
+    <a href="/2020/Swift/Swift-Practices-Perls-1/" class="article-date">
   <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Swift/">Swift</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -220,7 +224,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/uncategorized/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+      <a class="article-title" href="/2020/Swift/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
     </h1>
   
 
@@ -346,7 +350,7 @@
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">GeneralContainer</span>&lt;<span class="title">T</span>: <span class="title">General</span>&gt;: <span class="title">General</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SpecialContainer</span>&lt;<span class="title">T</span>: <span class="title">Special</span>&gt;: <span class="title">Special</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br></pre></td></tr></table></figure>
 <p>(2) 然后编写一个&quot;静态&quot;的工厂方法即可, 这个方法其实针对不同的输入参数类型, 进行重载决议, 在编译时确定遵循到哪一层 protocol.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">Container</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">Container</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: General&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">GeneralContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">GeneralContainer</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: Special&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">SpecialContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">SpecialContainer</span>(item: item) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这种方案的缺陷在于: 当同时存在多组彼此正交的 protocol 体系时, 我们要定义的泛型类型族会很庞大, 需要定义的类型个数是各个 protocol 体系深度的积.</p>
+<p>这种方案的缺陷在于: 当同时存在多组彼此正交的 protocol 体系时, 我们要定义的泛型类型族会很庞大, 需要定义的类型个数是各个 protocol 体系笛卡尔积的尺寸.</p>
 <p>在 Swift 4.1 前, Swift Standard Library 对<code>Slice&lt;Base: Collection&gt;</code>就是这么处理的, 由于 <code>Collection</code>丰富的继承体系, 要定义的<code>Slice</code>变体也非常多. 实际上:</p>
 <ul>
 <li>在 index 构建方面, <code>Collection</code>派生出<code>BidirectionalCollection</code>和<code>RandomAccessCollection</code></li>
@@ -369,13 +373,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/uncategorized/Swift-Practices-Perls-1/" data-id="ckcz0jnyw0000cjf75tmz75o7" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/" data-id="ckcz0jnyw0000cjf75tmz75o7" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/uncategorized/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/Swift/Swift-Practices-Perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Swift/" rel="tag">Swift</a></li></ul>
-
     </footer>
   </div>
   
@@ -445,7 +447,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
     </div>
   </div>
 
@@ -455,7 +457,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Swift/" rel="tag">Swift</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li></ul>
     </div>
   </div>
 
@@ -465,7 +467,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/Swift/" style="font-size: 10px;">Swift</a>
+      <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a>
     </div>
   </div>
 
@@ -491,7 +493,7 @@
           </li>
         
           <li>
-            <a href="/2020/uncategorized/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
+            <a href="/2020/Swift/Swift-Practices-Perls-1/">Swift Practices &amp; Perls (1)</a>
           </li>
         
           <li>

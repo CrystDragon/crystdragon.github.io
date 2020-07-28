@@ -15,7 +15,7 @@
 <meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-23T15:23:51.000Z">
-<meta property="article:modified_time" content="2020-07-28T06:09:55.559Z">
+<meta property="article:modified_time" content="2020-07-28T07:43:22.912Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
@@ -146,6 +146,7 @@
 <p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>
 该 video 已经被 apple 从公开列表中移除, 此处提供的是 web.archive 上的缓存.<br>
 也可以尝试直接获取 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_hd_swift_in_practice.mp4?dl=1" target="_blank" rel="noopener">video</a> 和 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_swift_in_practice.pdf?dl=1" target="_blank" rel="noopener">pdf</a>.</p>
+<a id="more"></a>
 <p>在使用 segue 的 app 中每一个<code>UIViewController</code>都含有一组 segue identifier, 通过调用<code>func performSegue(withIdentifier identifier: String, sender: Any?)</code>来执行页面跳转.</p>
 <p>但是直接调用该方法有风险: 传入的<code>identifier</code>有可能有拼写错误. 因此容易想到, 定义一个使用<code>String</code>作为 raw value 的 enum, 并同时给<code>UIViewController</code>增加一个接受该 enum 的重载方法.</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">SegueIdentifier</span>: <span class="title">String</span></span>&#123;</span><br><span class="line">  <span class="keyword">case</span> jumpToHome</span><br><span class="line">  <span class="keyword">case</span> jumpToMyFavorites</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">HomeViewController</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">performSegue</span><span class="params">(identifer: SegueIdentifier)</span></span> &#123;</span><br><span class="line">    <span class="keyword">self</span>.performSegue(withIdentifier: identifer.rawValue, sender: <span class="literal">nil</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用时</span></span><br><span class="line">performSegue(identifer: .jumpToHome)</span><br></pre></td></tr></table></figure>
@@ -243,7 +244,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/" data-id="ckd4lx5et000fb1f75jp53pyb" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/" data-id="ckd5oay7g0003yef798qo0v5a" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -254,11 +255,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2020/Apple-Platforms/deallocation-thread-safety/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/Notes/computer-security-notes/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Deallocation 中的线程安全
+          Computer Security Notes
         
       </div>
     </a>
@@ -330,11 +331,11 @@
       <ul>
         
           <li>
-            <a href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
+            <a href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
           </li>
         
           <li>
-            <a href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+            <a href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
           </li>
         
           <li>

@@ -15,7 +15,7 @@
 <meta property="og:description" content="背景 分析  无线程竞争 有线程竞争  强引用 弱引用 unsafe引用     总结    原文成于2017年11月   背景 最近在浏览 Swift Talk 的过程中, 思考了一个很有意思的问题. 如果一个对象通过NotificationCenter注册了一个通知, 然后在这个对象的deinit方法中执行了removeObserver. 假如在对象调用deinit的过程中对应的事件发生了,">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-07-28T06:10:19.228Z">
+<meta property="article:modified_time" content="2020-07-28T07:42:54.897Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Thread Safety">
 <meta property="article:tag" content="ARC">
@@ -124,6 +124,7 @@
 <p>如果一个对象通过<code>NotificationCenter</code>注册了一个通知, 然后在这个对象的<code>deinit</code>方法中执行了<code>removeObserver</code>. 假如在对象调用<code>deinit</code>的过程中对应的事件发生了, 并产生了一个通知, 此时会有什么现象? 当事件发生/投递的线程和对象<code>deinit</code>的线程不是一个线程时, 会导致崩溃吗? <a href="https://talk.objc.io/episodes/S01E28-typed-notifications-part-2" target="_blank" rel="noopener">Swift Talk #28最后5分钟内容</a></p>
 <p>这个问题我觉得很有意思, 之前都没有意识到过.</p>
 <p>事实上虽然这个问题是在&quot;Swift Talk&quot;中抛出, 但是并不是Swift独有的, OC 下的<code>dealloc</code>方法同样有这个问题. 另外, 虽然问题是以 Notification 为例, 但显然问题并不限于通知, 任何别的含有通知/回调机制的场景都会面临同样的问题.</p>
+<a id="more"></a>
 <h2 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h2>
 <p>首先需要明确的是, 从安全角度来讲, 是有必要反注册的. 即使新的 API 也许不要求我们开发者显式调用<code>removeObserver</code>, 其内部也一定在合适的时机执行了等价的反注册. 下面都是以调用了<code>removeObserver</code>这个为前提进行讨论.</p>
 <p>其次, 考虑一下, 如果这边有问题, 会是什么类型的问题? 我认为至少可能有以下2类问题</p>
@@ -185,7 +186,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Apple-Platforms/deallocation-thread-safety/" data-id="ckd4lx5eb0002b1f7ga1t2tj7" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Apple-Platforms/deallocation-thread-safety/" data-id="ckd5oay770000yef7986wfhps" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/Apple-Platforms/deallocation-thread-safety/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -198,19 +199,10 @@
     
 <nav id="article-nav">
   
-    <a href="/2020/Notes/computer-security-notes/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Computer Security Notes
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/Swift/swift-practices-perls-1/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2020/Notes/computer-security-notes/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Swift Practices &amp; Perls (1)</div>
+      <div class="article-nav-title">Computer Security Notes</div>
     </a>
   
 </nav>
@@ -274,11 +266,11 @@
       <ul>
         
           <li>
-            <a href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
+            <a href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
           </li>
         
           <li>
-            <a href="/2020/Apple-Platforms/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+            <a href="/2020/Notes/computer-security-notes/">Computer Security Notes</a>
           </li>
         
           <li>

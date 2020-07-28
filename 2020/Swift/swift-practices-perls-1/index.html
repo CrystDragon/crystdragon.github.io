@@ -15,7 +15,7 @@
 <meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-23T15:23:51.000Z">
-<meta property="article:modified_time" content="2020-07-27T09:39:45.795Z">
+<meta property="article:modified_time" content="2020-07-28T06:09:55.559Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
@@ -208,6 +208,9 @@
 <li>这个实现会至少在 ABI 层面暴露给用户多余的 associated type 定义和一个用不到的类型, 即上面的<code>associatedtype _Unavailable</code>和<code>enum __UnavailableFlag {}</code>. 当然作为 Swift Standard Library, 在输出给我们用时, API interface 里是看不到的, 但也只有 Swift 开发者能有这个优势.</li>
 </ul>
 <p>也许是这样的 trick 太过惊艳, 在最新的 Swift 中, 借重构<code>Range</code>族的机会, Swift 标准库把这个 trick 从曾经的<code>CountableRange</code> (注: 现在<code>CountableRange</code>只是<code>Range</code>的一个带约束同义语) 中去掉了<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. 当然, 这样的代价就是需要我们开发者确保自己清楚<code>Range</code>的<code>Index</code>是如何生效的.</p>
+<hr>
+<p>这个 trick 是很有启发性的. 基于 Swift 较为成熟的类型系统, 我们可以通过泛型参数、protocol 的 associated type 等特性, 给自定义类型增加编译时可以确定的类型标记. 起到这种标记作用的类型, 仅仅辅助实现静态决议, 而在代码运行过程中并不会出现这种类型的实例对象. 因此, 这种起到标记作用的类型被称为&quot;Phantom Type&quot;. Phantom Type 是常见的代码技巧, 尤其在泛型编程中, 会在各种 practices 中经常见到.</p>
+<hr>
 <h3 id="泛型类型按条件遵循-protocol-before-swift-41"><a class="markdownIt-Anchor" href="#泛型类型按条件遵循-protocol-before-swift-41"></a> 泛型类型按条件遵循 protocol (before Swift 4.1)</h3>
 <p>当前的 Swift 含有一个强大功能: Conditional Conformance<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>. 允许我们针对泛型类型在其泛型参数满足特定条件时, 使泛型类型本身遵循 protocol. 当泛型参数有一系列变化时, 泛型类型本身遵循的 protocol 还可以产生层级. 这个功能从 Swift 4.1 部分加入 (只支持编译期决议), 并在 Swift 4.2 得到彻底实现 (支持动态判断).</p>
 <p>在 Swift 4.1 之前, 由于语言不支持此特性, 我们只能手动另辟蹊径. 例如, 期望实现下面等价的效果.</p>

@@ -15,7 +15,7 @@
 <meta property="og:description" content="背景 分析  无线程竞争 有线程竞争  强引用 弱引用 unsafe引用     总结    原文成于2017年11月   背景 最近在浏览 Swift Talk 的过程中, 思考了一个很有意思的问题. 如果一个对象通过NotificationCenter注册了一个通知, 然后在这个对象的deinit方法中执行了removeObserver. 假如在对象调用deinit的过程中对应的事件发生了,">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-07-27T11:00:53.296Z">
+<meta property="article:modified_time" content="2020-07-28T06:10:19.228Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Thread Safety">
 <meta property="article:tag" content="ARC">
@@ -125,7 +125,7 @@
 <p>这个问题我觉得很有意思, 之前都没有意识到过.</p>
 <p>事实上虽然这个问题是在&quot;Swift Talk&quot;中抛出, 但是并不是Swift独有的, OC 下的<code>dealloc</code>方法同样有这个问题. 另外, 虽然问题是以 Notification 为例, 但显然问题并不限于通知, 任何别的含有通知/回调机制的场景都会面临同样的问题.</p>
 <h2 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h2>
-<p>首先需要明确的是, 从安全角度来讲, 是有必要反注册的. 即使新的 API 也许不要求我们开发者显示调用<code>removeObserver</code>, 其内部也一定在合适的时机执行了等价的反注册. 下面都是以调用了<code>removeObserver</code>这个为前提进行讨论.</p>
+<p>首先需要明确的是, 从安全角度来讲, 是有必要反注册的. 即使新的 API 也许不要求我们开发者显式调用<code>removeObserver</code>, 其内部也一定在合适的时机执行了等价的反注册. 下面都是以调用了<code>removeObserver</code>这个为前提进行讨论.</p>
 <p>其次, 考虑一下, 如果这边有问题, 会是什么类型的问题? 我认为至少可能有以下2类问题</p>
 <ul>
 <li>线程不安全. 如果这个对象的类没有设计成线程安全, 那么本身在2个不同的线程调用<em>任何</em>成员方法都是不安全的, 因此<code>deinit</code>和回调方法两者自然会产生竞争.</li>

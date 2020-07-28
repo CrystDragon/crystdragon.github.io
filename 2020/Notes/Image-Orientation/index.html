@@ -16,7 +16,7 @@
 <meta property="og:locale" content="zh">
 <meta property="og:image" content="https://crystdragon.github.io/2020/Notes/Image-Orientation/exif_orientation.png">
 <meta property="article:published_time" content="2020-07-27T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-07-28T11:29:38.173Z">
+<meta property="article:modified_time" content="2020-07-28T11:32:55.872Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Image">
 <meta property="article:tag" content="UIKit">
@@ -222,7 +222,7 @@
 <li>raw data中, 0th row, 0th column, 对应合理的真实场景中的哪条边.</li>
 <li>把 raw data 通过 transform 还原后,  0th row, 0th column 被变换到哪个位置.</li>
 </ul>
-<p>例如: 当 orientation 是5时, 可以发现, raw data 中第0行的 data, 对应 &amp;F&amp; 左边的一竖, 即应该变换到 left; raw data 中第0列的 data, 对应 &amp;F&amp; 顶上的一行, 即应该变换到 top.</p>
+<p>例如: 当 orientation 是5时, 可以发现, raw data 中第0行的 data, 对应 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span></span></span> 左边的一竖, 即应该变换到 left; raw data 中第0列的 data, 对应 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span></span></span> 顶上的一行, 即应该变换到 top.</p>
 <h4 id="apple-api"><a class="markdownIt-Anchor" href="#apple-api"></a> Apple API</h4>
 <ul>
 <li>在 Apple 平台上, 使用 ImageIO 这个 framework, 通过<code>URL</code>/file data 直接读取, 可以在<code>kCGImagePropertyOrientation</code>这个 property key 的位置直接读取到 tag.</li>

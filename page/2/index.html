@@ -68,14 +68,14 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-swift-practices-perls-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/Announcements/hello-world/" class="article-date">
-  <time datetime="2020-06-30T16:00:00.000Z" itemprop="datePublished">2020-07-01</time>
+    <a href="/2020/Swift/swift-practices-perls-1/" class="article-date">
+  <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Announcements/">Announcements</a>
+    <a class="article-category-link" href="/categories/Swift/">Swift</a>
   </div>
 
   </div>
@@ -86,7 +86,103 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/Announcements/hello-world/">Hello World</a>
+      <a class="article-title" href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E6%99%AE%E9%80%9A-practices">普通 Practices</a>
+<ul>
+<li><a href="#availability-checks">Availability checks</a></li>
+<li><a href="#%E6%B4%BB%E7%94%A8-string-backed-enum">活用 “String-backed” enum</a>
+<ul>
+<li><a href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86">背景知识</a></li>
+<li><a href="#%E6%A1%88%E4%BE%8B">案例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#tricks">Tricks</a>
+<ul>
+<li><a href="#%E7%BB%99-protocol-%E5%A2%9E%E5%8A%A0-recursive-constraints-before-swift-41">给 protocol 增加 recursive constraints (before Swift 4.1)</a></li>
+<li><a href="#%E6%B3%9B%E5%9E%8B%E5%AF%B9%E8%B1%A1%E6%8E%92%E9%99%A4%E7%89%B9%E4%BE%8B%E8%B0%83%E7%94%A8">泛型对象排除特例调用</a>
+<ul>
+<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF">场景</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB%E5%9E%8B%E6%8C%89%E6%9D%A1%E4%BB%B6%E9%81%B5%E5%BE%AA-protocol-before-swift-41">泛型类型按条件遵循 protocol (before Swift 4.1)</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<hr>
+<p>原文成于2018年</p>
+<hr>
+<p>本文积累学习 Swift 过程中获取到的好技巧, 以及 Swift Standard Library 使用的优秀范式 (tricks).</p>
+<h2 id="普通-practices"><a class="markdownIt-Anchor" href="#普通-practices"></a> 普通 Practices</h2>
+<h3 id="availability-checks"><a class="markdownIt-Anchor" href="#availability-checks"></a> Availability checks</h3>
+<p>使用 availability checks 将超出指定的&quot;Base SDK&quot;版本的代码块隔离起来. 在运行时, 系统会根据运行环境动态 check 该代码是否执行.</p>
+<ul>
+<li><code>@available(iOS 9.0, *)</code>, method, type 定义时.</li>
+<li><code>if #available(iOS 9.0, *)</code>, 使用 method, type 时.</li>
+<li>支持 guard 作为 early exit.</li>
+</ul>
+<p>可以替代相对应的早期的以下调用:<br>
+<code>UIDevice.current.systemVersion.compare(&quot;9.0&quot;, options: .numeric) == .orderedAscending</code></p>
+<h3 id="活用-string-backed-enum"><a class="markdownIt-Anchor" href="#活用-string-backed-enum"></a> 活用 “String-backed” enum</h3>
+<h4 id="背景知识"><a class="markdownIt-Anchor" href="#背景知识"></a> 背景知识</h4>
+<p>在众多基于 raw value 的 enum 中, raw value 是<code>String</code>的最为特殊, 因为这样的 enum 在定义各个 case 时, 可以省去显式写出用来初始化该 enum 的 raw value. 这种情况下, 编译器默认追加代码, 使用各个 case identifier 的同名字符串作为 raw value.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 各行 case 可以省略 // 之后的部分</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ImageIdentifier</span>: <span class="title">String</span> </span>&#123;</span><br><span class="line">  <span class="keyword">case</span> centerButton <span class="comment">// = "centerButton"</span></span><br><span class="line">  <span class="keyword">case</span> myFavorites <span class="comment">// = "myFavorites"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另一方面, 这样的 enum 默认遵循<code>RawRepresentable</code>, 且关联类型<code>RawValue == String</code>. 这方便我们对于一系列有相同特征的 enum 依靠 protocol 提供统一操作.</p>
+<h4 id="案例"><a class="markdownIt-Anchor" href="#案例"></a> 案例</h4>
+<p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>
+该 video 已经被 apple 从公开列表中移除, 此处提供的是 web.archive 上的缓存.<br>
+也可以尝试直接获取 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_hd_swift_in_practice.mp4?dl=1" target="_blank" rel="noopener">video</a> 和 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_swift_in_practice.pdf?dl=1" target="_blank" rel="noopener">pdf</a>.</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/Swift/swift-practices-perls-1/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/" data-id="ckd5rp9ml000y31f77vuwe67w" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/Diary/hello-world/" class="article-date">
+  <time datetime="2020-06-30T16:00:00.000Z" itemprop="datePublished">2020-07-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Diary/">Diary</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/Diary/hello-world/">Hello World</a>
     </h1>
   
 
@@ -104,9 +200,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Announcements/hello-world/" data-id="ckd5oay7j0005yef7279tbikx" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Diary/hello-world/" data-id="ckd5rp9lt000131f7gmtodrlu" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/Announcements/hello-world/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/Diary/hello-world/#disqus_thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -131,7 +227,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Announcements/">Announcements</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer-Systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apple-Platformes/">Apple Platformes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer-Systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
     </div>
   </div>
 
@@ -141,7 +237,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apple-Platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AVFoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apple-Platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIKit/" rel="tag">UIKit</a></li></ul>
     </div>
   </div>
 
@@ -151,7 +247,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/ARC/" style="font-size: 10px;">ARC</a> <a href="/tags/Apple-Platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/NotificationCenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/Thread-Safety/" style="font-size: 10px;">Thread Safety</a>
+      <a href="/tags/ARC/" style="font-size: 10px;">ARC</a> <a href="/tags/AVFoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/Apple-Platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/Image/" style="font-size: 10px;">Image</a> <a href="/tags/NotificationCenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/Thread-Safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/UIKit/" style="font-size: 10px;">UIKit</a>
     </div>
   </div>
 
@@ -173,7 +269,7 @@
       <ul>
         
           <li>
-            <a href="/2020/Architecture/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+            <a href="/2020/Notes/Image-Orientation/">Image Orientation</a>
           </li>
         
           <li>
@@ -181,11 +277,15 @@
           </li>
         
           <li>
+            <a href="/2020/Architecture/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+          </li>
+        
+          <li>
             <a href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
           </li>
         
           <li>
-            <a href="/2020/Announcements/hello-world/">Hello World</a>
+            <a href="/2020/Diary/hello-world/">Hello World</a>
           </li>
         
       </ul>

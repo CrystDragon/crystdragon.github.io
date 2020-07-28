@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://crystdragon.github.io/2020/Notes/Image-Orientation/</loc>
+    
+    <lastmod>2020-07-28T11:24:23.481Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/2020/Diary/hello-world/</loc>
+    
+    <lastmod>2020-07-28T09:16:25.641Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/2020/Architecture/deallocation-thread-safety/</loc>
     
     <lastmod>2020-07-28T09:00:31.553Z</lastmod>
@@ -12,13 +26,6 @@
     <loc>https://crystdragon.github.io/2020/Computer-Systems/computer-security-notes/</loc>
     
     <lastmod>2020-07-28T09:00:02.992Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/2020/Announcements/hello-world/</loc>
-    
-    <lastmod>2020-07-28T08:59:28.212Z</lastmod>
     
   </url>
   

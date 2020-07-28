@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>Image Orientation | Lincoln de 小站</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="背景  传统相机 DSLR   对图像算法的影响 Orientation tag 的表示  Raw exif 信息  Apple API   UIImage相关 API   使用 UIKit 获取UIImage时, 系统对imageOrientation的填充方式  基本相对关系 后置摄像头 前置摄像头   Case: Face Dectrction 中的坐标变换    原文成于2018年12月">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Image Orientation">
+<meta property="og:url" content="https://crystdragon.github.io/2020/Notes/Image-Orientation/index.html">
+<meta property="og:site_name" content="Lincoln de 小站">
+<meta property="og:description" content="背景  传统相机 DSLR   对图像算法的影响 Orientation tag 的表示  Raw exif 信息  Apple API   UIImage相关 API   使用 UIKit 获取UIImage时, 系统对imageOrientation的填充方式  基本相对关系 后置摄像头 前置摄像头   Case: Face Dectrction 中的坐标变换    原文成于2018年12月">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://crystdragon.github.io/2020/Notes/Image-Orientation/exif_orientation.png">
+<meta property="article:published_time" content="2020-07-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-28T11:24:23.481Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta property="article:tag" content="Image">
+<meta property="article:tag" content="UIKit">
+<meta property="article:tag" content="AVFoundation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://crystdragon.github.io/2020/Notes/Image-Orientation/exif_orientation.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln de 小站" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln de 小站</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Home of a Swifter on Apple platforms</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Image-Orientation" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/Notes/Image-Orientation/" class="article-date">
+  <time datetime="2020-07-27T16:00:00.000Z" itemprop="datePublished">2020-07-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Apple-Platformes/">Apple Platformes</a>►<a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Image Orientation
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E8%83%8C%E6%99%AF">背景</a>
+<ul>
+<li><a href="#%E4%BC%A0%E7%BB%9F%E7%9B%B8%E6%9C%BA">传统相机</a></li>
+<li><a href="#dslr">DSLR</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AF%B9%E5%9B%BE%E5%83%8F%E7%AE%97%E6%B3%95%E7%9A%84%E5%BD%B1%E5%93%8D">对图像算法的影响</a></li>
+<li><a href="#orientation-tag-%E7%9A%84%E8%A1%A8%E7%A4%BA">Orientation tag 的表示</a>
+<ul>
+<li><a href="#raw-exif-%E4%BF%A1%E6%81%AF">Raw exif 信息</a>
+<ul>
+<li><a href="#apple-api">Apple API</a></li>
+</ul>
+</li>
+<li><a href="#uiimage%E7%9B%B8%E5%85%B3-api"><code>UIImage</code>相关 API</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BD%BF%E7%94%A8-uikit-%E8%8E%B7%E5%8F%96uiimage%E6%97%B6-%E7%B3%BB%E7%BB%9F%E5%AF%B9imageorientation%E7%9A%84%E5%A1%AB%E5%85%85%E6%96%B9%E5%BC%8F">使用 UIKit 获取<code>UIImage</code>时, 系统对<code>imageOrientation</code>的填充方式</a>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E7%9B%B8%E5%AF%B9%E5%85%B3%E7%B3%BB">基本相对关系</a></li>
+<li><a href="#%E5%90%8E%E7%BD%AE%E6%91%84%E5%83%8F%E5%A4%B4">后置摄像头</a></li>
+<li><a href="#%E5%89%8D%E7%BD%AE%E6%91%84%E5%83%8F%E5%A4%B4">前置摄像头</a></li>
+</ul>
+</li>
+<li><a href="#case-face-dectrction-%E4%B8%AD%E7%9A%84%E5%9D%90%E6%A0%87%E5%8F%98%E6%8D%A2">Case: Face Dectrction 中的坐标变换</a></li>
+</ul>
+</p>
+<hr>
+<p>原文成于2018年12月</p>
+<hr>
+<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+<p>为什么存在 Image Orientation</p>
+<h3 id="传统相机"><a class="markdownIt-Anchor" href="#传统相机"></a> 传统相机</h3>
+<ul>
+<li>传统相机横向拍摄, 胶卷和照片也按横向方位固定尺寸.</li>
+<li>拍竖直方向的景的时候, 摄影师把相机旋转90度, 拍到的原始照片是横向的.</li>
+<li>要正确还原现场的情况, 需要手动把照片旋转90度.</li>
+</ul>
+<h3 id="dslr"><a class="markdownIt-Anchor" href="#dslr"></a> DSLR</h3>
+<ul>
+<li>用户的持相机方式和需求没有本质变化.</li>
+<li>仍然需要外部额外信息来帮助确定怎么旋转拍得的图像.
+<ul>
+<li>用户使用相机上的 UI, 手动输入旋转信息.</li>
+<li>根据硬件的重力加速计自动确定方向.</li>
+</ul>
+</li>
+<li>基于性能和效率原因, 并不会把 raw data 进行旋转生成一张新图片, 而是加上一个 tag, 这个 tag 就表示 image orientation.</li>
+<li>各端显示这样的图片时, 需要读取这个 tag, 并在渲染时给 raw data 加上一个 transform.</li>
+</ul>
+<h2 id="对图像算法的影响"><a class="markdownIt-Anchor" href="#对图像算法的影响"></a> 对图像算法的影响</h2>
+<p>当对某个图像执行某些算法时, 除了必要的图像 data 信息, 还可能需要已知的 orientation 信息. 例如很多人脸检测算法, 在有先验的 orientation 知识时, 通常能有更好的效果. 例如, Apple 的 CoreImage 支持人脸检测, <a href="https://developer.apple.com/documentation/coreimage/cidetectorimageorientation" target="_blank" rel="noopener">其 API 接受 orientation 参数</a>.</p>
+<a id="more"></a>
+<p>但需要注意, 这个 orientation 本质上就是一个 Int 值. 但某个 orientation 值对应的标识符名称, 在不同的 API 下, 可能对应不同的含义. 通常有两种可能性:</p>
+<ul>
+<li>把 raw data 变换成自然方位的图像时, 应该进行的旋转</li>
+<li>自然的图像在保存成 raw data 时, 执行的旋转; 或者说成 raw data 相对于自然方位所进行的旋转</li>
+</ul>
+<p>在我个人接触到的大部分 API 中, 这里的 orientation, 一般表示前者.</p>
+<h2 id="orientation-tag-的表示"><a class="markdownIt-Anchor" href="#orientation-tag-的表示"></a> Orientation tag 的表示</h2>
+<h3 id="raw-exif-信息"><a class="markdownIt-Anchor" href="#raw-exif-信息"></a> Raw exif 信息</h3>
+<p>任意来自第三方相机或手机拍摄的图像文件, <a href="http://jpegclub.org/exif_orientation.html" target="_blank" rel="noopener">orientation 存储在 exif 信息中</a>. 共有8和可能的取值.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">0th Row</th>
+<th style="text-align:left">0th Column</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">top</td>
+<td style="text-align:left">left</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td style="text-align:left">top</td>
+<td style="text-align:left">right</td>
+</tr>
+<tr>
+<td style="text-align:left">3</td>
+<td style="text-align:left">bottom</td>
+<td style="text-align:left">right</td>
+</tr>
+<tr>
+<td style="text-align:left">4</td>
+<td style="text-align:left">bottom</td>
+<td style="text-align:left">left</td>
+</tr>
+<tr>
+<td style="text-align:left">5</td>
+<td style="text-align:left">left</td>
+<td style="text-align:left">top</td>
+</tr>
+<tr>
+<td style="text-align:left">6</td>
+<td style="text-align:left">right</td>
+<td style="text-align:left">top</td>
+</tr>
+<tr>
+<td style="text-align:left">7</td>
+<td style="text-align:left">right</td>
+<td style="text-align:left">bottom</td>
+</tr>
+<tr>
+<td style="text-align:left">8</td>
+<td style="text-align:left">left</td>
+<td style="text-align:left">bottom</td>
+</tr>
+</tbody>
+</table>
+<p>下图表述的是: 假设拍摄对象自然成 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span></span></span> 图像时, 每一种 orientation 下, 存储在 raw data 中的图像姿态.</p>
+<p><img src="/2020/Notes/Image-Orientation/exif_orientation.png" alt="exif orientation"></p>
+<p>对表中的每一行有两种等价的解释:</p>
+<ul>
+<li>raw data中, 0th row, 0th column, 对应合理的真实场景中的哪条边.</li>
+<li>把 raw data 通过 transform 还原后,  0th row, 0th column 被变换到哪个位置.</li>
+</ul>
+<p>例如: 当 orientation 是5时, 可以发现, raw data 中第0行的 data, 对应 &amp;F&amp; 左边的一竖, 即应该变换到 left; raw data 中第0列的 data, 对应 &amp;F&amp; 顶上的一行, 即应该变换到 top.</p>
+<h4 id="apple-api"><a class="markdownIt-Anchor" href="#apple-api"></a> Apple API</h4>
+<ul>
+<li>在 Apple 平台上, 使用 ImageIO 这个 framework, 通过<code>URL</code>/file data 直接读取, 可以在<code>kCGImagePropertyOrientation</code>这个 property key 的位置直接读取到 tag.</li>
+<li>这个值可以直接输入许多算法, 例如上述 face detection filter.</li>
+</ul>
+<h3 id="uiimage相关-api"><a class="markdownIt-Anchor" href="#uiimage相关-api"></a> <code>UIImage</code>相关 API</h3>
+<ul>
+<li><code>UIImage</code>是<code>NSImage</code>的简化版, 本身不包含任何 meta data, 当然没有 exif 信息.
+<ul>
+<li><code>UIImage</code>除了包含 raw data 外, 通过一个额外的<code>imageOrientation</code>属性来保存等价的 orientation 信息.</li>
+<li>从<code>UIImagePickerController</code>生成<code>UIImage</code>时, framework 已经填充好<code>imageOrientation</code>.</li>
+<li>通过 AVFoundation 的<code>AVCaptureOutput</code>返回 data 时, 返回的 pixel buffer 没有任何 orientation 的信息. 需要手动组装:
+<ul>
+<li>可以通过当前系统的硬件情况.</li>
+<li>或者读取由 output 随 buffer 返回的 <code>metadata</code>.</li>
+<li>或者通过<code>captureConnection</code>的<code>videoOrientation</code>来 map 到一个<code>imageOrientation</code>.</li>
+<li><code>isVideoMirrored</code>是否会影响获取到的值, <em>需要额外验证下</em>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>UIImage.Orientation</code>的定义: 一个enum, 每个 case 的名称其实非常好理解, 他表示的就是 raw data <em>应该</em>如何旋转/transform 来还原到真实的自然场景. 遇到标识符带<code>Mirrored</code>的, 意思是把 raw data 先按当前未旋转时的 y 轴左右镜像, 再旋转 (或者先旋转, 再按转完后的 local y 轴进行 mirror. 两者是一个意思)
+<ul>
+<li>例如, <code>UIImage.Orientation.right</code>表示的就是: 把 raw data 朝右转90度(顺时针90度), 就可以还原到自然状态.</li>
+<li>又如, <code>UIImage.Orientation.rightMirrored</code>表示的就是, 先把 raw data 左右翻转, 再朝右转90度, 就可以还原到自然状态.</li>
+</ul>
+</li>
+<li><code>UIImage.Orientation</code>的使用
+<ul>
+<li><code>UIImage</code>的<code>cgImage</code>和<code>UIImagePNGRepresentation</code>生成的 data, 都完全不包含 orientation, 因此遇到<code>UIImage</code>直接进行操作/存储时, 就等于只是用/保存了 raw data, 而非矫正过朝向的图片.</li>
+<li><code>UIImage</code>的各个<code>draw</code>方法, 已经自动考虑其<code>imageOrientation</code>.</li>
+<li>手动操纵<code>cgImage</code>的 data 绘制时
+<ul>
+<li>涉及到<code>CGContext</code>绘制的场合, 需要使用<code>imageOrientation</code>对 context 进行 transform 再进行绘制, 或先生成一张已矫正过的临时 image.</li>
+<li>如果需要传入给需要 exif orientation tag 的算法, 则应当把<code>imageOrientation</code>转成 exif 的 tag.</li>
+<li><code>imageOrientation</code>和<code>kCGImagePropertyOrientation</code>的转化对应关系, 可以根据 exif specification 手动转换 rawValue, 也可以用 Apple 定义的 enum 直接进行同名 case 的映射 (例如<code>Image.Orientation.right</code>对应<code>CGImagePropertyOrientation.right</code>), 两者其实是一回事.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>需要注意的是, iOS 有些时候, 例如把带 exif orientation tag 的<code>CGImageDestination</code>存储到某个 file path 时, 似乎会把对应的 orientation 信息消耗掉, 最终存储的是已经旋转过的图片. 之所以这么做, 我想应该是系统为将来操作进行的一种简化. 再读取该文件时, 会发现没有对应的 orientation 信息了. 而另一些时候会把 exif 存储下来, 例如使用<code>UIImageJPEGRepresentation</code>的时候.<br>
+总之对于我们来说, 只需要依赖 API 就好, 不要自己去 cache orientation 的信息.</p>
+<h2 id="使用-uikit-获取uiimage时-系统对imageorientation的填充方式"><a class="markdownIt-Anchor" href="#使用-uikit-获取uiimage时-系统对imageorientation的填充方式"></a> 使用 UIKit 获取<code>UIImage</code>时, 系统对<code>imageOrientation</code>的填充方式</h2>
+<p>虽然对我们来说, <code>UIImagePickerController</code>返回的<code>UIImage</code>如何填充<code>imageOrientation</code>, 很多时候是一个透明的操作: 我们只需要取出<code>imageOrientation</code>, 对该值分情况进行操作就好. 但如果能进一步了解 iOS 填充<code>imageOrientation</code>的规则, 就可以在很多地方避免常识性错误. 一个最简单的例子就是, 用手机竖着拍人的时候, 返回的<code>imageOrientaion</code>不是<code>.up</code>.</p>
+<h3 id="基本相对关系"><a class="markdownIt-Anchor" href="#基本相对关系"></a> 基本相对关系</h3>
+<p>当我们把相机朝向前方, <em>逆时针</em>转90度时, 其实从相机的 local 视点来看, 世界是朝<em>顺时针</em>方向转了90度. 如果我们要把此时拍到的图片还原到现实世界的方位, 我们应该<em>逆时针</em>旋转拍得的照片.</p>
+<h3 id="后置摄像头"><a class="markdownIt-Anchor" href="#后置摄像头"></a> 后置摄像头</h3>
+<ul>
+<li>后置相机在出厂时, 其安装正向方位对应 device 的<code>UIDeviceOrientation.landscapeLeft</code>(此时手机屏幕面向用户, home button 在右). 在这个方位下使用 UIKit 拍摄的<code>UIImage</code>, <code>imageOrientation</code>为<code>.up</code>. 之所以设定这个 device 方向为标准正方位, 我想应该是为了沿袭历史.</li>
+<li>手机方位为为<code>.portrait</code>时, 相当于把手机从正方位顺时针旋转了90度, 按上述基本相对关系, UIKit 为生成的 image 填充的 orientation 为<code>.right</code></li>
+<li>剩下2个除<code>.faceUp</code>和<code>.faceDown</code>的方位同理</li>
+</ul>
+<h3 id="前置摄像头"><a class="markdownIt-Anchor" href="#前置摄像头"></a> 前置摄像头</h3>
+<p>前置摄像头有一个mirror的概念, 因为在屏幕朝向拍摄者的情况下, 如果把前置摄像头实际拍摄到的景象直接展示到屏幕上, 会发现实际中物体运动的方向和屏幕上物体运动的方向不一致, 容易使人产生误解.<br>
+因此一般情况下, 我们开发的软件会选择把拍到的图片<em>在旋转矫正完的基础上</em>作一次左右 mirror. (注意这里要先旋转, 再左右 mirror)</p>
+<hr>
+<p>实际上, <code>UIImagePickerController</code>在拍摄实时预览时使用的是 mirror 后的图, 但最终输出(也就是按下拍摄按钮后弹出的确认预览时的图)的是未 mirror 的图, 两者不是统一的.</p>
+<hr>
+<p>我们先看未 mirror 的情况</p>
+<ul>
+<li>前置相机和后置相机的安装方位相反, 对应 device 方位为<code>.landscapeRight</code>时, 为相机初始的正向安装方位, 此时生成的 image 未 mirror 情况下为: <code>.up</code>.</li>
+<li>手机方位为<code>.portrait</code>时, <em>在摄像头视角下</em> (不是在人眼的面朝屏幕的视角下), 相当于把相机<em>顺时针</em>旋转90度, 按上述分析, UIKit 生成的 image 朝向为<code>.right</code>.</li>
+</ul>
+<hr>
+<p>也就是说, 无论是前置还是后置摄像头, 在没有 mirror 的情况下, 只要手机是<code>.portrait</code>, UIKit 生成的 image 朝向一律为<code>.right</code>.</p>
+<hr>
+<p>如果需要 mirror, 只能是我们开发者把图像进行调整. 最快速的方法就是直接修改拿到的图像的<code>imageOrientation</code>. 但需要注意的是, 不能简单地在原来的 case 名字后加上&quot;Mirrored&quot;字样来解决. 这正是前文所说的, 因为&quot;~Mirrored&quot;表示的是把图像在<em>旋转前</em>先左右 mirror (或者等价地说, 要在旋转后的图上按新的旋转过的对称轴 mirror), 而我们预期的行为是先旋转, 最后再左右 mirror. 当左右翻转和某个特定的旋转操作结合时, mirror 发生的先后会导致不同的结果.<br>
+正确的 mirror 操作对应的 case 调整应该是:</p>
+<ul>
+<li><code>up</code> -&gt; <code>upMirrored</code></li>
+<li><code>down</code> -&gt; <code>downMirrored</code></li>
+<li><code>left</code> -&gt; <code>rightMirrored</code> <em>(Special)</em></li>
+<li><code>right</code> -&gt; <code>leftMirrored</code> <em>(Special)</em></li>
+</ul>
+<h2 id="case-face-dectrction-中的坐标变换"><a class="markdownIt-Anchor" href="#case-face-dectrction-中的坐标变换"></a> Case: Face Dectrction 中的坐标变换</h2>
+<p>问题: 拍摄一张人像, 在屏幕上显示该图像, 并框出这个图像中的人脸区域. 在不额外产生中间 image 的情况下如何解决.</p>
+<p>流程简单描述如下:</p>
+<ul>
+<li><code>UIImagePicker</code>生成<code>UIImage</code>, 其<code>cgImage</code>为 unadjusted raw data.</li>
+<li>执行 face detection 时, 同时传入 raw data 和 image orientation. 生成的 face bounds, 其 origin, 是在 unadjusted orientation 下, 相对于左下角的坐标.</li>
+<li>要把人头crop出来, 需要:
+<ul>
+<li>把 face bounds 的转成在 raw data image 坐标系下, origin 相对左上角的坐标</li>
+<li>直接通过 raw data 建立 quartz image, 并用上述变换过 origin 的 bounds 执行 image crop, crop 的结果是未调整朝向的人脸 data.</li>
+</ul>
+</li>
+<li>在 UI 上绘制图像和人脸对应的 view:
+<ul>
+<li>用<code>UIImageView</code>渲染整张图像, 整个过程中涉及到 orientation 的地方由<code>UIKit</code> handle, 无难度.</li>
+<li>用一个带边框的 subview/layer 表示人脸位置, 需要计算出, 把 raw data 按 orientation 执行一次 transform 后, 此时的 face bounds 距离旋转后的图片左上角的坐标.
+<ul>
+<li>如果图片非1:1映射到屏幕, 则需要把上述坐标按图片真实尺寸和 view 的关系进行缩放/offset, 就可以得到最终的 face view/layer 的 frame.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/Notes/Image-Orientation/" data-id="ckd5rp9lp000031f7b9up9ju3" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/Notes/Image-Orientation/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AVFoundation/" rel="tag">AVFoundation</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Image/" rel="tag">Image</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UIKit/" rel="tag">UIKit</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/Computer-Systems/computer-security-notes/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Computer Security Notes</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apple-Platformes/">Apple Platformes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer-Systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AVFoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apple-Platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIKit/" rel="tag">UIKit</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARC/" style="font-size: 10px;">ARC</a> <a href="/tags/AVFoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/Apple-Platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/Image/" style="font-size: 10px;">Image</a> <a href="/tags/NotificationCenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/Thread-Safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/UIKit/" style="font-size: 10px;">UIKit</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/Notes/Image-Orientation/">Image Orientation</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Computer-Systems/computer-security-notes/">Computer Security Notes</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Architecture/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Diary/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2020/Notes/Image-Orientation/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

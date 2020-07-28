@@ -2,30 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://crystdragon.github.io/2020/Architecture/deallocation-thread-safety/</loc>
+    
+    <lastmod>2020-07-28T09:00:31.553Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/2020/Computer-Systems/computer-security-notes/</loc>
+    
+    <lastmod>2020-07-28T09:00:02.992Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/2020/Announcements/hello-world/</loc>
+    
+    <lastmod>2020-07-28T08:59:28.212Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/</loc>
     
-    <lastmod>2020-07-28T07:43:22.912Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/2020/Apple-Platforms/deallocation-thread-safety/</loc>
-    
-    <lastmod>2020-07-28T07:42:54.897Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/2020/Notes/computer-security-notes/</loc>
-    
-    <lastmod>2020-07-28T07:42:46.458Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/2020/uncategorized/hello-world/</loc>
-    
-    <lastmod>2020-07-27T14:54:50.820Z</lastmod>
+    <lastmod>2020-07-28T08:58:21.467Z</lastmod>
     
   </url>
   

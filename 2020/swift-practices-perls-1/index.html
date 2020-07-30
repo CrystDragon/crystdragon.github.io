@@ -7,15 +7,15 @@
   
   <title>Swift Practices &amp; Perls (1) | Lincoln de 小站</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
+  <meta name="description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks &amp; Patterns  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Swift Practices &amp; Perls (1)">
-<meta property="og:url" content="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/index.html">
+<meta property="og:url" content="https://crystdragon.github.io/2020/swift-practices-perls-1/index.html">
 <meta property="og:site_name" content="Lincoln de 小站">
-<meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before Swift 4.1)">
+<meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks &amp; Patterns  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-23T15:23:51.000Z">
-<meta property="article:modified_time" content="2020-07-28T08:58:21.467Z">
+<meta property="article:modified_time" content="2020-07-30T07:16:24.146Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
@@ -72,7 +72,7 @@
       <div class="outer">
         <section id="main"><article id="post-swift-practices-perls-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/Swift/swift-practices-perls-1/" class="article-date">
+    <a href="/2020/swift-practices-perls-1/" class="article-date">
   <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
@@ -108,7 +108,7 @@
 </li>
 </ul>
 </li>
-<li><a href="#tricks">Tricks</a>
+<li><a href="#tricks-patterns">Tricks &amp; Patterns</a>
 <ul>
 <li><a href="#%E7%BB%99-protocol-%E5%A2%9E%E5%8A%A0-recursive-constraints-before-swift-41">给 protocol 增加 recursive constraints (before Swift 4.1)</a></li>
 <li><a href="#%E6%B3%9B%E5%9E%8B%E5%AF%B9%E8%B1%A1%E6%8E%92%E9%99%A4%E7%89%B9%E4%BE%8B%E8%B0%83%E7%94%A8">泛型对象排除特例调用</a>
@@ -158,7 +158,7 @@
 <p>可以看到这样虽然提供了一种 type safe 的调用方法, 但是显著增加了工作量. 为了解决这个问题, 可以抽象出一个 protocol, 表示包含<code>SegueIdentifier</code>的 view controller, 进而针对该 protocol 统一增加一个方法即可.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 这里使用的 swift 语法, 可以直接给 protocol 的遵循者增加约束</span><br><span class="line">&#x2F;&#x2F; 在最初的 WWDC session 中还不支持这么做</span><br><span class="line">protocol SegueNavigation where Self: UIViewController &#123;</span><br><span class="line">  associatedtype SegueIdentifier: RawRepresentable where SegueIdentifier.RawValue &#x3D;&#x3D; String</span><br><span class="line"></span><br><span class="line">  func performSegue(identifier: SegueIdentifier)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension SegueNavigation &#123;</span><br><span class="line">  func performSegue(identifier: SegueIdentifier) &#123;</span><br><span class="line">    performSegue(withIdentifier: identifier.rawValue, sender: nil)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>此时, 只要任意<code>UIViewController</code>, 通过提供自己 local 的<code>SegueIdentifier</code>, 就可以遵循<code>SegueNavigation</code>, 进而可以调用 type safe 的<code>func performSegue(identifier: SegueIdentifier)</code>方法.</p>
-<h2 id="tricks"><a class="markdownIt-Anchor" href="#tricks"></a> Tricks</h2>
+<h2 id="tricks-patterns"><a class="markdownIt-Anchor" href="#tricks-patterns"></a> Tricks &amp; Patterns</h2>
 <p>由于 Swift 语言在不断变化之中, 很多将来加入的语法特性在当下版本没有直接对应的表达方式. 但凭借 Swift 已有的丰富的 generics 和 protocol 表达技巧, 可以实现一些等价的功能 (虽然可能并不优雅).</p>
 <h3 id="给-protocol-增加-recursive-constraints-before-swift-41"><a class="markdownIt-Anchor" href="#给-protocol-增加-recursive-constraints-before-swift-41"></a> 给 protocol 增加 recursive constraints (before Swift 4.1)</h3>
 <p>定义 Swift 的 protocol 时, 可以要求遵循者同时提供<code>associatedtype</code>, 该<code>associatedtype</code>可以附带一些额外约束, 例如<code>: SomeType</code>, <code>where ...</code>. 当前版本下, 这样的约束内允许递归引用到 protocol 本身<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
@@ -244,9 +244,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/" data-id="ckd672q7p00066uf77haz1ev7" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckd8oqp0b0005pef7fyyb550l" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -255,17 +255,17 @@
     
 <nav id="article-nav">
   
-    <a href="/2020/Architecture/deallocation-thread-safety/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/computer-security-notes/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Deallocation 中的线程安全
+          Computer Security Notes
         
       </div>
     </a>
   
   
-    <a href="/2020/Diary/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2020/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">Hello World</div>
     </a>
@@ -331,23 +331,23 @@
       <ul>
         
           <li>
-            <a href="/2020/Notes/Image-Orientation/">Image Orientation</a>
+            <a href="/2020/swift-practices-perls-2/">Swift Practices &amp; Perls (2)</a>
           </li>
         
           <li>
-            <a href="/2020/Computer-Systems/computer-security-notes/">Computer Security Notes</a>
+            <a href="/2020/Swift-Practices-Perls-2/">Swift Practices &amp; Perls (2)</a>
           </li>
         
           <li>
-            <a href="/2020/Architecture/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+            <a href="/2020/Image-Orientation/">Image Orientation</a>
           </li>
         
           <li>
-            <a href="/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
+            <a href="/2020/deallocation-thread-safety/">Deallocation 中的线程安全</a>
           </li>
         
           <li>
-            <a href="/2020/Diary/hello-world/">Hello World</a>
+            <a href="/2020/computer-security-notes/">Computer Security Notes</a>
           </li>
         
       </ul>
@@ -379,7 +379,7 @@
 <script>
   var disqus_shortname = 'crystdragon';
   
-  var disqus_url = 'https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/';
+  var disqus_url = 'https://crystdragon.github.io/2020/swift-practices-perls-1/';
   
   (function(){
     var dsq = document.createElement('script');

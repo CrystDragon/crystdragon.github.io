@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>Swift Practices &amp; Perls (2) | Lincoln de 小站</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="标准库拾遗  String和其他类型之间的转换 Comparisons Lazy or not Compiler-synthesized conformance  依赖 compiler-synthesized 代码的逻辑注入技巧     Tricks &amp; Practices  Implementing “ghost operator”  问题背景 问题目标 实现        下文部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift Practices &amp; Perls (2)">
+<meta property="og:url" content="https://crystdragon.github.io/2020/Swift-Practices-Perls-2/index.html">
+<meta property="og:site_name" content="Lincoln de 小站">
+<meta property="og:description" content="标准库拾遗  String和其他类型之间的转换 Comparisons Lazy or not Compiler-synthesized conformance  依赖 compiler-synthesized 代码的逻辑注入技巧     Tricks &amp; Practices  Implementing “ghost operator”  问题背景 问题目标 实现        下文部分">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-07-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-30T11:10:08.727Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln de 小站" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln de 小站</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Home of a Swifter on Apple platforms</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Swift-Practices-Perls-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/Swift-Practices-Perls-2/" class="article-date">
+  <time datetime="2020-07-29T16:00:00.000Z" itemprop="datePublished">2020-07-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Swift/">Swift</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Swift Practices &amp; Perls (2)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E6%A0%87%E5%87%86%E5%BA%93%E6%8B%BE%E9%81%97">标准库拾遗</a>
+<ul>
+<li><a href="#string%E5%92%8C%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><code>String</code>和其他类型之间的转换</a></li>
+<li><a href="#comparisons">Comparisons</a></li>
+<li><a href="#lazy-or-not">Lazy or not</a></li>
+<li><a href="#compiler-synthesized-conformance">Compiler-synthesized conformance</a>
+<ul>
+<li><a href="#%E4%BE%9D%E8%B5%96-compiler-synthesized-%E4%BB%A3%E7%A0%81%E7%9A%84%E9%80%BB%E8%BE%91%E6%B3%A8%E5%85%A5%E6%8A%80%E5%B7%A7">依赖 compiler-synthesized 代码的逻辑注入技巧</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#tricks-practices">Tricks &amp; Practices</a>
+<ul>
+<li><a href="#implementing-ghost-operator">Implementing “ghost operator”</a>
+<ul>
+<li><a href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF">问题背景</a></li>
+<li><a href="#%E9%97%AE%E9%A2%98%E7%9B%AE%E6%A0%87">问题目标</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+<hr>
+<p>下文部分内容成于2018年</p>
+<hr>
+<p>本文继续上一篇<a href="https://crystdragon.github.io/2020/Swift/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>, 记录标准库学习过程中的技巧.</p>
+<h2 id="标准库拾遗"><a class="markdownIt-Anchor" href="#标准库拾遗"></a> 标准库拾遗</h2>
+<p>Swift 标准库提供的 API 强大而优雅. 这里归纳总结了一些网上不常见的点.</p>
+<h3 id="string和其他类型之间的转换"><a class="markdownIt-Anchor" href="#string和其他类型之间的转换"></a> <code>String</code>和其他类型之间的转换</h3>
+<p>一方面, 标准库中存在多个 protocol, 来关联自定义类型和<code>String</code>. 通常, 在需要按文本格式打印某个对象, 或涉及到用文本进行序列化/反序列化时, 可能会使用到这些 protocol.</p>
+<ul>
+<li><code>ExpressibleByStringLiteral</code> (旧名<code>StringLiteralConvertible</code>). 遵循该 protocol 的类型, 支持使用 string literal 初始化.</li>
+<li><code>CustomStringConvertible</code>和<code>CustomDebugStringConvertible</code>. 支持最基本的输出到一个<code>String</code>.</li>
+<li><code>LosslessStringConvertible</code>. 该 protocol 继承自 <code>CustomStringConvertible</code>. 与后者不同的是, 该 protocol 的遵循者必须提供和<code>String</code>之间双向的精确转化. 因此某种意义上说, 遵循本 protocol 的类型转化成的<code>String</code>可用范围更广, 不限于 debug/print. 因为不用担心2个不同的对象对应到同一个<code>String</code>.</li>
+<li><code>TextOutputStreamable</code>. 支持按流式增量添加到已有的 stream 的末尾. 因为支持增量添加, 所以遵循者实际实现时, 可能和其他输出<code>String</code>的 protocol 相比, 内存占用上可以有一些优化.</li>
+</ul>
+<p>另一方面, <code>String</code>本身也存在好几种 initializer. 标准库建议我们使用<code>String</code>的各种初始化方法, 而不要直接调用上面各个 protocol 定义的方法.</p>
+<ul>
+<li><code>init&lt;T&gt;(_ value: T, radix: Int = default, uppercase: Bool = default)</code>. 把<code>Int</code>按某个进制转换成<code>String</code>.</li>
+<li><code>init&lt;T&gt;(_ value: T) where T : LosslessStringConvertible</code>.</li>
+<li><code>init&lt;Subject&gt;(describing: Subject)</code>. 优先使用<code>TextOutputStreamable</code>的实现, 最后使用<code>CustomDebugStringConvertible</code>的实现, 偏向精准性.</li>
+<li><code>init&lt;Subject&gt;(reflecting: Subject)</code>. 优先使用<code>CustomDebugStringConvertible</code>, 最后使用<code>TextOutputStreamable</code>, 偏向debug.</li>
+</ul>
+<h3 id="comparisons"><a class="markdownIt-Anchor" href="#comparisons"></a> Comparisons</h3>
+<p>在STL中, 并非所有可比的对象都直接遵循<code>Comparable</code>, 但一定要求最终的底层 element 对象是遵循的.<br>
+对于不直接遵循<code>Comparable</code>的类型来说, 他们比较各自对象的方式无外乎通过 operator 或 method.</p>
+<a id="more"></a>
+<ul>
+<li><code>StringProtocol</code>遵循者中, <code>String</code>直接遵循<code>Comparable</code>; 但<code>SubString</code>没有, 可通过 <code>&lt;</code>运算符比较.</li>
+<li>遵循<code>Sequence</code>的类型, 如果本身不遵循<code>Comparable</code>, 但<code>Element</code>实际遵循<code>Comparable</code>, 那么可以通过<code>lexicographicallyPrecedes</code>进行字典比较.</li>
+<li>在<a href="https://github.com/apple/swift-evolution/blob/master/proposals/0283-tuples-are-equatable-comparable-hashable.md" target="_blank" rel="noopener">SE-0283</a>被合入 Swift 前(不早于Swift 5.3), 由多个分量组成的 tuple, 本身是不遵循<code>Comparable</code>的. 但是标准库为含有2-6个分量的 tuple, 手动重载了<code>&lt;</code>操作符, 允许我们直接使用<code>&lt;</code>进行字典比较.</li>
+</ul>
+<h3 id="lazy-or-not"><a class="markdownIt-Anchor" href="#lazy-or-not"></a> Lazy or not</h3>
+<p>当我们要给一个<code>Sequence</code>/<code>Collection</code>增加一个方法的时候, 要考虑是否要把这个方法设计成 lazy 的. 这里的 lazy 指的是, 当方法执行时, 不实际开辟内存创建一个新的集合, 或实际遍历整个序列, 而是把相关待执行的操作/规则先保留, 等到后面不得不执行的时候再执行.</p>
+<p>当这个方法返回一个新的<code>Sequence</code>/<code>Collection</code>时, 这里要考虑的 lazy 的含义还是两重的. 一方面要考虑当前方法是否 lazy, 另一方面要考虑对返回的集合进一步执行非 lazy 方法时, 是否 lazy.</p>
+<p>标准库给这个问题作出了很好的示范.<br>
+有一些方法本身一定是 lazy 的, 返回的新对象的后续操作是否 lazy 要看其他条件. 例如:</p>
+<ul>
+<li><code>BidirectionalCollection.reversed()</code>. 方法本身在<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>内即完成.</li>
+<li><code>Sequence.enumerated()</code>. 方法本身在<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>内即完成.</li>
+<li><code>Sequence.lazy</code>. 方法本身在<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>内即完成. 并且返回一个遵循了<code>LazySequenceProtocol</code>的对象. 从而保证后续任意操作均为 lazy.<br>
+另一些方法, 本身是否 lazy 要看<code>Self</code>, 在一般情况下是 imperative 的, 但当<code>Self: LazySequenceProtocol</code>时, 是 lazy 的. 例如:</li>
+<li><code>Sequence.map()</code></li>
+<li><code>Sequence.filter()</code></li>
+</ul>
+<p>这里有一个关键的 protocol <code>LazySequenceProtocol</code>. 这个 protocol 在体系中起到语义标记作用, 一个遵循了<code>Sequence</code>的类型是否进一步遵循<code>LazySequenceProtocol</code>, 会导致在该类型上调用方法时, 产生不同的结果.</p>
+<p>现在可以回答一开始的问题. 我们自己写的方法, 如果操作是有消耗性的, 或者耗时很长, 可以考虑把他定义成 lazy 的. 实现时也要遵循下面这个约定:</p>
+<ul>
+<li>在默认情况下, 返回一个以<code>Self</code>作为模板参数的泛型结构. 这个结构只是一个 wrapper, 给<code>Self</code>作了一层浅的封装, 这个方法本身就是 lazy 即可.</li>
+<li>在<code>Self: LazySequenceProtocol</code>时, 返回一个遵循了<code>LazySequenceProtocol</code>的 wrapper, 保证后续操作可以继续用 lazy 操作串起来.</li>
+<li>在 Swift 支持 conditional conformance 后, 上述两点可以很方便地用同一个 wrapper 类型统一起来.</li>
+</ul>
+<p>需要注意的是, 正如标准库开发者在 Swift Forums 上指出过: 对一个方法, 并不应该不加思考地就决定把他设置成 lazy 的. 因为 lazy 只是把当前的遍历行为延迟到后面. 如果后面反复执行时, 反而可能触发多次遍历, 还不如把这个遍历当前就消耗掉.<br>
+例如: 如果对于<code>filter()</code>方法, 我们无条件的返回一个 lazy 的 wrapper. 那么会产生令人惊讶的后果:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bad case</span></span><br><span class="line"><span class="keyword">let</span> range = <span class="number">1</span>..&lt;<span class="number">10000</span></span><br><span class="line"><span class="keyword">let</span> array = range.myFilter(&#123; $<span class="number">0</span> % <span class="number">2</span> == <span class="number">0</span> &#125;)  <span class="comment">// 假如这个 myFilter 在 O(1) 里返回一个 wrapper</span></span><br><span class="line"><span class="built_in">print</span>(array.<span class="built_in">count</span>)  <span class="comment">// 触发一次 1..&lt;10000 的遍历</span></span><br><span class="line"><span class="built_in">print</span>(array.<span class="built_in">count</span>)  <span class="comment">// 又触发一次 1..&lt;10000 的遍历</span></span><br></pre></td></tr></table></figure>
+<p>这显然是我们不想看到的. 对这样的方法, 我们应该默认把他按 imperative 的方式实现.<br>
+而只在<code>Self:LazySequenceProtocol</code>的情形下, 才进行lazy的行为. 注意到这个情况下, 因为调用链上游某处显式出现了一次<code>.lazy</code>, 所以这个责任已经转嫁到调用者, 调用者应该十分清楚 code 的行为, 并不会产生 surprise.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// good case</span></span><br><span class="line"><span class="keyword">let</span> range = <span class="number">1</span>..&lt;<span class="number">10000</span></span><br><span class="line"><span class="keyword">let</span> array = range.<span class="built_in">lazy</span>.<span class="built_in">filter</span>(&#123; $<span class="number">0</span> % <span class="number">2</span> == <span class="number">0</span> &#125;) </span><br><span class="line"><span class="built_in">print</span>(array.<span class="built_in">count</span>)  <span class="comment">// 触发一次 1..&lt;10000 的遍历</span></span><br><span class="line"><span class="built_in">print</span>(array.<span class="built_in">count</span>)  <span class="comment">// 又触发一次 1..&lt;10000 的遍历</span></span><br></pre></td></tr></table></figure>
+<h3 id="compiler-synthesized-conformance"><a class="markdownIt-Anchor" href="#compiler-synthesized-conformance"></a> Compiler-synthesized conformance</h3>
+<p>给我们的自定义类, 在某些情况下直接添加 protocol conformance, 不提供具体实现, compiler 会生成默认的实现. 涉及到的 protocol 有:</p>
+<ul>
+<li><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0166-swift-archival-serialization.md#detailed-design" target="_blank" rel="noopener">Codable</a></li>
+<li><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0185-synthesize-equatable-hashable.md" target="_blank" rel="noopener">Equatable</a></li>
+<li><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0206-hashable-enhancements.md#source-compatibility" target="_blank" rel="noopener">Hashable</a></li>
+<li><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0266-synthesized-comparable-for-enumerations.md" target="_blank" rel="noopener">Comparable</a></li>
+<li><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0194-derived-collection-of-enum-cases.md" target="_blank" rel="noopener">CaseIterable</a></li>
+</ul>
+<p>各个 protocol 支持自动遵循的自定义类型有不一样的要求:</p>
+<ul>
+<li><code>Comparable</code>和<code>CaseIterable</code>只作用于 enum.</li>
+<li><code>Equatable</code>和<code>Hashable</code>只作用于 enum 和 struct.</li>
+<li><code>Codable</code>只作用于 struct 和 class.</li>
+</ul>
+<p>这些自定义遵循都有一些共同的特点/要求:</p>
+<ul>
+<li>要求类型的成员, 按树形结构递归满足遵循条件. 例如:
+<ul>
+<li>遵循<code>Codable</code>类型的各个属性的类型本身要遵循<code>Codable</code>.</li>
+<li>遵循<code>Comparable</code>类型的 enum, 如果某个 case 携带了 associated value, 那么该 value 的类型也要遵循<code>Comparable</code>.</li>
+</ul>
+</li>
+<li>在以前: 必须是定义类型时立即 conform 某个 protocol 才可以触发编译器自动合成代码, 在 extension 中 conform 是无效的. 现在, 允许在和自定义类型的定义同一个 source file 下的 extension 中进行 conform. 这也是为了和 conditional conformance 进行配合.</li>
+<li>这里列出的各个 protocol 的命名规则是统一的: “xxx+able”, “a&quot;前没有&quot;e”. 但须注意, 这个规则只是针对上面列出的几个protocol, STL 里当然也存在按&quot;+e+able&quot;命名的 protocol (比如<code>Strideable</code>, 目前还没有改动命名).</li>
+</ul>
+<h4 id="依赖-compiler-synthesized-代码的逻辑注入技巧"><a class="markdownIt-Anchor" href="#依赖-compiler-synthesized-代码的逻辑注入技巧"></a> 依赖 compiler-synthesized 代码的逻辑注入技巧</h4>
+<p>需要明确, 这几个 protocol 开发者一行代码不写就 work 的背后原理, 并不是命中了一个 default 实现的的 protocol extension implementation, 而是由编译器实打实地合成了实现代码. 编译器合成的实现和我们手动输入的代码有相同地位, 也会参与重载决议等等编译阶段. 因此, 我们可以利用这一点, 给这个看似被编译器定死, 而无法扩展的功能, 注入一些自定义逻辑.</p>
+<p>例如: <code>Codable</code>默认需要遵循者实现<code>func hash(into hasher: inout Hasher)</code>, 我们实现时需要不停调用<code>Hasher.combine()</code>. 如果这个实现由编译器代替我们完成, 编译器实际上也是做了相同的工作. 而编译器每次调用<code>Hasher.combine()</code>实际上和我们手动编写时的调用完全无异, 每一次调用都会参与重载决议. 因此, 虽然<code>Hasher</code>是标准库提供的类, 但我们如果给<code>Hasher</code>增加几个重载方法, 并在我们自己的 module 中设法使这几个重载方法被命中, 那就相当于绕过了标准库的实现.</p>
+<p>下面的代码, 展示了这样一个功能: 我们想看看, 我们的 module 中所有<code>Optional&lt;Int&gt;</code>被 hash 的次数.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Model</span>: <span class="title">Hashable</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> a: <span class="type">Int?</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Hasher</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 给标准库类型增加的 extension, 这个方法比 Hasher 已有的2个方法更加限定, 因此命中时优先级更高</span></span><br><span class="line">  <span class="comment">// 实际上, 编译器给 Model 生成的 Hashable 实现代码里, 就会命中这个 combine, 而非 Hasher 自带的 combine</span></span><br><span class="line">  <span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">combine</span><span class="params">(<span class="number">_</span> value: Int?)</span></span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"we are hashing an optional int here!!!"</span>)</span><br><span class="line">    combine(<span class="type">AnyHashable</span>(value))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用2个 Model 类型的 key, 创建 Dictionary</span></span><br><span class="line"><span class="keyword">let</span> dict = [</span><br><span class="line">  <span class="type">Model</span>(a: <span class="number">3</span>): <span class="number">3</span>,</span><br><span class="line">  <span class="type">Model</span>(a: <span class="number">4</span>): <span class="number">4</span></span><br><span class="line">]</span><br><span class="line"><span class="comment">// console output:</span></span><br><span class="line"><span class="comment">// we are hashing an optional int here!!!</span></span><br><span class="line"><span class="comment">// we are hashing an optional int here!!!</span></span><br></pre></td></tr></table></figure>
+<p>当然这里的例子比较简单, 对于比较复杂的编译器支持生成实现代码的 protocol, 例如<code>Encodable/Decodable</code>, 可以有更花式的做法. 例如<a href="http://davelyon.net/2017/08/16/jsondecoder-in-the-real-world" target="_blank" rel="noopener">这边的例子</a>, 就是通过增加优先级高的重载方法, 来增强现有<code>Codable</code>的自定义能力.</p>
+<h2 id="tricks-practices"><a class="markdownIt-Anchor" href="#tricks-practices"></a> Tricks &amp; Practices</h2>
+<h3 id="implementing-ghost-operator"><a class="markdownIt-Anchor" href="#implementing-ghost-operator"></a> Implementing “ghost operator”</h3>
+<h4 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h4>
+<p>在 Swift Standard Library 中某些 Collection 实现了一种 subscript, 接受的实参是<code>...</code>, 生成一个涵盖整个 collection 范围的<code>SubSequence</code>.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// sub 的类型是 ArraySlice</span></span><br><span class="line"><span class="keyword">let</span> sub = array[...]</span><br></pre></td></tr></table></figure>
+<p>当然<code>...</code>在现有的 Swift 标识符规则下, 只能是一个 operator, 不可能是一个常量/变量. 因此显然这个 subscript 的入参类型是一个 function type.</p>
+<h4 id="问题目标"><a class="markdownIt-Anchor" href="#问题目标"></a> 问题目标</h4>
+<p>我们考虑更一般的情况, 假设我们想要实现这样一个 subscript.</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Special</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 类型暂时不确定的一个subscript</span></span><br><span class="line">  <span class="keyword">subscript</span>(<span class="comment">/*SpecialOpearator*/</span>) -&gt; <span class="type">Void</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"SpecialOpearator called"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 想要能被如此使用</span></span><br><span class="line"><span class="type">Special</span>()[...]</span><br></pre></td></tr></table></figure>
+<p>为了能方便的使用, 我们的实现需要保证以下几点:</p>
+<ul>
+<li><code>[...]</code>这个 subscript 调用可以完美解析, 不会出现找不到 subscript 方法, 或者出现二义性.</li>
+<li>在实现过程中, 暴露出来的无关接口越少越好.</li>
+<li>这个 operator 只能是用在我们这个 subscript 中, 任何其他方式都不能被调用, 如果用户用<code>...</code>时都意识不到这是一个自定义的 operator, 似乎只是一个 magical special identifier, 那就更好不过了.</li>
+</ul>
+<h4 id="实现"><a class="markdownIt-Anchor" href="#实现"></a> 实现</h4>
+<p>(1) 使用 case-less enum 建立一个局部作用域, 并添加一个无实现的 operator 方法</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">_ThreeDot</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">postfix</span> <span class="function"><span class="keyword">func</span> ... <span class="params">(rhs: _ThreeDot)</span></span> &#123;</span><br><span class="line">    <span class="built_in">fatalError</span>()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(2) 使用上述 operator 方法的签名作为入参类型, 定义我们想要的 subscript</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typealias</span> <span class="type">ThreeDot</span> = (_ThreeDot) -&gt; <span class="type">Void</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Special</span> </span>&#123;</span><br><span class="line">  <span class="keyword">subscript</span>(<span class="number">_</span> op: <span class="type">ThreeDot</span>) -&gt; <span class="type">Void</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"SpecialOpearator called"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时就可以按想要的方式调用<code>Special()[...]</code>.</p>
+<p>实现过程中的要点主要有:</p>
+<ul>
+<li>我们按标准的 Swift custom operator 的定义方法, 将方法定义在一个宿主 enum 里, 并且使这个方法接受一个宿主类型的参数, 可以有效避免<code>...</code> operator 和相同作用域内其他同名 operator 的冲突.</li>
+<li>我们定义的 enum, 是 non-inhabitant type, 只起到命名空间的作用. 并且由于在代码中的任何地方都不可能建立一个这个 enum 类型的实例. 所以<code>...</code>永远不可能被真正调用到: 调用需要的实参永远不可能被实例化出来嘛. 这个 operator 只能&quot;相当&quot;于一个 identifier 被引用, 而不会被调用.</li>
+</ul>
+<p>可以看到, 这个技巧不限于 Swift 已经定义的<code>...</code>, 可以用在任何其他名字的自定义 operator; 引用地点也不一定非得是 subscript, 任何 function/method 中都是可以的.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/Swift-Practices-Perls-2/" data-id="ckd8ot7b30000pff7ai4o6qfl" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/Swift-Practices-Perls-2/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/swift-practices-perls-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Swift Practices &amp; Perls (2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/Image-Orientation/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Image Orientation</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apple-Platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer-Systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swift/">Swift</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARC/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AVFoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apple-Platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NotificationCenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thread-Safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIKit/" rel="tag">UIKit</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARC/" style="font-size: 10px;">ARC</a> <a href="/tags/AVFoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/Apple-Platforms/" style="font-size: 10px;">Apple Platforms</a> <a href="/tags/Cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/Image/" style="font-size: 10px;">Image</a> <a href="/tags/NotificationCenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/Thread-Safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/UIKit/" style="font-size: 10px;">UIKit</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/swift-practices-perls-2/">Swift Practices &amp; Perls (2)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Swift-Practices-Perls-2/">Swift Practices &amp; Perls (2)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Image-Orientation/">Image Orientation</a>
+          </li>
+        
+          <li>
+            <a href="/2020/deallocation-thread-safety/">Deallocation 中的线程安全</a>
+          </li>
+        
+          <li>
+            <a href="/2020/computer-security-notes/">Computer Security Notes</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2020/Swift-Practices-Perls-2/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

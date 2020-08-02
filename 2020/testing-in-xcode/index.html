@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>Testing in Xcode | Lincoln de 小站</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Async Testing Attachments Code Coverage 编写 Unit Test 的 Best Practices  code&#x2F;API 细节 隔离 Dependency 在 Xcode 执行 test 的操作技巧   Test Plans CI 相关    References:  What’s New in Testing, WWDC 2017, Session 409">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Testing in Xcode">
+<meta property="og:url" content="https://crystdragon.github.io/2020/testing-in-xcode/">
+<meta property="og:site_name" content="Lincoln de 小站">
+<meta property="og:description" content="Async Testing Attachments Code Coverage 编写 Unit Test 的 Best Practices  code&#x2F;API 细节 隔离 Dependency 在 Xcode 执行 test 的操作技巧   Test Plans CI 相关    References:  What’s New in Testing, WWDC 2017, Session 409">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-08-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-02T11:08:33.444Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta property="article:tag" content="Testing">
+<meta property="article:tag" content="Xcode">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln de 小站" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln de 小站</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Home of a Swifter on Apple platforms</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-testing-in-xcode" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/testing-in-xcode/" class="article-date">
+  <time datetime="2020-08-01T16:00:00.000Z" itemprop="datePublished">2020-08-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/apple-platforms/">Apple Platforms</a>►<a class="article-category-link" href="/categories/notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Testing in Xcode
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#async-testing">Async Testing</a></li>
+<li><a href="#attachments">Attachments</a></li>
+<li><a href="#code-coverage">Code Coverage</a></li>
+<li><a href="#%E7%BC%96%E5%86%99-unit-test-%E7%9A%84-best-practices">编写 Unit Test 的 Best Practices</a>
+<ul>
+<li><a href="#codeapi-%E7%BB%86%E8%8A%82">code/API 细节</a></li>
+<li><a href="#%E9%9A%94%E7%A6%BB-dependency">隔离 Dependency</a></li>
+<li><a href="#%E5%9C%A8-xcode-%E6%89%A7%E8%A1%8C-test-%E7%9A%84%E6%93%8D%E4%BD%9C%E6%8A%80%E5%B7%A7">在 Xcode 执行 test 的操作技巧</a></li>
+</ul>
+</li>
+<li><a href="#test-plans">Test Plans</a></li>
+<li><a href="#ci-%E7%9B%B8%E5%85%B3">CI 相关</a></li>
+</ul>
+</p>
+<hr>
+<p>References:</p>
+<ul>
+<li><a href="https://developer.apple.com/videos/play/wwdc2017/409/" target="_blank" rel="noopener">What’s New in Testing</a>, WWDC 2017, Session 409
+<ul>
+<li>异步 testing API 的变化</li>
+<li>UI Test 支持多 App test</li>
+<li>UI Test 的 query 性能优化 (需要 programmer 介入)</li>
+<li>Attachments</li>
+</ul>
+</li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2018/403/" target="_blank" rel="noopener">What’s New in Testing</a>, WWDC 2018, Session 403
+<ul>
+<li>Code coverage 优化</li>
+<li>Xcode 新的 Testing 选项</li>
+<li>支持并行执行 test</li>
+</ul>
+</li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2018/417/" target="_blank" rel="noopener">Testing Tips &amp; Tricks</a>, WWDC 2018, Session 417
+<ul>
+<li>编写 test case 的 best practics</li>
+</ul>
+</li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2019/413/" target="_blank" rel="noopener">Testing in Xcode</a>, WWDC 2019, Session 413
+<ul>
+<li>review <code>XCTest</code> 基本功能</li>
+<li>新增 Test Plans</li>
+<li>CI 支持综述</li>
+</ul>
+</li>
+</ul>
+<hr>
+ <a id="more"></a>
+<h2 id="async-testing"><a class="markdownIt-Anchor" href="#async-testing"></a> Async Testing</h2>
+<ul>
+<li><code>XCTestExpectation</code>表示一个异步任务, 创建即表示任务开始执行, 需要在特定时机<code>fulfill</code>.
+<ul>
+<li>早期只能通过<code>XCTestCase</code>的 method 创建, 且在一个 test 中, 创建后必须完成, 否则此 case 即失败.</li>
+<li>新 API 可以独立创建 expectation.</li>
+<li>通过<code>XCTestCase</code>的<code>wait</code>方法检测完成情况.</li>
+</ul>
+</li>
+<li><code>XCTWaiter</code> 把异步任务执行结果的检验从<code>XCTestCase</code>中抽离出来.
+<ul>
+<li>可以注入 delegate, 考察<code>wait</code>方法的返回值来作更精细的检验.</li>
+<li>默认情况下, 不管是什么 result 都不会触发 test failure.</li>
+</ul>
+</li>
+</ul>
+<h2 id="attachments"><a class="markdownIt-Anchor" href="#attachments"></a> Attachments</h2>
+<ul>
+<li><code>XCTContext</code>的<code>runActivity</code>方法可以在 report 中产生一个 block, 用来把一些 test 示例组合到一起.</li>
+<li>Activity 的功能之一是给 report 增加<code>XCTAttachment</code>
+<ul>
+<li><code>XCTAttachment</code>默认清除逻辑是成功清除, 失败不清除, 此默认行为可以在scheme中更改.</li>
+<li>每个attachment还可以强制设置<code>lifetime</code>变更行为.</li>
+</ul>
+</li>
+<li>不使用 Xcode GUI 提取attachment, 需要用到<em>xcresulttool</em>这个 tool (Xcode11开始).
+<ul>
+<li>待检测的文件根目录位于 DerivedData 文件夹中, 一般为&quot;DerivedData/$PRODUCT_NAME-xxxxxxxxxx&quot;(非DerivedData/Build).</li>
+<li>子路径为&quot;Logs/Test&quot;, 文件后缀一定是&quot;xcresult&quot;.</li>
+<li>参考<a href="https://developer.apple.com/documentation/xcode_release_notes/xcode_11_release_notes?language=objc" target="_blank" rel="noopener">官方 release notes</a>,  命令为<code>xcrun xcresulttool get --format json --path ./Example.xcresult</code>, 可以通过追加<code>--id REF</code>输出子 object.</li>
+<li>一个 attachment 是 string 的例子: Root -&gt; testsRef(–id) -&gt; summaryRef(–id) -&gt; attachments/payloadRef -&gt; 目标 string data 的文件名(实际路径为 Data/data.$id, 可以用 export 命令导出)</li>
+</ul>
+</li>
+<li>官方格式非常复杂, 可以用第三方 tool<a href="https://github.com/ChargePoint/xcparse" target="_blank" rel="noopener">xcparse</a>, 这是其<a href="https://www.chargepoint.com/engineering/xcparse/" target="_blank" rel="noopener">介绍文章</a>.</li>
+</ul>
+<h2 id="code-coverage"><a class="markdownIt-Anchor" href="#code-coverage"></a> Code Coverage</h2>
+<ul>
+<li>可以在 Xcode 配置.
+<ul>
+<li>要统计 coverage 的代码来自哪些 target</li>
+<li>设定每个 target 中新写的 test case 是否自动 enable</li>
+<li>每个 class 中的 tests 是否乱序执行</li>
+<li>是否并行执行不同的 class
+<ul>
+<li><code>xcodebuild -parallel-testing-worker-count</code> 可更改.</li>
+<li>除了 mac 上的 UITest 外, 都支持(simulator 或 unit test).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>命令行 tool: <code>xccov</code>.
+<ul>
+<li>处理&quot;.xccovreport&quot;文件, Xcode 11之前.</li>
+<li>含 code coverage 信息的&quot;.xcresult&quot;文件, Xcode 11+.</li>
+</ul>
+</li>
+</ul>
+<h2 id="编写-unit-test-的-best-practices"><a class="markdownIt-Anchor" href="#编写-unit-test-的-best-practices"></a> 编写 Unit Test 的 Best Practices</h2>
+<h3 id="codeapi-细节"><a class="markdownIt-Anchor" href="#codeapi-细节"></a> code/API 细节</h3>
+<ul>
+<li>所有 test methods 支持定义成<code>throws</code>.</li>
+<li><code>XCTNSPredicateExpectation</code>是依照轮询机制实现的, 可能较慢, 优先用其他<code>Expectation</code>.</li>
+<li><code>XCTSkipIf</code>系方法可以跳过当前 case, 并且后续代码不执行, 在 result 中会标记成 skipped.</li>
+<li><code>XCTUnwrap</code> 专用于 unwrap optional.</li>
+<li><code>XCTAssertThrowsError</code> 专用于 catch error.</li>
+</ul>
+<h3 id="隔离-dependency"><a class="markdownIt-Anchor" href="#隔离-dependency"></a> 隔离 Dependency</h3>
+<p>当某一个模块我们需要单独测试, 但是该模块有关联的外部对象时, 如何编写测试 code.</p>
+<ul>
+<li>如果外部依赖提供了 framework 层面的机制, 允许我们替换一部分逻辑, 则可以编写 code 安插到体系中/
+<ul>
+<li>Network 相关: 官方的<code>URLSession</code>支持初始化单个对象, 可以独立设置 custom<code>URLProtocol</code>来提供 mock 数据.</li>
+<li>Notification相关: 为了防止被其他 code 干扰, 官方的<code>NotificationCenter</code>支持初始化单个对象.</li>
+</ul>
+</li>
+<li>如果体系本身不支持, 那么我们可以将依赖到的不可控的外部类抽象成protocol.
+<ul>
+<li>配合 dependency injection, 把 protocol 类型的对象作为待测试组件初始化时的输入.</li>
+<li>在生产环境 code 中, 将实际的外部类遵循这个 protocol; 而在 test 环境中编写一个临时的该 protocol 遵循者来 mock 行为.</li>
+<li>当外部依赖和待测试组件之间的关系比较复杂的时候(比如有某种更深层次的依赖: 外部依赖对应的某个 delegate method 需要引用到与外部依赖同样 type 的对象, 从而导致 mock 方不仅仅需要 mock 外部依赖抽出的 protocol, 还要把这个 delegate 进一步抽象), 需要同时抽象外部依赖中多个层面的类型, 必要时候还需要依赖 type 强转.</li>
+<li>当涉及到耗时较久的异步机制时, 我们可以把异步机制抽象出来. 在生产环境 code 中, 使用实际的异步流程; 在 test 环境中使用顺序流程.</li>
+</ul>
+</li>
+</ul>
+<h3 id="在-xcode-执行-test-的操作技巧"><a class="markdownIt-Anchor" href="#在-xcode-执行-test-的操作技巧"></a> 在 Xcode 执行 test 的操作技巧</h3>
+<ul>
+<li>Source editor 中的菱形按钮 control-click 可以 jump to report.</li>
+<li>可以在 test navigator 中 command click 选择多个 case.</li>
+<li>菜单 Product/Perform -&gt; Action 中可以进行特殊的 test 操作 (例如重复刚才的 test).</li>
+</ul>
+<h2 id="test-plans"><a class="markdownIt-Anchor" href="#test-plans"></a> Test Plans</h2>
+<p>对某个 target 执行 test 时, 可以调整不同的运行参数/选项进行多次 test.</p>
+<ul>
+<li>Xcode 基本操作支持
+<ul>
+<li>scheme editor 中把 test 升级成 test plan.</li>
+<li>可以在 test navigator 中 control-click, 选择执行 plan 中某个特定的 test 配置.</li>
+</ul>
+</li>
+<li>支持调整的参数主要有:
+<ul>
+<li>launch arguments &amp; environment vairables</li>
+<li>language</li>
+<li>Xcode runtime Sanitizers, diagnostics &amp; checker (允许重新编译)</li>
+<li>test 选项</li>
+</ul>
+</li>
+<li>多个 scheme 可以重复引用同一个 test plan.</li>
+<li>一个 scheme 可以包含多个 test plan, 其中一个为 default.
+<ul>
+<li>默认执行 test 时, 使用 default test plan, 也可以在 test navigator 中切换.</li>
+<li>在使用命令行时, 可以通过 <code>xcodebuild -showTestPlans</code> 查看所有该 scheme 的 test plan,  <code>xcodebuild test -testPlan</code> 选择 plan.</li>
+</ul>
+</li>
+</ul>
+<h2 id="ci-相关"><a class="markdownIt-Anchor" href="#ci-相关"></a> CI 相关</h2>
+<p>一个 project 进入 CI server 后典型的流程有:</p>
+<ol>
+<li>编译&amp;测试工程. 核心命令<code>xcodebuild</code>
+<ul>
+<li><code>xcodebuild test</code> : 整体执行某个 target 的 test 动作</li>
+<li><code>xcodebuild build-for-testing</code>: 只 build 不 test, 生成&quot;.xctestrun&quot;文件. 文件格式是 property list, 具体说明见<code>man xcodebuild.xctestrun</code>命令.</li>
+<li><code>xcodebuild test-without-building -xctestrun xxx.xctestrun</code>: 单独test.</li>
+<li>最后2步可以分离.</li>
+<li><code>-resultBundlePath xxx.xcresult</code>: 可以指定 test 的结果用于后续步骤.</li>
+</ul>
+</li>
+<li>解析 test 结果, 从而输出 log/自动建立 bug.
+<ul>
+<li><code>xcrun xcresulttool</code> 需要输入 xcresult 文件, 解析 test result, 获取 attachment 等.</li>
+</ul>
+</li>
+<li>检查 code coverage
+<ul>
+<li><code>xcrun xccov --report</code>: 需要输入 xcresult 文件, Xcode 11+.</li>
+<li><code>xcrun xccov</code>: 需要输入 xccovreport 文件.</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/testing-in-xcode/" data-id="ckdczg1jp000ly9f75im51dew" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/testing-in-xcode/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/pointfree-co-notes-ep-23-25/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Pointfree.co Notes Ep.#23-25</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 10px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/testing-in-xcode/">Testing in Xcode</a>
+          </li>
+        
+          <li>
+            <a href="/2020/pointfree-co-notes-ep-23-25/">Pointfree.co Notes Ep.#23-25</a>
+          </li>
+        
+          <li>
+            <a href="/2020/swift-practices-perls-2/">Swift Practices &amp; Perls (2)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/Image-Orientation/">Image Orientation</a>
+          </li>
+        
+          <li>
+            <a href="/2020/computer-security-notes/">Computer Security Notes</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2020/testing-in-xcode/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

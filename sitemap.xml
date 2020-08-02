@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://crystdragon.github.io/2020/testing-in-xcode/</loc>
+    
+    <lastmod>2020-08-02T11:08:33.444Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/2020/Image-Orientation/</loc>
+    
+    <lastmod>2020-07-30T17:05:03.535Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/2020/swift-practices-perls-2/</loc>
     
     <lastmod>2020-07-30T12:35:17.094Z</lastmod>
@@ -19,13 +33,6 @@
     <loc>https://crystdragon.github.io/2020/swift-practices-perls-1/</loc>
     
     <lastmod>2020-07-30T07:16:24.146Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/2020/Image-Orientation/</loc>
-    
-    <lastmod>2020-07-28T11:32:55.872Z</lastmod>
     
   </url>
   

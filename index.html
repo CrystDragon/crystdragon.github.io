@@ -127,7 +127,7 @@
 <p>Property wrapper <code>State</code>只是一个映射, 并不真正开放空间存储变量, 真正的空间开辟是这样的过程:</p>
 <ul>
 <li><code>State</code>必须定义在某个<code>ViewA: View</code>中作为成员属性, 不能定义在别的地方, 也不能定义成optional, 也不能定义成static变量.</li>
-<li>SwiftUI 在<code>ViewA</code>对象生成时, 通过某种和<code>DynamicProperty</code>相关的机制(<a href="https://medium.com/@kateinoigakukun/inside-swiftui-how-state-implemented-92a51c0cb5f6" target="_blank" rel="noopener">可能是Mirror</a>), 根据<code>State</code>中指示的 initial value, 在真正的 <em>view</em><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 对象中建立了一份数据, 并把<code>ViewA</code>和其所有<code>State</code>的成员变量作出了 Model -&gt; View 的关联.</li>
+<li>SwiftUI 在<code>ViewA</code>对象生成时, 通过某种和<code>DynamicProperty</code>相关的机制(<a href="https://medium.com/@kateinoigakukun/inside-swiftui-how-state-implemented-92a51c0cb5f6" target="_blank" rel="noopener">可能是某种 reflection 机制</a>, 也可能是 compiler synthesize), 根据<code>State</code>中指示的 initial value, 在真正的 <em>view</em><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 对象中建立了一份数据, 并把<code>ViewA</code>和其所有<code>State</code>的成员变量作出了 Model -&gt; View 的关联.</li>
 <li>之后<code>ViewA.body</code>每次被重新调用 (例如 data change 导致的 update 或者 view 重新出现在屏幕上等) 前, 都会保证 <code>ViewA</code> 中可以访问到的值被更新到与内存中的运行时状态一致, 这样之后访问/操纵该值时, 本质上都是访问了对应的真正的与 view 关联的数据对象.</li>
 <li>在 SwiftUI 可以监控到的环境下调用到某个<code>State</code>的 getter 的前提下, 我们只要在任何地方触发这个<code>State</code>的 setter, 就有可能触发获取了 getter 的<code>body</code>的重新调用.
 <ul>

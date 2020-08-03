@@ -5,14 +5,19 @@
   
 
   
-  <title>Lincoln de 小站</title>
+  <title>SwiftUI Notes | Lincoln de 小站</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Lincoln de 小站">
-<meta property="og:url" content="https://crystdragon.github.io/">
+  <meta name="description" content="Data Flow  State  State所指示对象的生命期 State wrapper 的语法特征   ObservableObject ObservedObject StateObject (iOS 14+)  语法特点   Binding   Framework integration UI Tips  待确认的点       Data Flow  State Property wra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SwiftUI Notes">
+<meta property="og:url" content="https://crystdragon.github.io/2020/swiftui-notes/">
 <meta property="og:site_name" content="Lincoln de 小站">
+<meta property="og:description" content="Data Flow  State  State所指示对象的生命期 State wrapper 的语法特征   ObservableObject ObservedObject StateObject (iOS 14+)  语法特点   Binding   Framework integration UI Tips  待确认的点       Data Flow  State Property wra">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-08-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-03T09:24:07.140Z">
 <meta property="article:author" content="Lincoln Wu">
+<meta property="article:tag" content="SwiftUI">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="Lincoln de 小站" type="application/atom+xml">
@@ -66,9 +71,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-swiftui-notes" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-swiftui-notes" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/swiftui-notes/" class="article-date">
   <time datetime="2020-08-02T16:00:00.000Z" itemprop="datePublished">2020-08-03</time>
@@ -85,8 +88,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/swiftui-notes/">SwiftUI Notes</a>
+    <h1 class="article-title" itemprop="name">
+      SwiftUI Notes
     </h1>
   
 
@@ -139,11 +142,115 @@
 <p>注意在非 SwiftUI 体系下, <code>State</code>毫无作用, 甚至基本的 get/set 逻辑都不满足.</p>
 <h4 id="state所指示对象的生命期"><a class="markdownIt-Anchor" href="#state所指示对象的生命期"></a> <code>State</code>所指示对象的生命期</h4>
 <p>无论是<code>State</code>, 还是我们自定义的<code>struct ViewA</code>, 本质上都只是 recipe, 不是真正的运行时对象. 真正的运行时对象, 要么被 SwiftUI 很好地隐藏在真正的 runtime view 对象中, 要么在我们自定义的别的 reference type 中(类似下文的ObservableObject).</p>
-        
-          <p class="article-more-link">
-            <a href="/2020/swiftui-notes/#more">Read More</a>
-          </p>
-        
+<a id="more"></a> 
+<ul>
+<li><code>State</code>指示的真正的对象的生命期和对应的 view 一致, 无论该 view 重绘几次, 只要没有从内存中清除, 都只初始化一次.</li>
+<li>如果 parent view 刷新导致重新初始化了一个 child view 对应的 struct, 只要该 child view 在整个 view hierarchy 中的位置没有变化, SwiftUI 会很聪明地复用之前的 runtime 信息, 不会重新初始化<code>State</code>对应的数据对象.</li>
+<li>如果这个 view 销毁再重新创建, 那么 SwiftUI 会用初始化值重新给新的 view 开辟一份.</li>
+</ul>
+<h4 id="state-wrapper-的语法特征"><a class="markdownIt-Anchor" href="#state-wrapper-的语法特征"></a> <code>State</code> wrapper 的语法特征</h4>
+<ul>
+<li>因为<code>State</code>的 setter 是<code>nonmutating</code>的, 因此:
+<ul>
+<li>即使我们在<code>body</code>中 call 了 setter, 也无需把这个 struct 的<code>body</code>成员标记成<code>mutating</code></li>
+<li>如果不用 property wrapper 的写法, 可以直接声明成<code>let xxx: State // (无需 var)</code>, 需要引用时, 使用使用<code>wrappedValue</code>的 setter/getter.</li>
+</ul>
+</li>
+<li>因为<code>State</code>其实只是一个 wrapper, 不存储实际的 runtime value, 所以我们在 callback 中修改 struct 中的<code>State</code>对象时, 虽然从语法角度 callback 会按 value 形式 capture 一份<code>State</code>副本, 但在 SwiftUI 系统中是 work 的.</li>
+</ul>
+<h3 id="observableobject"><a class="markdownIt-Anchor" href="#observableobject"></a> ObservableObject</h3>
+<ul>
+<li>一个 protocol, 供我们实现. 默认情况下, 如果变量有<code>@Published</code>, 那么 compiler 会自动帮我们实现需求的方法.</li>
+<li>如果手动实现方法:
+<ul>
+<li>则必须实现一个<code>Publisher</code>类型的成员<code>objectWillChange</code>, 其<code>Failure == Never</code>. 一般可以直接用<code>ObservableObjectPublisher</code>这个 concrete type.</li>
+<li>SwiftUI 会在合适的时候给这个 publisher 增加 subscriber.</li>
+<li>要求我们的 code 在合适的时机(必须符合 “will” 的语义)通过<code>objectWillChange</code>发出信息.</li>
+</ul>
+</li>
+<li>SwiftUI中的<code>@ObservedObject</code>可以将<code>ObservableObject</code>用 property wrapper 包装. .</li>
+<li>SwiftUI中的<code>@EnvironmentObject</code>同样可以包装<code>ObservableObject</code>.</li>
+</ul>
+<h3 id="observedobject"><a class="markdownIt-Anchor" href="#observedobject"></a> ObservedObject</h3>
+<p>一个 property wrapper, 包装遵循<code>ObservableObject</code>的对象. 类似<code>State</code>使用, 但和<code>State</code>有区别.</p>
+<ul>
+<li>设定成<code>View</code>的成员变量后, 和<code>State</code>类似, SwiftUI 会建立 model 和 view 之间的联系. 但是, 只要这个<code>ObservableObject</code>的<code>objectWillChange</code>发出信息, 则<code>body</code>就会被重新调用, <em>不需要在 SwiftUI 可以监控到的环境下首先被调用过 getter</em>.</li>
+<li>这个<code>ObservedObject</code>成员对象的内存生命期不和 runtime view 一一绑定, 而是由我们的 code 控制
+<ul>
+<li>如果这个 property 使用 dependency injection 由外部传入, 那么只要外部的引用不消亡, 则始终是同一份对象.</li>
+<li>如果这个 property 是在当前 struct 中初始化, 那么该对象的生命期和当前 struct 被初始化和 pass-by-value 的范围有关.
+<ul>
+<li>如果只是当前 view 被重绘, 触发<code>body</code>重新调用, 那么这个对象仍然存活.</li>
+<li>如果是 parent view 被重绘, 触发初始化一个新的 child view struct, 那么旧的<code>View</code>对象所有引用计数终会清空, 而新的 view 用到的<code>ObservedObject</code>和旧的完全无关.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="stateobject-ios-14"><a class="markdownIt-Anchor" href="#stateobject-ios-14"></a> StateObject (iOS 14+)</h3>
+<p>一个 property wrapper, 综合了<code>State</code>和<code>ObservedObject</code>的特点:</p>
+<ul>
+<li>包含的对象是自定义的遵循了<code>ObservableObject</code>的类型.</li>
+<li>对象的生命期和 runtime view 保持一致.</li>
+</ul>
+<p>待确认的点:</p>
+<ul>
+<li>是否需要 getter 在<code>body</code>中被调用的前提, 才能在<code>objectWillChange</code>产生信息时触发<code>body</code>. 即是类似<code>ObservedObject</code>, 还是类似<code>State</code>?</li>
+</ul>
+<h4 id="语法特点"><a class="markdownIt-Anchor" href="#语法特点"></a> 语法特点</h4>
+<ul>
+<li><code>StateObject</code> wrapper 的初始化方法是一个<code>@autoclosure</code>, 这意味着和<code>State</code>、<code>ObservedObject</code>均不同: 只有当对应 view 要被渲染时 初始值表达式才会被求值, 而非 view struct 被初始化时.</li>
+</ul>
+<h3 id="binding"><a class="markdownIt-Anchor" href="#binding"></a> Binding</h3>
+<ul>
+<li>一个 property wrapper, 包装一个 setter/getter 对.</li>
+<li>可以从<code>State</code>, <code>ObservedObject</code>等对象通过<code>$</code>前缀 + keypath 导出.</li>
+<li>一般<code>State</code>包裹的泛型类型是一个 struct, 所以只要局部有变化, 整体即产生变化. 因此, 即使用<code>$</code>运算生成部分 key path 的<code>Binding</code>, 只要部分值变化, 就会触发<em>所有</em>引用到<code>State</code> getter 或关联的<code>Binding</code> 的 view 进行重新获取<code>body</code>.</li>
+</ul>
+<h2 id="framework-integration"><a class="markdownIt-Anchor" href="#framework-integration"></a> Framework integration</h2>
+<ul>
+<li>把 SwiftUI 放入 UIKit: <code>UIHostingController</code>, 一个<code>UIViewController</code>的 concrete 子类.</li>
+<li>把 UIKit 放入 SwiftUI: <code>UIViewControllerRepresentable</code>和<code>UIViewRepresentable</code>.
+<ul>
+<li>两者都遵循<code>View</code>, 并对所有<code>View</code>要求的方法进行了默认实现</li>
+<li>基本要求遵循者
+<ul>
+<li>提供初始的<code>UIViewController</code>/<code>UIView</code>.</li>
+<li>基于当前 model 进行 view update.</li>
+</ul>
+</li>
+<li>该 view 初次展现时, 系统会根据<code>Coordinator</code> associated type 实现创建并维持一个 coordinator, 在初始化和 update 时作为参数提供给核心 protocol 的实现者. 使实现者可以完成一些 binding.</li>
+<li>最常见的 model 驱动顺序为:
+<ul>
+<li>创建 protocol 遵循者的实例时, 将 model dependency (例如<code>Binding</code>) 传入.</li>
+<li>第一次渲染前, 系统创建 coordinator, 可以把 protocol 遵循者本体 inject 到这个 coordinator 中. 同时使 coordinator 实现 UIKit 中的一些 event pattern.</li>
+<li>在创建实际的 vc/view 时, 系统会把早前实例的 coordinator 传递给 protocol 的遵循者, 并在这里完成 event 的绑定.</li>
+<li>当发生 UIKit 体系内的 event 时, 触发 coordinator 中的回调, 进而在 coordinator 中操纵 injected model dependency.</li>
+<li>SwiftUI 触发所有引用到 <code>@State</code> 的 view 的变化, 包括核心 protocol 遵循者的 update 方法.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="ui-tips"><a class="markdownIt-Anchor" href="#ui-tips"></a> UI Tips</h2>
+<p>SwiftUI 毕竟和之前熟悉的 UIKit 是2套 API. 这里记录一些琐碎的 UI 相关实现 tips.</p>
+<ul>
+<li>实现 navigation: 把<code>NavigationLink</code>放到<code>NavigationView</code>.</li>
+<li>实现 presentation: <code>.sheet()</code>.</li>
+<li>不通过 click/tap gesture 实现<code>navigation</code>的 callback, 可以通过<code>isActive</code>参数, 传入一个自定义的<code>ObservableObject</code>对象, 就可以实现对子页面是否显示的监听.</li>
+</ul>
+<h3 id="待确认的点"><a class="markdownIt-Anchor" href="#待确认的点"></a> 待确认的点</h3>
+<ul>
+<li><code>Scene</code>和<code>View</code>的<code>onChange</code>方法, 传入 value 是怎么 work 的.</li>
+</ul>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>本文所有单独出现的 view, 都指真正的 runtime 对象, 和<code>View</code>或 <em>view struct</em> 含义有区别, 后者仅仅是 recipe/description. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
       
     </div>
     <footer class="article-footer">
@@ -157,191 +264,26 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-testing-in-xcode" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/testing-in-xcode/" class="article-date">
-  <time datetime="2020-08-01T16:00:00.000Z" itemprop="datePublished">2020-08-02</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/apple-platforms/">Apple Platforms</a>►<a class="article-category-link" href="/categories/notes/">Notes</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/testing-in-xcode/">Testing in Xcode</a>
-    </h1>
+    <a href="/2020/testing-in-xcode/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Testing in Xcode</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><ul class="markdownIt-TOC">
-<li><a href="#async-testing">Async Testing</a></li>
-<li><a href="#attachments">Attachments</a></li>
-<li><a href="#code-coverage">Code Coverage</a></li>
-<li><a href="#%E7%BC%96%E5%86%99-unit-test-%E7%9A%84-best-practices">编写 Unit Test 的 Best Practices</a>
-<ul>
-<li><a href="#codeapi-%E7%BB%86%E8%8A%82">code/API 细节</a></li>
-<li><a href="#%E9%9A%94%E7%A6%BB-dependency">隔离 Dependency</a></li>
-<li><a href="#%E5%9C%A8-xcode-%E6%89%A7%E8%A1%8C-test-%E7%9A%84%E6%93%8D%E4%BD%9C%E6%8A%80%E5%B7%A7">在 Xcode 执行 test 的操作技巧</a></li>
-</ul>
-</li>
-<li><a href="#test-plans">Test Plans</a></li>
-<li><a href="#ci-%E7%9B%B8%E5%85%B3">CI 相关</a></li>
-</ul>
-</p>
-<hr>
-<p>References:</p>
-<ul>
-<li><a href="https://developer.apple.com/videos/play/wwdc2017/409/" target="_blank" rel="noopener">What’s New in Testing</a>, WWDC 2017, Session 409
-<ul>
-<li>异步 testing API 的变化</li>
-<li>UI Test 支持多 App test</li>
-<li>UI Test 的 query 性能优化 (需要 programmer 介入)</li>
-<li>Attachments</li>
-</ul>
-</li>
-<li><a href="https://developer.apple.com/videos/play/wwdc2018/403/" target="_blank" rel="noopener">What’s New in Testing</a>, WWDC 2018, Session 403
-<ul>
-<li>Code coverage 优化</li>
-<li>Xcode 新的 Testing 选项</li>
-<li>支持并行执行 test</li>
-</ul>
-</li>
-<li><a href="https://developer.apple.com/videos/play/wwdc2018/417/" target="_blank" rel="noopener">Testing Tips &amp; Tricks</a>, WWDC 2018, Session 417
-<ul>
-<li>编写 test case 的 best practics</li>
-</ul>
-</li>
-<li><a href="https://developer.apple.com/videos/play/wwdc2019/413/" target="_blank" rel="noopener">Testing in Xcode</a>, WWDC 2019, Session 413
-<ul>
-<li>review <code>XCTest</code> 基本功能</li>
-<li>新增 Test Plans</li>
-<li>CI 支持综述</li>
-</ul>
-</li>
-</ul>
-<hr>
-        
-          <p class="article-more-link">
-            <a href="/2020/testing-in-xcode/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/testing-in-xcode/" data-id="ckdeb90w8001fx0f79hyq4gx6" class="article-share-link">Share</a>
-      
-        <a href="https://crystdragon.github.io/2020/testing-in-xcode/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
 
 
-  
-    <article id="post-pointfree-co-notes-ep-23-25" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/pointfree-co-notes-ep-23-25/" class="article-date">
-  <time datetime="2020-07-30T11:17:12.000Z" itemprop="datePublished">2020-07-30</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/notes/">Notes</a>►<a class="article-category-link" href="/categories/swift/">Swift</a>
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
   </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/pointfree-co-notes-ep-23-25/">Pointfree.co Notes Ep.#23-25</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><ul class="markdownIt-TOC">
-<li><a href="#%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84-zip">最常见的 zip</a>
-<ul>
-<li><a href="#swift-%E6%8F%90%E4%BE%9B%E7%9A%84-zip">Swift 提供的 zip</a></li>
-</ul>
-</li>
-<li><a href="#%E9%80%9A%E7%94%A8%E7%9A%84%E4%BA%8C%E5%85%83-zip">通用的二元 zip</a></li>
-<li><a href="#%E5%A4%9A%E5%85%83-zip">多元 zip</a></li>
-<li><a href="#zip%E5%92%8Cmap%E7%9A%84%E8%81%94%E7%B3%BB"><code>zip</code>和<code>map</code>的联系</a></li>
-</ul>
-</p>
-<p>这里记录了 <a href="http://pointfree.co" target="_blank" rel="noopener">pointfree.co</a> 上, 以下三期视频的 notes:</p>
-<ul>
-<li><a href="https://www.pointfree.co/episodes/ep23-the-many-faces-of-zip-part-1" target="_blank" rel="noopener">Ep #23. The Many Faces of Zip: Part 1</a></li>
-<li><a href="https://www.pointfree.co/episodes/ep24-the-many-faces-of-zip-part-2" target="_blank" rel="noopener">Ep #24. The Many Faces of Zip: Part 2</a></li>
-<li><a href="https://www.pointfree.co/episodes/ep25-the-many-faces-of-zip-part-3" target="_blank" rel="noopener">Ep #25. The Many Faces of Zip: Part 3</a></li>
-</ul>
-<hr>
-<p>zip的本质: 一个映射</p>
-<h2 id="最常见的-zip"><a class="markdownIt-Anchor" href="#最常见的-zip"></a> 最常见的 zip</h2>
-<p>考虑显然存在这样的映射<code>A, B -&gt; (A, B)</code>. 那么对任意一个包含<code>T</code>的结构<code>Struct&lt;T&gt;</code>, 我们一定可以给出映射<code>g: Struct&lt;A&gt; , Struct&lt;B&gt; -&gt; Struct&lt;(A, B)&gt;</code>. 这样的映射<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>g</mi></mrow><annotation encoding="application/x-tex">g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span></span></span></span>就是<code>zip</code>.</p>
-<p>这里的<code>Struct</code>可以是 Swift 中的许多有意义的结构, 比如:</p>
-<ul>
-<li>Optional</li>
-<li>Array</li>
-<li>function</li>
-<li>callback function</li>
-<li>任意有&quot;包含&quot;关系的 plain structure</li>
-</ul>
-<p>例如, 针对<code>Optional</code>, 我们可以实现</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">zip</span>&lt;A, B&gt;<span class="params">(<span class="number">_</span> lhs: Optional&lt;A&gt;, <span class="number">_</span> rhs: Optional&lt;B&gt;)</span></span> -&gt; <span class="type">Optional</span>&lt;(<span class="type">A</span>, <span class="type">B</span>)&gt; &#123;</span><br><span class="line">  <span class="keyword">guard</span> <span class="keyword">let</span> a = lhs, <span class="keyword">let</span> b = rhs <span class="keyword">else</span> &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">  <span class="keyword">return</span> .some((a, b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/2020/pointfree-co-notes-ep-23-25/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="ckdeb90ve0006x0f7e9u0agsv" class="article-share-link">Share</a>
-      
-        <a href="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
-    
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next »</a>
-  </nav>
-
+</section>
 </section>
         
           <aside id="sidebar">
@@ -440,11 +382,13 @@
 <script>
   var disqus_shortname = 'crystdragon';
   
+  var disqus_url = 'https://crystdragon.github.io/2020/swiftui-notes/';
+  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>

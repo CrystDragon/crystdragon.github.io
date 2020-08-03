@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://crystdragon.github.io/2020/hello-world/</loc>
+    
+    <lastmod>2020-08-03T08:41:16.411Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/2020/testing-in-xcode/</loc>
     
     <lastmod>2020-08-02T11:08:33.444Z</lastmod>
@@ -40,13 +47,6 @@
     <loc>https://crystdragon.github.io/2020/deallocation-thread-safety/</loc>
     
     <lastmod>2020-07-28T11:26:44.145Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/2020/hello-world/</loc>
-    
-    <lastmod>2020-07-28T09:16:25.641Z</lastmod>
     
   </url>
   

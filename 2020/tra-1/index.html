@@ -15,7 +15,7 @@
 <meta property="og:description" content="Tip: 同步 UIView animation 和 CALayer animation  问题来源 解决办法   Receive: Swift Concurrency Algorithm:    TRA 是简化版的 ARTS, 周期是两周一次。其中  T 是 Tip, 总结和归纳日常中遇到的知识点. R 是 Receive, 新知识的输入(技术、理财、哲学、文化等)都算在内. A 是 Algo">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-11-10T04:05:40.000Z">
-<meta property="article:modified_time" content="2020-11-10T05:44:17.941Z">
+<meta property="article:modified_time" content="2020-11-10T11:54:37.969Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Apple Platforms">
 <meta property="article:tag" content="Swift Concurrency">
@@ -219,6 +219,92 @@
 </code></pre>
 <p>这样每次在 <code>UIView.animate()</code> 的 animation block 中如果更改了 layer 的 <code>path</code>, 就会自动产生一个 implicit animation, 并且能和其他 view animation 并行产生作用.</p>
 <h2 id="receive-swift-concurrency"><a class="markdownIt-Anchor" href="#receive-swift-concurrency"></a> Receive: Swift Concurrency</h2>
+<p>关于 Swift 中新的并发编程特性的讨论已经官方 forums <a href="https://forums.swift.org/t/concurrency-async-await-actors/6516" target="_blank" rel="noopener">持续好多年</a>了, 我个人也一直抱有浓厚的兴趣. 上周, Swift core team 终于正式以 <a href="https://forums.swift.org/t/swift-concurrency-roadmap/41611" target="_blank" rel="noopener">1 篇 road map</a> 和 4 篇 proposal 初稿隆重为各位 Swift 爱好者铺展开将会持续未来多个版本的道路. 虽然这些文档仍在积极讨论中, 和终稿相比想必会有很大的不同, 但我坚信, 相关的思想和观念将是一名优秀 Swifter 以后绕不开的宝库.</p>
+<p>对于 iOS 开发者而言, 异步编程是再熟悉不过了, 平时日常开发中即使不涉及到多线程通信的问题, 也至少懂得&quot;繁琐操作不应该 block 主线程&quot;的道理. 而这次 Swift team 带来的 proposal 不但能免去我们开发者平时遇到的一些烦恼, 也能在更高的 level 上系统化地解决并发编程中的一些基本问题.</p>
+<p>这里无法详述所有细节, 仅将相关 proposal 的主旨摘录于下:</p>
+<ul>
+<li><a href="https://github.com/DougGregor/swift-evolution/blob/async-await/proposals/nnnn-async-await.md" target="_blank" rel="noopener">Async/await</a> 为语言引入了一种新的 function: async function (包括 method).
+<ul>
+<li>Async function 与普通 function 是两个世界, 无法互相调用, 只能在各自的 context 中调用.
+<ul>
+<li>声明方式 <code>func asyncFunction(_ input: Int) async -&gt; Int</code> .</li>
+<li>调用方式 <code>let result = await asyncFunction(10)</code>.</li>
+</ul>
+</li>
+<li>Async function 调用后, 只能异步地返回.
+<ul>
+<li>从语法角度, 可以认为 async function 是带 callback block 的普通 function 的语法糖.</li>
+<li>从语义角度, async 是协程 (coroutine) 的应用: 在 async context 下每次 await, 都产生了断点, 当前协程中断, 直到被调用的 async function 异步完成时, 才会把返回值提供给 caller, caller 协程接着上次断点继续执行.</li>
+</ul>
+</li>
+<li>Async function 可以极大简化普通 function 中因为大量使用 callback block 造成的书写问题, 例如:
+<ul>
+<li>回调地狱——深层的 callback 嵌套.</li>
+<li>数据流容易丢失——使用 callback 时编译器无法保证, 被调方法能一致地返回.</li>
+<li>try catch 机制无法用于 callback 方法.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Async/await 只是引入了最基本的异步语法, 但日常应用需要有更高级的抽象. <a href="https://github.com/DougGregor/swift-evolution/blob/structured-concurrency/proposals/nnnn-structured-concurrency.md" target="_blank" rel="noopener">Structured concurrency</a> 在语言层面增加了许多机制.
+<ul>
+<li>虽然 async function 异步执行, 但在执行过程中, 它与它内部所有 await 的操作形成了自然的树状&quot;父子&quot;结构, 系统可以保证所有子任务不会无故超越父任务的生命期.
+<ul>
+<li>支持协作式的 cancellation: 任何子任务被 cancel, 父任务会同步自动进入 cancel 状态, 其他执行中的子任务也可以主动获取到 cancel 信息.</li>
+<li>在一个任务中需要多个子任务并发处理的情况下:
+<ul>
+<li>可以通过 <code>async let</code> binding 可以并发执行多个 async function, 并在同一的地方 await 多个任务的完成.</li>
+<li>也可以通过 <code>Task.Nursery</code> 动态方式开始和结束任意数量的子任务.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>在每一个 async function,中 都可以通过系统提供的 <code>Task</code> 类型, 实现许多并发机制.
+<ul>
+<li>如上所说, <code>Task.Nursery</code> 可以动态并行开启子任务.</li>
+<li>使用 <code>Task.isCancelled()</code> 等方法, 得知当前 task 是否被标记 cancelled.</li>
+<li>使用 <code>Task.withDeadline()</code> 和 <code>Task.currentDeadline().remaining</code> 可以开启有时限的任务和检测时限是否已达.</li>
+</ul>
+</li>
+<li><code>Task</code> 还可以连接 async 和 non-async 世界:
+<ul>
+<li><code>Task.runDetached()</code> 允许我们从普通的非 async 代码进入一个 async context, 从而可以调用 async function.</li>
+<li><code>Task.withUnsafeContinuation()</code> 允许从一个 async context 中临时转移到 non-async context, 执行我们的基于普通 callback block 的代码, 并等待回调.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>上面 2 个 protocol 解决了并发编程中的一些效率问题, 而 <a href="https://github.com/DougGregor/swift-evolution/blob/actors/proposals/nnnn-actors.md" target="_blank" rel="noopener">Actors</a> 可以帮忙解决更困难和危险的问题——如何保证并发下的运行安全. 例如 data race, deadlock.
+<ul>
+<li>引入了一种新的 type 类别: <code>actor class</code>.
+<ul>
+<li>每一个 actor class 的实例对象, 背后都有一个 “queue” , 语言制定了一些列规则来保证所有该对象的方法默认都只能在该 queue 上执行, 并且当前 actor 的 value semantics 成员都不会被其他 actor 不安全地访问. 从而部分解决了 data race 问题.
+<ul>
+<li>要访问的是 stored property 时, 只有当编译器能确保以下条件时,  才允许访问: 或者能保证该 property 是 immutable, 或者能保证访问只发生在 <code>self</code> 上.</li>
+<li>要访问的是 non-async 方法时, 只允许在该 method 在 <code>self</code> 上调用, 不允许在别的对象上调用.</li>
+<li>要访问的是 async 方法时, 没有限制. 而由于调用者只能异步等待返回, 因此解决了死锁问题.</li>
+<li>当然针对不同情况, proposal 也提供了一些手段让开发者帮编译器作强制指定.</li>
+</ul>
+</li>
+<li>对于全局方法, 虽然不在 actor class 内, 但可以给其标记属于某个 global actor, 所有的访问都等价于在这个 actor singleton 上执行.</li>
+</ul>
+</li>
+<li>官方 forums 的 proposal 只针对 value semantics 的类型提供了检查, 而对其他类型的支持将会在以后加入. 这等于在以后版本加强了语言限制, 会导致现在 valid 的 code 以后某个版本不 valid.
+<ul>
+<li>社区中针对这一问题, 许多大佬 (比如 Christ Lattner, Dave Abrahams) 提出了另一种策略: <a href="https://docs.google.com/document/d/1OMHZKWq2dego5mXQtWt1fm-yMca2qeOdCl8YlBG1uwg" target="_blank" rel="noopener">Protocol-based Actor Isolation</a>.</li>
+<li>这个 proposal 里建议一开始就限制允许在 actor 中传递的数据类型, 并允许标准库和开发者有办法让自己的类型满足要求.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>最后, Swift 当前的首要用户必然是 ObjC 开发者, 而为 Swift 特性和 ObjC 交互也始终是首要任务之一. 因此将 async/await 甚至 actor 和 ObjC 打通也必然极有意义. <a href="https://github.com/DougGregor/swift-evolution/blob/concurrency-objc/proposals/NNNN-concurrency-objc.md" target="_blank" rel="noopener">Concurrency Interoperability with Objective-C</a> 就给这一块补上了许多支持.
+<ul>
+<li>ObjC 中编写的基于 callback block 的方法, 在 bridge 到 Swift 时, 除了原有的 API, 符合条件时还会额外生成一个 async API.</li>
+<li>Swift 中编写的 async API, 用 <code>@objc</code> 暴露给 ObjC 时, 会自动转换成 callback block 形式.</li>
+<li>Swift 中编写的 actor class, 其 <code>@objc</code> 方法暴露给 ObjC 调用时, 会自动执行在对应 actor 的 “queue” 上.</li>
+</ul>
+</li>
+</ul>
 <h2 id="algorithm"><a class="markdownIt-Anchor" href="#algorithm"></a> Algorithm:</h2>
 
       

@@ -239,9 +239,9 @@
     
     
     
-    <category term="Notes" scheme="https://crystdragon.github.io/categories/notes/"/>
-    
     <category term="Swift" scheme="https://crystdragon.github.io/categories/swift/"/>
+    
+    <category term="Notes" scheme="https://crystdragon.github.io/categories/notes/"/>
     
     
     <category term="pointfree.co" scheme="https://crystdragon.github.io/tags/pointfree-co/"/>
@@ -435,9 +435,9 @@
     
     
     
-    <category term="Apple Platforms" scheme="https://crystdragon.github.io/categories/apple-platforms/"/>
-    
     <category term="Architecture" scheme="https://crystdragon.github.io/categories/architecture/"/>
+    
+    <category term="Apple Platforms" scheme="https://crystdragon.github.io/categories/apple-platforms/"/>
     
     
     <category term="Thread Safety" scheme="https://crystdragon.github.io/tags/thread-safety/"/>

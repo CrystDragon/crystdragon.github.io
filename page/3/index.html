@@ -5,17 +5,17 @@
   
 
   
-  <title>Lincoln de 小站</title>
+  <title>Lincoln&#39;s SafeHouse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
-<meta property="og:title" content="Lincoln de 小站">
+<meta property="og:title" content="Lincoln&#39;s SafeHouse">
 <meta property="og:url" content="https://crystdragon.github.io/page/3/">
-<meta property="og:site_name" content="Lincoln de 小站">
+<meta property="og:site_name" content="Lincoln&#39;s SafeHouse">
 <meta property="og:locale" content="zh">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
-    <link rel="alternate" href="/atom.xml" title="Lincoln de 小站" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Lincoln&#39;s SafeHouse" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -36,7 +36,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Lincoln de 小站</a>
+        <a href="/" id="logo">Lincoln&#39;s SafeHouse</a>
       </h1>
       
         <h2 id="subtitle-wrap">
@@ -127,12 +127,89 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="ckdeb90vd0005x0f703po3lvn" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="ckhbgfesg0001jmf79pdi4pie" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/deallocation-thread-safety/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-computer-security-notes" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/computer-security-notes/" class="article-date">
+  <time datetime="2020-07-26T16:00:00.000Z" itemprop="datePublished">2020-07-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/computer-systems/">Computer Systems</a>►<a class="article-category-link" href="/categories/notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/computer-security-notes/">Computer Security Notes</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E5%AF%86%E7%A0%81%E5%AD%A6%E6%A6%82%E5%BF%B5">密码学概念</a></li>
+<li><a href="#%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%AD%E7%9A%84-certificate-authority">互联网中的 Certificate Authority</a></li>
+<li><a href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84-chmod-chown">操作系统中的 chmod &amp; chown</a>
+<ul>
+<li><a href="#xcode-%E4%B8%8B-build-%E6%97%B6%E8%87%AA%E5%8A%A8%E5%8C%96%E6%8A%8A%E6%96%87%E4%BB%B6%E6%8B%B7%E8%B4%9D%E5%88%B0%E5%8F%97%E9%99%90%E7%9B%AE%E5%BD%95">Xcode 下 build 时自动化把文件拷贝到受限目录</a></li>
+</ul>
+</li>
+<li><a href="#case-mac-os-privilege-jobs">Case: Mac OS Privilege Jobs</a></li>
+</ul>
+</p>
+<hr>
+<p>原文成于2019年</p>
+<hr>
+<h2 id="密码学概念"><a class="markdownIt-Anchor" href="#密码学概念"></a> 密码学概念</h2>
+<ul>
+<li>对称加密
+<ul>
+<li>需要 private 通道传递密钥.</li>
+</ul>
+</li>
+<li>非对称加密
+<ul>
+<li>实现 encryption (保证发送的东西没有别人知道): 传递方用接收方发布的公钥加密, 接收方用私钥解密.</li>
+<li>实现 authentication (保证发送的人不会是别人):  传递把 message 用自己的私钥加密, 作为 signature 和 message 一起发给接收方, 接收方收到后用传递方早前公开提供的公钥对 signature 进行解密, 验证能还原到 message.</li>
+</ul>
+</li>
+<li>混合加密: 用对称秘钥加密明文, 并用非对称秘钥加密对称秘钥.</li>
+</ul>
+        
+          <p class="article-more-link">
+            <a href="/2020/computer-security-notes/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/computer-security-notes/" data-id="ckhbgfesl0005jmf7dbug9lql" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/computer-security-notes/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li></ul>
 
     </footer>
   </div>
@@ -225,58 +302,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckdeb90vg000ax0f720ro4c23" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckhbgfesr000ejmf78jwx342n" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/hello-world/" class="article-date">
-  <time datetime="2020-06-30T16:00:00.000Z" itemprop="datePublished">2020-07-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/diary/">Diary</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Hi, 很高兴认识你, 我是 Lincoln. 明面上是一名 iOS 开发者, Swifter. 私下喜欢算法, 图形渲染, 数学.<br>
-这是我的 <a href="/Resume.pdf">Resume</a>.</p>
-<p>2020年全球的疫情改变了世界, 也改变了我. 我喜欢记录和分享技术, 但以前除了在公司内部分享或与人当面交流, 我从未尝试把文字放到互联网上. 我觉得现在的环境对做出这样的改变是一个非常好的时机.</p>
-<p>这里的文字主要有两部分内容. 一部分是正儿八经的博客, 另一部分是<a href="/categories/Notes/">十足随意的笔记</a>. 前者适合拿出来跟大家探讨, 但后者只能当成自己学习时的一些总结或提纲. 有些文章都是过去很久之前写成的, 我也趁这个把它们搬进博客的机会, 重新梳理或归纳了一下. 我确保这里的每一篇都是我自己对某个技术点的感悟, 绝不会照搬 copy 网上现有的东西. 如果阅读某一篇文字的你能从里面的某个地方有所收获, 自然我的努力也没有白费. 当然我更愿意你给我的文章提一些建议, 独乐乐不如众乐乐 xD.</p>
-<p>我对网页前端开发有兴趣, 但远远称不上合格. 因此这个站点选择了最为基础的网路框架. 我使用了 <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> 作为网站框架, 并<a href="https://hexo.io/docs/github-pages#Private-repository" target="_blank" rel="noopener">托管</a>在 <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a> 上. 我使用的主题是 Hexo 最为基础的 landscape 风格. 平时的文章都是以 markdown 写成, 为了超越默认的 hexo markdown renderer 支持的功能, 我使用了 <a href="https://github.com/CHENXCHEN/hexo-renderer-markdown-it-plus" target="_blank" rel="noopener">hexo-renderer-markdown-it-plus</a> 插件来支持数学公式、目录、脚注等功能; 使用了<a href="https://github.com/xcodebuild/hexo-asset-image" target="_blank" rel="noopener">hexo-asset-image</a> 插件来支持插入 local image. 我选择了 <a href="https://disqus.com" target="_blank" rel="noopener">Disqus</a> 来托管每篇文章的评论. 最后, 我使用 <a href="https://github.com/hexojs/hexo-generator-sitemap" target="_blank" rel="noopener">hexo-generator-sitemap</a> 插件来自动生成 sitemap 供搜索引擎索引页面.</p>
-<hr>
-<p><a href="https://oleb.net/blog/2017/06/chris-lattner-wwdc-swift-panel/#in-which-fields-would-you-like-to-see-swift-in-the-future" target="_blank" rel="noopener">期待 Swift 统治世界😂</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/hello-world/" data-id="ckdeb90v70001x0f7co600rzc" class="article-share-link">Share</a>
-      
-        <a href="https://crystdragon.github.io/2020/hello-world/#disqus_thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -290,7 +318,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/2/">« Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+    <a class="extend prev" rel="prev" href="/page/2/">« Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/">Next »</a>
   </nav>
 
 </section>
@@ -301,7 +329,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
     </div>
   </div>
 
@@ -311,7 +339,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
     </div>
   </div>
 
@@ -321,7 +349,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 10px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
     </div>
   </div>
 
@@ -330,7 +358,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
     </div>
   </div>
 
@@ -341,6 +369,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/tra-1/">TRA-1</a>
+          </li>
         
           <li>
             <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
@@ -356,10 +388,6 @@
         
           <li>
             <a href="/2020/swift-practices-perls-2/">Swift Practices &amp; Perls (2)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/Image-Orientation/">Image Orientation</a>
           </li>
         
       </ul>

@@ -25,8 +25,6 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -140,7 +138,12 @@
 <h3 id="活用-string-backed-enum"><a class="markdownIt-Anchor" href="#活用-string-backed-enum"></a> 活用 “String-backed” enum</h3>
 <h4 id="背景知识"><a class="markdownIt-Anchor" href="#背景知识"></a> 背景知识</h4>
 <p>在众多基于 raw value 的 enum 中, raw value 是<code>String</code>的最为特殊, 因为这样的 enum 在定义各个 case 时, 可以省去显式写出用来初始化该 enum 的 raw value. 这种情况下, 编译器默认追加代码, 使用各个 case identifier 的同名字符串作为 raw value.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 各行 case 可以省略 // 之后的部分</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ImageIdentifier</span>: <span class="title">String</span> </span>&#123;</span><br><span class="line">  <span class="keyword">case</span> centerButton <span class="comment">// = "centerButton"</span></span><br><span class="line">  <span class="keyword">case</span> myFavorites <span class="comment">// = "myFavorites"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-comment">// 各行 case 可以省略 // 之后的部分</span>
+<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">ImageIdentifier</span>: <span class="hljs-title">String</span> </span>{
+  <span class="hljs-keyword">case</span> centerButton <span class="hljs-comment">// = "centerButton"</span>
+  <span class="hljs-keyword">case</span> myFavorites <span class="hljs-comment">// = "myFavorites"</span>
+}
+</code></pre>
 <p>另一方面, 这样的 enum 默认遵循<code>RawRepresentable</code>, 且关联类型<code>RawValue == String</code>. 这方便我们对于一系列有相同特征的 enum 依靠 protocol 提供统一操作.</p>
 <h4 id="案例"><a class="markdownIt-Anchor" href="#案例"></a> 案例</h4>
 <p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>
@@ -149,25 +152,60 @@
 <a id="more"></a>
 <p>在使用 segue 的 app 中每一个<code>UIViewController</code>都含有一组 segue identifier, 通过调用<code>func performSegue(withIdentifier identifier: String, sender: Any?)</code>来执行页面跳转.</p>
 <p>但是直接调用该方法有风险: 传入的<code>identifier</code>有可能有拼写错误. 因此容易想到, 定义一个使用<code>String</code>作为 raw value 的 enum, 并同时给<code>UIViewController</code>增加一个接受该 enum 的重载方法.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">SegueIdentifier</span>: <span class="title">String</span></span>&#123;</span><br><span class="line">  <span class="keyword">case</span> jumpToHome</span><br><span class="line">  <span class="keyword">case</span> jumpToMyFavorites</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">HomeViewController</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">performSegue</span><span class="params">(identifer: SegueIdentifier)</span></span> &#123;</span><br><span class="line">    <span class="keyword">self</span>.performSegue(withIdentifier: identifer.rawValue, sender: <span class="literal">nil</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用时</span></span><br><span class="line">performSegue(identifer: .jumpToHome)</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">SegueIdentifier</span>: <span class="hljs-title">String</span></span>{
+  <span class="hljs-keyword">case</span> jumpToHome
+  <span class="hljs-keyword">case</span> jumpToMyFavorites
+}
+
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">HomeViewController</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">performSegue</span><span class="hljs-params">(identifer: SegueIdentifier)</span></span> {
+    <span class="hljs-keyword">self</span>.performSegue(withIdentifier: identifer.rawValue, sender: <span class="hljs-literal">nil</span>)
+  }
+}
+
+<span class="hljs-comment">// 调用时</span>
+performSegue(identifer: .jumpToHome)
+</code></pre>
 <p>但仅仅如此, 有多个副作用</p>
 <ul>
 <li>不同的 view controller 理所当然有不同的 segue, 因此应该给不同的 view controller 定义不同的<code>SegueIdentifier</code> enum, 使他们彼此独立</li>
 <li>既然必须存在多个<code>SegueIdentifier</code> 彼此独立, 那么就不得不针对每种<code>SegueIdentifier</code>单独提供一个<code>performSegue</code>的重载方法</li>
 </ul>
 <p>可以看到这样虽然提供了一种 type safe 的调用方法, 但是显著增加了工作量. 为了解决这个问题, 可以抽象出一个 protocol, 表示包含<code>SegueIdentifier</code>的 view controller, 进而针对该 protocol 统一增加一个方法即可.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 这里使用的 swift 语法, 可以直接给 protocol 的遵循者增加约束</span><br><span class="line">&#x2F;&#x2F; 在最初的 WWDC session 中还不支持这么做</span><br><span class="line">protocol SegueNavigation where Self: UIViewController &#123;</span><br><span class="line">  associatedtype SegueIdentifier: RawRepresentable where SegueIdentifier.RawValue &#x3D;&#x3D; String</span><br><span class="line"></span><br><span class="line">  func performSegue(identifier: SegueIdentifier)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension SegueNavigation &#123;</span><br><span class="line">  func performSegue(identifier: SegueIdentifier) &#123;</span><br><span class="line">    performSegue(withIdentifier: identifier.rawValue, sender: nil)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class>// 这里使用的 swift 语法, 可以直接给 protocol 的遵循者增加约束
+// 在最初的 WWDC session 中还不支持这么做
+protocol SegueNavigation where Self: UIViewController {
+  associatedtype SegueIdentifier: RawRepresentable where SegueIdentifier.RawValue == String
+
+  func performSegue(identifier: SegueIdentifier)
+}
+
+extension SegueNavigation {
+  func performSegue(identifier: SegueIdentifier) {
+    performSegue(withIdentifier: identifier.rawValue, sender: nil)
+  }
+}
+</code></pre>
 <p>此时, 只要任意<code>UIViewController</code>, 通过提供自己 local 的<code>SegueIdentifier</code>, 就可以遵循<code>SegueNavigation</code>, 进而可以调用 type safe 的<code>func performSegue(identifier: SegueIdentifier)</code>方法.</p>
 <h2 id="tricks-patterns"><a class="markdownIt-Anchor" href="#tricks-patterns"></a> Tricks &amp; Patterns</h2>
 <p>由于 Swift 语言在不断变化之中, 很多将来加入的语法特性在当下版本没有直接对应的表达方式. 但凭借 Swift 已有的丰富的 generics 和 protocol 表达技巧, 可以实现一些等价的功能 (虽然可能并不优雅).</p>
 <h3 id="给-protocol-增加-recursive-constraints-before-swift-41"><a class="markdownIt-Anchor" href="#给-protocol-增加-recursive-constraints-before-swift-41"></a> 给 protocol 增加 recursive constraints (before Swift 4.1)</h3>
 <p>定义 Swift 的 protocol 时, 可以要求遵循者同时提供<code>associatedtype</code>, 该<code>associatedtype</code>可以附带一些额外约束, 例如<code>: SomeType</code>, <code>where ...</code>. 当前版本下, 这样的约束内允许递归引用到 protocol 本身<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">  <span class="keyword">associatedtype</span> <span class="type">T</span>: <span class="type">A</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">A</span> </span>{
+  <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">T</span>: <span class="hljs-type">A</span>
+}
+</code></pre>
 <p>在允许 associated type 递归引用前, 为了实现该功能, 使用了以下技巧.</p>
 <p>(1) 先定义一个和<code>A</code>有相同接口或大部分关键接口的&quot;隐形 protocol&quot;.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">__PrivateA</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 这里包含了 A 本来的方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">__PrivateA</span> </span>{
+  <span class="hljs-comment">// 这里包含了 A 本来的方法</span>
+} 
+</code></pre>
 <p>(2) 然后使<code>A</code>本身继承这个 protocol, 并要求 associatedtype 也遵循这个 protocol.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">A</span>: <span class="title">__PrivateA</span> </span>&#123;</span><br><span class="line">  <span class="keyword">associatedtype</span> <span class="type">T</span>: __PrivateA</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">A</span>: <span class="hljs-title">__PrivateA</span> </span>{
+  <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">T</span>: __PrivateA
+} 
+</code></pre>
 <p>(3) 此时所有引用<code>A</code>和<code>A.T</code>的地方, 都可以调用到 <code>__PrivateA</code> 中的那些方法了</p>
 <p>这种避免显式出现 recursion 的方式, 虽然可以解决语法问题, 但带来的后果就是多了不得不暴露给用户的中间层. 在 Swift 4.1 之前的标准库中, <code>Collection</code> 就通过该技巧定义了<code>SubSequence</code>和<code>Indices</code>这2个 associated type. 诚然这也给当时的学习者带来了一些困难:</p>
 <ul>
@@ -177,7 +215,18 @@
 <h3 id="泛型对象排除特例调用"><a class="markdownIt-Anchor" href="#泛型对象排除特例调用"></a> 泛型对象排除特例调用</h3>
 <h4 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h4>
 <p>一般而言, 经常需要在泛型类型的模板参数满足某个条件时, 增加一些特例调用. 这时候我们可以通过带限制条件的 extension 给这个类型扩展方法.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Container</span> <span class="title">where</span> <span class="title">T</span> == <span class="title">Int</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">special</span><span class="params">()</span></span> &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Int</span>&gt;().special()		<span class="comment">// OK</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Double</span>&gt;().special()	<span class="comment">// Compiler Error!</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">String</span>&gt;().special()	<span class="comment">// Compiler Error!</span></span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span>&lt;<span class="hljs-title">T</span>&gt; </span>{
+  <span class="hljs-comment">//...</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Container</span> <span class="hljs-title">where</span> <span class="hljs-title">T</span> == <span class="hljs-title">Int</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">special</span><span class="hljs-params">()</span></span> {}
+}
+
+<span class="hljs-type">Container</span>&lt;<span class="hljs-type">Int</span>&gt;().special()		<span class="hljs-comment">// OK</span>
+<span class="hljs-type">Container</span>&lt;<span class="hljs-type">Double</span>&gt;().special()	<span class="hljs-comment">// Compiler Error!</span>
+<span class="hljs-type">Container</span>&lt;<span class="hljs-type">String</span>&gt;().special()	<span class="hljs-comment">// Compiler Error!</span>
+</code></pre>
 <p>这边提出的是一个反向问题: 对于某个泛型类型, 要求模板参数在某个条件下, 不能调用某个方法. 这个乍看 Swift 不可能支持的需求, 在某种程度上可以实现.</p>
 <h4 id="场景"><a class="markdownIt-Anchor" href="#场景"></a> 场景</h4>
 <p>这个需求貌似不符合逻辑, 但 Swift Standard Library 中就有曾经有个这样的例子. 在之前版本的 Swift 中, <code>CountableRange</code>用来表示左开右闭, 且取值离散的区间. 例如<code>0..&lt;10</code>就是一个<code>CountableRange</code>. 很自然地, <code>CountableRange</code>可以遵循<code>Collection</code>. 既然可以遵循<code>Collection</code>, 那么接下来就需要确定<code>CountableRange</code>的<code>Index</code>.</p>
@@ -191,14 +240,35 @@
 <h4 id="实现"><a class="markdownIt-Anchor" href="#实现"></a> 实现</h4>
 <p>这个 trick 在 Swift 标准库源码的实现中称为: “Statically Unavailable &amp; Dynamically Available”. 换言之, 这个方法动态是存在的, 但是你的静态代码无法调到.</p>
 <p>考虑一般的情况</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>: <span class="title">Equatable</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(<span class="number">_</span> t: T)</span></span> &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 要求 T == Int 时, 无法调用 check</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Int</span>&gt;().check(<span class="number">1</span>)   	<span class="comment">// 期望 Compiler Error</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">String</span>&gt;().check(<span class="string">""</span>)   <span class="comment">// OK</span></span><br><span class="line"><span class="type">Container</span>&lt;<span class="type">Double</span>&gt;().check(<span class="number">1</span>)  	<span class="comment">// OK</span></span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span>&lt;<span class="hljs-title">T</span>: <span class="hljs-title">Equatable</span>&gt; </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">check</span><span class="hljs-params">(<span class="hljs-number">_</span> t: T)</span></span> {}
+}
+
+<span class="hljs-comment">// 要求 T == Int 时, 无法调用 check</span>
+<span class="hljs-type">Container</span>&lt;<span class="hljs-type">Int</span>&gt;().check(<span class="hljs-number">1</span>)   	<span class="hljs-comment">// 期望 Compiler Error</span>
+<span class="hljs-type">Container</span>&lt;<span class="hljs-type">String</span>&gt;().check(<span class="hljs-string">""</span>)   <span class="hljs-comment">// OK</span>
+<span class="hljs-type">Container</span>&lt;<span class="hljs-type">Double</span>&gt;().check(<span class="hljs-number">1</span>)  	<span class="hljs-comment">// OK</span>
+</code></pre>
 <p>具体实现原理是: 在特定情况下, 针对不允许调用的方法定义一个特殊的重载, 使用户调用该方法时, 会出现二义性, 从而无法通过编译.</p>
 <p>(1) 首先给<code>Container</code>的泛型参数的条件中, 插入一个特殊的标记, 这个标记默认指向一个人畜无害的类型</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">__UnavailableFlag</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">SpecialEquatable</span>: <span class="title">Equatable</span> </span>&#123;</span><br><span class="line">  <span class="keyword">associatedtype</span> _Unavailable = __UnavailableFlag</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">__UnavailableFlag</span> </span>{}
+<span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">SpecialEquatable</span>: <span class="hljs-title">Equatable</span> </span>{
+  <span class="hljs-keyword">associatedtype</span> _Unavailable = __UnavailableFlag
+}
+</code></pre>
 <p>(2) 接着针对想特殊处理的泛型类型, 改写这个标记, 使之引用自身</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Int</span>: <span class="title">SpecialEquatable</span> </span>&#123;</span><br><span class="line">  <span class="keyword">typealias</span> _Unavailable = <span class="type">Int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Double</span>: <span class="title">SpecialEquatable</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">String</span>: <span class="title">SpecialEquatable</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Int</span>: <span class="hljs-title">SpecialEquatable</span> </span>{
+  <span class="hljs-keyword">typealias</span> _Unavailable = <span class="hljs-type">Int</span>
+}
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Double</span>: <span class="hljs-title">SpecialEquatable</span> </span>{}
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">String</span>: <span class="hljs-title">SpecialEquatable</span> </span>{}
+</code></pre>
 <p>(3) 给我们的泛型类型, 增加一个重载, 使仅针对我们要规避的参数类型, 产生二义性</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>: <span class="title">SpecialEquatable</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(<span class="number">_</span> t: T)</span></span> &#123;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(<span class="number">_</span> t: T._Unavailable)</span></span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span>&lt;<span class="hljs-title">T</span>: <span class="hljs-title">SpecialEquatable</span>&gt; </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">check</span><span class="hljs-params">(<span class="hljs-number">_</span> t: T)</span></span> {}
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">check</span><span class="hljs-params">(<span class="hljs-number">_</span> t: T._Unavailable)</span></span> {}
+}
+</code></pre>
 <p>此时, 当我们调用<code>Container.check</code>时, 当且仅当<code>T == Int</code>时, 因为<code>Int._Unavailable == Int</code>, 因此同时命中2个<code>check</code>方法, 且毫无优先级区别, 导致编译失败; 而当<code>T</code>是其他类型时, 此时<code>T._Unavailable == __UnavailableFlag</code>, 而<code>__UnavailableFlag</code>是一个 non-inhabitant type, 又称 “caseless-enum”, 因此调用者不可能产生一个这样类型的实例, 因此永远不可能产生二义性.</p>
 <p>需要说明的是, 在上面的实现中我们把<code>Container&lt;T: Equatable&gt;</code>改写成了<code>Container&lt;T: SpecialEquatable&gt;</code>, 这会导致我们不得不把所有类型都重新遵循<code>SpecialEquatable</code>才能使之用于<code>Container</code>.<br>
 而在标准库设计<code>CountableRange</code>时, 是不需要的, 因为<code>CountableRange</code>本身就要求<code>T: Strideable</code>, 而<code>Strideable</code>的源码 Swift 开发人员是可控的, 因此他们只要偷偷给<code>Strideable</code>塞入一个有默认实现的 associated type, 就可以使所有原先就遵循<code>Strideable</code>的类型不改动任何代码就 work 了.</p>
@@ -215,12 +285,32 @@
 <h3 id="泛型类型按条件遵循-protocol-before-swift-41"><a class="markdownIt-Anchor" href="#泛型类型按条件遵循-protocol-before-swift-41"></a> 泛型类型按条件遵循 protocol (before Swift 4.1)</h3>
 <p>当前的 Swift 含有一个强大功能: Conditional Conformance<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>. 允许我们针对泛型类型在其泛型参数满足特定条件时, 使泛型类型本身遵循 protocol. 当泛型参数有一系列变化时, 泛型类型本身遵循的 protocol 还可以产生层级. 这个功能从 Swift 4.1 部分加入 (只支持编译期决议), 并在 Swift 4.2 得到彻底实现 (支持动态判断).</p>
 <p>在 Swift 4.1 之前, 由于语言不支持此特性, 我们只能手动另辟蹊径. 例如, 期望实现下面等价的效果.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// protocol hierarchy</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">General</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Special</span>: <span class="title">General</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Container</span>: <span class="title">General</span> <span class="title">where</span> <span class="title">T</span>: <span class="title">General</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Container</span>: <span class="title">Special</span> <span class="title">where</span> <span class="title">T</span>: <span class="title">Special</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span>&lt;<span class="hljs-title">T</span>&gt; </span>{ <span class="hljs-keyword">let</span> item: <span class="hljs-type">T</span> }
+
+<span class="hljs-comment">// protocol hierarchy</span>
+<span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">General</span> </span>{}
+<span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">Special</span>: <span class="hljs-title">General</span> </span>{}
+
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Container</span>: <span class="hljs-title">General</span> <span class="hljs-title">where</span> <span class="hljs-title">T</span>: <span class="hljs-title">General</span> </span>{}
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Container</span>: <span class="hljs-title">Special</span> <span class="hljs-title">where</span> <span class="hljs-title">T</span>: <span class="hljs-title">Special</span> </span>{}
+</code></pre>
 <p>当我们使用不同的模板参数实例化<code>Container</code>时, 形成的不同的类型本来彼此就是异构 (heterogeneous) 的, 无法再使用单个类型指示他们, 因此我们只需考虑静态情况下的问题. 并且, 某个<code>Container</code>实例是否遵循 protocol 在实例化瞬间就已经确定了, 因此可以尽早对不同的<code>Container</code>进行区分.</p>
 <p>(1) 首先针对不同的约束情况建立一组不同的实例类型</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Container</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">GeneralContainer</span>&lt;<span class="title">T</span>: <span class="title">General</span>&gt;: <span class="title">General</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SpecialContainer</span>&lt;<span class="title">T</span>: <span class="title">Special</span>&gt;: <span class="title">Special</span> </span>&#123; <span class="keyword">let</span> item: <span class="type">T</span> &#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span>&lt;<span class="hljs-title">T</span>&gt; </span>{ <span class="hljs-keyword">let</span> item: <span class="hljs-type">T</span> }
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">GeneralContainer</span>&lt;<span class="hljs-title">T</span>: <span class="hljs-title">General</span>&gt;: <span class="hljs-title">General</span> </span>{ <span class="hljs-keyword">let</span> item: <span class="hljs-type">T</span> }
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">SpecialContainer</span>&lt;<span class="hljs-title">T</span>: <span class="hljs-title">Special</span>&gt;: <span class="hljs-title">Special</span> </span>{ <span class="hljs-keyword">let</span> item: <span class="hljs-type">T</span> }
+</code></pre>
 <p>(2) 然后编写一个&quot;静态&quot;的工厂方法即可, 这个方法其实针对不同的输入参数类型, 进行重载决议, 在编译时确定遵循到哪一层 protocol.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">Container</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">Container</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: General&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">GeneralContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">GeneralContainer</span>(item: item) </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeContainer</span>&lt;T: Special&gt;<span class="params">(<span class="number">_</span> item: T)</span></span> -&gt; <span class="type">SpecialContainer</span>&lt;<span class="type">T</span>&gt; &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="type">SpecialContainer</span>(item: item) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">makeContainer</span>&lt;T&gt;<span class="hljs-params">(<span class="hljs-number">_</span> item: T)</span></span> -&gt; <span class="hljs-type">Container</span>&lt;<span class="hljs-type">T</span>&gt; { 
+  <span class="hljs-keyword">return</span> <span class="hljs-type">Container</span>(item: item) 
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">makeContainer</span>&lt;T: General&gt;<span class="hljs-params">(<span class="hljs-number">_</span> item: T)</span></span> -&gt; <span class="hljs-type">GeneralContainer</span>&lt;<span class="hljs-type">T</span>&gt; { 
+  <span class="hljs-keyword">return</span> <span class="hljs-type">GeneralContainer</span>(item: item) 
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">makeContainer</span>&lt;T: Special&gt;<span class="hljs-params">(<span class="hljs-number">_</span> item: T)</span></span> -&gt; <span class="hljs-type">SpecialContainer</span>&lt;<span class="hljs-type">T</span>&gt; { 
+  <span class="hljs-keyword">return</span> <span class="hljs-type">SpecialContainer</span>(item: item) 
+}
+</code></pre>
 <p>这种方案的缺陷在于: 当同时存在多组彼此正交的 protocol 体系时, 我们要定义的泛型类型族会很庞大, 需要定义的类型个数是各个 protocol 体系笛卡尔积的尺寸.</p>
 <p>在 Swift 4.1 前, Swift Standard Library 对<code>Slice&lt;Base: Collection&gt;</code>就是这么处理的, 由于 <code>Collection</code>丰富的继承体系, 要定义的<code>Slice</code>变体也非常多. 实际上:</p>
 <ul>
@@ -244,7 +334,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckhbqoy2k0005lvf7arz10km4" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckhbsqenc0006zjf71azk4qqi" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -255,11 +345,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2020/computer-security-notes/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/deallocation-thread-safety/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Computer Security Notes
+          Deallocation 中的线程安全
         
       </div>
     </a>
@@ -391,8 +481,18 @@
 </script>
 
 
+<!--for katex to work-->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<!--for highlight to work-->
+<link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
+</script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
 
 
 

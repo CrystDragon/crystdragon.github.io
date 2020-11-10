@@ -21,8 +21,6 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -124,7 +122,11 @@
 <li>任意有&quot;包含&quot;关系的 plain structure</li>
 </ul>
 <p>例如, 针对<code>Optional</code>, 我们可以实现</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">zip</span>&lt;A, B&gt;<span class="params">(<span class="number">_</span> lhs: Optional&lt;A&gt;, <span class="number">_</span> rhs: Optional&lt;B&gt;)</span></span> -&gt; <span class="type">Optional</span>&lt;(<span class="type">A</span>, <span class="type">B</span>)&gt; &#123;</span><br><span class="line">  <span class="keyword">guard</span> <span class="keyword">let</span> a = lhs, <span class="keyword">let</span> b = rhs <span class="keyword">else</span> &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">  <span class="keyword">return</span> .some((a, b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="highlight"><code class="swift"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zip</span>&lt;A, B&gt;<span class="hljs-params">(<span class="hljs-number">_</span> lhs: Optional&lt;A&gt;, <span class="hljs-number">_</span> rhs: Optional&lt;B&gt;)</span></span> -&gt; <span class="hljs-type">Optional</span>&lt;(<span class="hljs-type">A</span>, <span class="hljs-type">B</span>)&gt; {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> a = lhs, <span class="hljs-keyword">let</span> b = rhs <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> }
+  <span class="hljs-keyword">return</span> .some((a, b))
+}
+</code></pre>
         
           <p class="article-more-link">
             <a href="/2020/pointfree-co-notes-ep-23-25/#more">Read More</a>
@@ -133,7 +135,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="ckhbqoy2q000alvf7dtkr3jqv" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="ckhbsqenc0005zjf768zn3p36" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -231,7 +233,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-2/" data-id="ckhbqoy2p0008lvf7ei4y15oh" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-2/" data-id="ckhbsqenf000azjf79i0fd3sb" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/swift-practices-perls-2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -330,7 +332,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Image-Orientation/" data-id="ckhbqoy2h0002lvf7etvlhgmy" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Image-Orientation/" data-id="ckhbsqen30000zjf7abuj4kcu" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/Image-Orientation/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -459,8 +461,18 @@
 </script>
 
 
+<!--for katex to work-->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<!--for highlight to work-->
+<link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
+</script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
 
 
 

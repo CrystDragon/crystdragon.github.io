@@ -7,19 +7,21 @@
   
   <title>TRA-1 | Lincoln&#39;s SafeHouse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Tip: 同步 UIView animation 和 CALayer animation  问题来源 解决办法   Receive: Swift Concurrency Algorithm:    TRA 是简化版的 ARTS, 周期是两周一次。其中  T 是 Tip, 总结和归纳日常中遇到的知识点. R 是 Receive, 新知识的输入(技术、理财、哲学、文化等)都算在内. A 是 Algo">
+  <meta name="description" content="Tip: 同步 UIView animation 和 CALayer animation  问题来源 解决办法   Receive: Swift Concurrency Algorithm: Substring with Concatenation of All Words  题目 分析 实现 性能分析      TRA 是简化版的 ARTS, 周期是两周一次。其中  T 是 Tip, 总结和归">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TRA-1">
 <meta property="og:url" content="https://crystdragon.github.io/2020/tra-1/">
 <meta property="og:site_name" content="Lincoln&#39;s SafeHouse">
-<meta property="og:description" content="Tip: 同步 UIView animation 和 CALayer animation  问题来源 解决办法   Receive: Swift Concurrency Algorithm:    TRA 是简化版的 ARTS, 周期是两周一次。其中  T 是 Tip, 总结和归纳日常中遇到的知识点. R 是 Receive, 新知识的输入(技术、理财、哲学、文化等)都算在内. A 是 Algo">
+<meta property="og:description" content="Tip: 同步 UIView animation 和 CALayer animation  问题来源 解决办法   Receive: Swift Concurrency Algorithm: Substring with Concatenation of All Words  题目 分析 实现 性能分析      TRA 是简化版的 ARTS, 周期是两周一次。其中  T 是 Tip, 总结和归">
 <meta property="og:locale" content="zh">
+<meta property="og:image" content="https://crystdragon.github.io/2020/tra-1/leetcode_record.png">
 <meta property="article:published_time" content="2020-11-10T04:05:40.000Z">
-<meta property="article:modified_time" content="2020-11-10T11:54:37.969Z">
+<meta property="article:modified_time" content="2020-11-11T10:37:46.998Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Apple Platforms">
 <meta property="article:tag" content="Swift Concurrency">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://crystdragon.github.io/2020/tra-1/leetcode_record.png">
   
     <link rel="alternate" href="/atom.xml" title="Lincoln&#39;s SafeHouse" type="application/atom+xml">
   
@@ -104,7 +106,14 @@
 </ul>
 </li>
 <li><a href="#receive-swift-concurrency">Receive: Swift Concurrency</a></li>
-<li><a href="#algorithm">Algorithm:</a></li>
+<li><a href="#algorithm-substring-with-concatenation-of-all-words">Algorithm: Substring with Concatenation of All Words</a>
+<ul>
+<li><a href="#%E9%A2%98%E7%9B%AE">题目</a></li>
+<li><a href="#%E5%88%86%E6%9E%90">分析</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
+<li><a href="#%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90">性能分析</a></li>
+</ul>
+</li>
 </ul>
 </p>
 <hr>
@@ -132,7 +141,7 @@
 <ul>
 <li>针对 view 的 位置动画, 使用 <code>UIView.animate(withDuration:animations:)</code>.</li>
 <li>针对 layer 的 path 动画, 手动创建 <code>CABasicAnimation</code>, 并 add 到 layer 上. 之所以用 explicit animation, 是因为:<br>
-虽然 <code>CAShaperLayer</code> 的 <code>path</code> 是标记成 animatable 的, 但是和 layer 的其他属性(例如 <code>bounds</code> 等)不同, 直接设置 <code>path</code> 是不会产生 implicit animation 的. <a href="https://developer.apple.com/documentation/quartzcore/cashapelayer/1521904-path" target="_blank" rel="noopener">这两点都在文档主有明确表明</a>.</li>
+虽然 <code>CAShaperLayer</code> 的 <code>path</code> 是标记成 animatable 的, 但是和 layer 的其他属性(例如 <code>bounds</code> 等)不同, 直接设置 <code>path</code> 是不会产生 implicit animation 的. <a href="https://developer.apple.com/documentation/quartzcore/cashapelayer/1521904-path" target="_blank" rel="noopener">这两点都在文档中有明确标明</a>.</li>
 </ul>
 <pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyView</span>: <span class="hljs-title">UIView</span> </span>{
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> pathLayer = <span class="hljs-type">CAShapeLayer</span>()
@@ -219,7 +228,7 @@
 </code></pre>
 <p>这样每次在 <code>UIView.animate()</code> 的 animation block 中如果更改了 layer 的 <code>path</code>, 就会自动产生一个 implicit animation, 并且能和其他 view animation 并行产生作用.</p>
 <h2 id="receive-swift-concurrency"><a class="markdownIt-Anchor" href="#receive-swift-concurrency"></a> Receive: Swift Concurrency</h2>
-<p>关于 Swift 中新的并发编程特性的讨论已经官方 forums <a href="https://forums.swift.org/t/concurrency-async-await-actors/6516" target="_blank" rel="noopener">持续好多年</a>了, 我个人也一直抱有浓厚的兴趣. 上周, Swift core team 终于正式以 <a href="https://forums.swift.org/t/swift-concurrency-roadmap/41611" target="_blank" rel="noopener">1 篇 road map</a> 和 4 篇 proposal 初稿隆重为各位 Swift 爱好者铺展开将会持续未来多个版本的道路. 虽然这些文档仍在积极讨论中, 和终稿相比想必会有很大的不同, 但我坚信, 相关的思想和观念将是一名优秀 Swifter 以后绕不开的宝库.</p>
+<p>关于 Swift 中新的并发编程特性的讨论已经在官方 forums <a href="https://forums.swift.org/t/concurrency-async-await-actors/6516" target="_blank" rel="noopener">持续好多年</a>了, 我个人也一直抱有浓厚的兴趣. 上周, Swift core team 终于正式以 <a href="https://forums.swift.org/t/swift-concurrency-roadmap/41611" target="_blank" rel="noopener">1 篇 road map</a> 和 4 篇 proposal 初稿隆重为各位 Swift 爱好者铺展开将会持续未来多个版本的道路. 虽然这些文档仍在积极讨论中, 和终稿相比想必会有很大的不同, 但我坚信, 相关的思想和观念将是一名优秀 Swifter 以后绕不开的宝库.</p>
 <p>对于 iOS 开发者而言, 异步编程是再熟悉不过了, 平时日常开发中即使不涉及到多线程通信的问题, 也至少懂得&quot;繁琐操作不应该 block 主线程&quot;的道理. 而这次 Swift team 带来的 proposal 不但能免去我们开发者平时遇到的一些烦恼, 也能在更高的 level 上系统化地解决并发编程中的一些基本问题.</p>
 <p>这里无法详述所有细节, 仅将相关 proposal 的主旨摘录于下:</p>
 <ul>
@@ -248,7 +257,7 @@
 </li>
 <li>Async/await 只是引入了最基本的异步语法, 但日常应用需要有更高级的抽象. <a href="https://github.com/DougGregor/swift-evolution/blob/structured-concurrency/proposals/nnnn-structured-concurrency.md" target="_blank" rel="noopener">Structured concurrency</a> 在语言层面增加了许多机制.
 <ul>
-<li>虽然 async function 异步执行, 但在执行过程中, 它与它内部所有 await 的操作形成了自然的树状&quot;父子&quot;结构, 系统可以保证所有子任务不会无故超越父任务的生命期.
+<li>虽然 async function 异步执行, 但和普通 function 一样, 在执行过程中, 它与它内部所有 await 的操作也形成自然的树状&quot;父子&quot;结构, 系统可以保证所有子任务不会无故超越父任务的生命期.
 <ul>
 <li>支持协作式的 cancellation: 任何子任务被 cancel, 父任务会同步自动进入 cancel 状态, 其他执行中的子任务也可以主动获取到 cancel 信息.</li>
 <li>在一个任务中需要多个子任务并发处理的情况下:
@@ -266,7 +275,7 @@
 <li>使用 <code>Task.withDeadline()</code> 和 <code>Task.currentDeadline().remaining</code> 可以开启有时限的任务和检测时限是否已达.</li>
 </ul>
 </li>
-<li><code>Task</code> 还可以连接 async 和 non-async 世界:
+<li><code>Task</code> 还可以联系 async 和 non-async 世界:
 <ul>
 <li><code>Task.runDetached()</code> 允许我们从普通的非 async 代码进入一个 async context, 从而可以调用 async function.</li>
 <li><code>Task.withUnsafeContinuation()</code> 允许从一个 async context 中临时转移到 non-async context, 执行我们的基于普通 callback block 的代码, 并等待回调.</li>
@@ -292,7 +301,7 @@
 <li>官方 forums 的 proposal 只针对 value semantics 的类型提供了检查, 而对其他类型的支持将会在以后加入. 这等于在以后版本加强了语言限制, 会导致现在 valid 的 code 以后某个版本不 valid.
 <ul>
 <li>社区中针对这一问题, 许多大佬 (比如 Christ Lattner, Dave Abrahams) 提出了另一种策略: <a href="https://docs.google.com/document/d/1OMHZKWq2dego5mXQtWt1fm-yMca2qeOdCl8YlBG1uwg" target="_blank" rel="noopener">Protocol-based Actor Isolation</a>.</li>
-<li>这个 proposal 里建议一开始就限制允许在 actor 中传递的数据类型, 并允许标准库和开发者有办法让自己的类型满足要求.</li>
+<li>这个 proposal 里建议一开始就限制允许在不同 actor 接口间传递的数据的类型, 并允许标准库和开发者有办法让自己的类型满足要求.</li>
 </ul>
 </li>
 </ul>
@@ -305,12 +314,196 @@
 </ul>
 </li>
 </ul>
-<h2 id="algorithm"><a class="markdownIt-Anchor" href="#algorithm"></a> Algorithm:</h2>
+<h2 id="algorithm-substring-with-concatenation-of-all-words"><a class="markdownIt-Anchor" href="#algorithm-substring-with-concatenation-of-all-words"></a> Algorithm: Substring with Concatenation of All Words</h2>
+<h3 id="题目"><a class="markdownIt-Anchor" href="#题目"></a> 题目</h3>
+<p>来自 <a href="https://leetcode.com/problems/substring-with-concatenation-of-all-words/" target="_blank" rel="noopener">leetcode</a>.</p>
+<pre class="highlight"><code class="plaintext">给定一个字符串 s 和一些长度相同的单词 words。找出 s 中恰好可以由 words 中所有单词串联形成的子串的起始位置。
+ 
+输入：
+  s = "barfoothefoobarman",
+  words = ["foo","bar"]
+输出：[0,9]
+解释：
+从索引 0 和 9 开始的子串分别是 "barfoo" 和 "foobar" 。
+输出的顺序不重要, [9,0] 也是有效答案。
+</code></pre>
+<h3 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h3>
+<p>假设待匹配的每个 word 的宽度为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span>.<br>
+第一印象使用滑动窗口. 我们只检查字符串在滑动窗口中的部分, 是否是输入 words 的一个连接. 因为 words 都是等宽度的, 所以如果滑动窗口内的部分确实是连接, 那么按 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 为宽度进行划分后形成的 substring 集合, 必然等价于输入的 words 集合. 使用滑动窗口, 我们就可以一个字符一个字符地考察, 每增加一个字符, 可能产生新的 match.</p>
+<pre class="highlight"><code class="plaintext">// [  ] 对应 word 的宽度
+
+              |-新探测的字符
+              v
+ xxxxx.....xxxAxxx...
+  [  ][  ][  ] 
+  ^          ^
+  |--window--| 
+</code></pre>
+<p>然而, 每次新增字符要检查滑动窗口部分是否 match 了所有的 word 是无需从窗口头部开始重新检查, 有很多数据是可以复用的. 只是这个复用并不是紧邻的, 也就是考察上一个字符时和和考察接下来的字符时, 并不能共享信息. 而是当前的滑动窗口状态和 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 个字符前的状态有很大的相似性.</p>
+<pre class="highlight"><code class="plaintext">// [  ] 对应 word 的宽度
+
+  |--old window--|
+  [  ][  ][  ][  ]        &lt;- 之前可能的匹配
+  xxxxxxxxxxxxxxxxxxxx
+      [  ][  ][  ][  ]    &lt;- 移动 w 个字符后的匹配
+      |--new window--|
+</code></pre>
+<p>因此, 可以拆分出 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 个不同的 “赛道”, 不同的赛道之间 offset 为 1, 每个赛道仅在新增 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 个字符后才考察状态变化: 是否产生了新的匹配.</p>
+<pre class="highlight"><code class="plaintext">// [  ] 对应 word 的宽度
+
+   xxxxxxxxxxxxxxxxxxxx
+   [  ][  ][  ][  ]       &lt;- 赛道 0
+    [  ][  ][  ][  ]      &lt;- 赛道 1
+     [  ][  ][  ][  ]     &lt;- 赛道 2
+      [  ][  ][  ][  ]    &lt;- 赛道 3
+       [  ][  ][  ][  ]   &lt;- 赛道 0 (新增 w 字符后)
+</code></pre>
+<p>如前所述, 每个赛道中上一次匹配的状态和下一次匹配的状态有很大的可复用性. 理论上, 只需要记录这个赛道中所有 substring 出现的次数, 每次新增/删除 substring 后, 检查各个 substring 的 count 是否和目标一致即可. 然而在具体的实现时, code 层面有办法做很大的优化, 避免真的遍历所有的 substring 的 count.</p>
+<h3 id="实现"><a class="markdownIt-Anchor" href="#实现"></a> 实现</h3>
+<p>首先实现一个 word 匹配器, 该匹配器做了优化, 使得检查输入的 words 是否正好和目标匹配, 能在短时间内完成. 为此, 在每次新增/删除 word 时, 多做了一些状态维护.</p>
+<pre class="highlight"><code class="swift"><span class="hljs-comment">/// 存储待匹配的 word 及每个 word 目前的匹配情况</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleMultiSet</span> </span>{
+  
+  <span class="hljs-comment">/// word: count</span>
+  <span class="hljs-comment">/// &lt; 0 的 count 表示仍需一定数量的匹配</span>
+  <span class="hljs-comment">/// &gt; 0 的 count 表示超出了匹配</span>
+  <span class="hljs-comment">/// 不存在的 word 表示正好匹配</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> dict: [<span class="hljs-type">Substring</span>: <span class="hljs-type">Int</span>] = [:]
+
+  <span class="hljs-comment">/// 用待匹配的 words 初始化</span>
+  <span class="hljs-keyword">init</span>(words: [<span class="hljs-type">String</span>]) {
+    <span class="hljs-keyword">for</span> word <span class="hljs-keyword">in</span> words {
+      dict[word[...], <span class="hljs-keyword">default</span>: <span class="hljs-number">0</span>] -= <span class="hljs-number">1</span>
+    }
+  }
+
+  <span class="hljs-comment">/// 新增加一个 candidate</span>
+  <span class="hljs-comment">/// 理论上, 对应 word 的 count + 1</span>
+  <span class="hljs-comment">/// 但当调整会导致 count == 0 时, 同时将 word 从 dict 里移除</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">push</span><span class="hljs-params">(<span class="hljs-number">_</span> word: Substring)</span></span> {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-built_in">count</span> = dict[word] {
+      <span class="hljs-keyword">if</span> <span class="hljs-built_in">count</span> == -<span class="hljs-number">1</span> {
+        dict[word] = <span class="hljs-literal">nil</span>
+      } <span class="hljs-keyword">else</span> {
+        dict[word] = <span class="hljs-built_in">count</span> + <span class="hljs-number">1</span>
+      }
+    } <span class="hljs-keyword">else</span> {
+      dict[word] = <span class="hljs-number">1</span>
+    }
+  }
+
+  <span class="hljs-comment">/// 去掉一个 candidate</span>
+  <span class="hljs-comment">/// 理论上, 对应 word 的 count - 1</span>
+  <span class="hljs-comment">/// 但当调整会导致 count == 0 时, 同时将 word 从 dict 里移除</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">remove</span><span class="hljs-params">(<span class="hljs-number">_</span> word: Substring)</span></span> {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-built_in">count</span> = dict[word] {
+      <span class="hljs-keyword">if</span> <span class="hljs-built_in">count</span> == <span class="hljs-number">1</span> {
+        dict[word] = <span class="hljs-literal">nil</span>
+      } <span class="hljs-keyword">else</span> {
+        dict[word] = <span class="hljs-built_in">count</span> - <span class="hljs-number">1</span>
+      }
+    } <span class="hljs-keyword">else</span> {
+      dict[word] = -<span class="hljs-number">1</span>
+    }
+  }
+
+  <span class="hljs-comment">/// 检查是否所有初始的 word 都正好匹配完</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">verify</span><span class="hljs-params">()</span></span> -&gt; <span class="hljs-type">Bool</span> {
+    <span class="hljs-keyword">return</span> dict.isEmpty
+  }
+}
+</code></pre>
+<p>在此基础上根据上面的多赛道滑动窗口分析, 实现主算法.</p>
+<pre class="highlight"><code class="swift"><span class="hljs-comment">/// Main entry point</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">findSubstring</span><span class="hljs-params">(<span class="hljs-number">_</span> s: String, <span class="hljs-number">_</span> words: [String])</span></span> -&gt; [<span class="hljs-type">Int</span>] {
+  <span class="hljs-comment">/// early exit</span>
+  <span class="hljs-keyword">if</span> words.isEmpty || words[<span class="hljs-number">0</span>].isEmpty {
+    <span class="hljs-keyword">return</span> []
+  }
+  
+  <span class="hljs-keyword">let</span> wordSize = words[<span class="hljs-number">0</span>].<span class="hljs-built_in">count</span>
+  <span class="hljs-keyword">let</span> <span class="hljs-built_in">count</span> = words.<span class="hljs-built_in">count</span> * wordSize
+  <span class="hljs-keyword">if</span> s.<span class="hljs-built_in">count</span> &lt; <span class="hljs-built_in">count</span> {
+    <span class="hljs-keyword">return</span> []
+  }
+
+  <span class="hljs-comment">/// 根据 word 宽度决定当前的赛道个数</span>
+  <span class="hljs-keyword">let</span> sets = (<span class="hljs-number">0</span>..&lt;wordSize).<span class="hljs-built_in">map</span> { <span class="hljs-number">_</span> <span class="hljs-keyword">in</span> <span class="hljs-type">SimpleMultiSet</span>(words: words) }
+  <span class="hljs-comment">/// 当前赛道</span>
+  <span class="hljs-keyword">var</span> setIndex = <span class="hljs-number">0</span>
+
+  <span class="hljs-comment">/// 各个字符的 index</span>
+  <span class="hljs-comment">// 当前 word start</span>
+  <span class="hljs-keyword">var</span> i = s.startIndex
+  <span class="hljs-comment">// 当前 word end</span>
+  <span class="hljs-keyword">var</span> j = s.index(i, offsetBy: wordSize)
+  <span class="hljs-comment">// 最旧的 word start</span>
+  <span class="hljs-keyword">var</span> k = i
+  <span class="hljs-comment">// 最旧的 word end</span>
+  <span class="hljs-keyword">var</span> l = j
+
+  <span class="hljs-keyword">var</span> stepper = <span class="hljs-number">0</span>
+  <span class="hljs-keyword">let</span> setLoopCount = wordSize
+  
+  <span class="hljs-keyword">var</span> results: [<span class="hljs-type">Int</span>] = []
+
+  <span class="hljs-comment">/// 增加初始的 word</span>
+  sets[setIndex].push(s[i..&lt;j])
+  <span class="hljs-keyword">if</span> sets[setIndex].verify() {
+    results.append(<span class="hljs-number">0</span>)
+  }
+
+  <span class="hljs-keyword">while</span> j != s.endIndex {
+    <span class="hljs-comment">/// 每新增一个字符, 决定当前赛道</span>
+    stepper += <span class="hljs-number">1</span>
+    setIndex = (setIndex + <span class="hljs-number">1</span>) % setLoopCount
+
+    <span class="hljs-comment">/// 去掉超出窗口的 word</span>
+    <span class="hljs-keyword">if</span> stepper &gt;= <span class="hljs-built_in">count</span> {
+      sets[setIndex].remove(s[k..&lt;l])
+      s.formIndex(after: &amp;k)
+      s.formIndex(after: &amp;l)
+    }
+  
+    <span class="hljs-comment">/// 增加新的 word</span>
+    s.formIndex(after: &amp;i)
+    s.formIndex(after: &amp;j)
+    sets[setIndex].push(s[i..&lt;j])
+
+    <span class="hljs-comment">/// 检查当前赛道是否正好匹配</span>
+    <span class="hljs-keyword">if</span> sets[setIndex].verify() {
+      results.append(stepper - <span class="hljs-built_in">count</span> + wordSize)
+    }
+  }
+  <span class="hljs-keyword">return</span> results
+}
+</code></pre>
+<p>整体上使用了 Swift <code>String</code> 的 index 和 <code>Substring</code> 操作避免产生不需要的 copy.</p>
+<h3 id="性能分析"><a class="markdownIt-Anchor" href="#性能分析"></a> 性能分析</h3>
+<p>假设有 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> 个 word 待匹配, 每个 word 宽度为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span>, 输入字符串的长度为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>l</mi></mrow><annotation encoding="application/x-tex">l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span></span></span></span>.</p>
+<ul>
+<li>时间上
+<ul>
+<li>初始化阶段: 对 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 个赛道每个都创建 <code>SimpleMultiSet</code>. 每次创建时 <code>SimpleMultiSet</code> 需要将 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> 个 word 加入 dict, 考虑到 word 加入 dict 时的 hash 操作, 理论上会遍历 word 中的每个字符, 因此每次初始化耗时 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>k</mi><mo>⋅</mo><mi>w</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(k \cdot w)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mclose">)</span></span></span></span>. 因此初始化阶段总耗时 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>k</mi><mo>⋅</mo><msup><mi>w</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(k \cdot w^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>.</li>
+<li>运行阶段: 是一个 main loop, 针对输入字符串中的字符循环 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>l</mi><mo>−</mo><mi>w</mi></mrow><annotation encoding="application/x-tex">l - w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 次. 每次循环引入一个新的字符, 最多只需要从对应赛道的 <code>SimpleMultiSet</code> 中增加一个 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 长度的 substring, 并去掉一个 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 长度的 substring. 考虑到 word 加入和离开 dict 时的 hash 操作, 最多只需要 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>w</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(w)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mclose">)</span></span></span></span>. 其他操作都可以在 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 内完成, 所以总耗时为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>w</mi><mo>⋅</mo><mo stretchy="false">(</mo><mi>l</mi><mo>−</mo><mi>w</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(w \cdot (l - w))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mclose">)</span><span class="mclose">)</span></span></span></span>. 一般而言 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi><mo>≪</mo><mi>l</mi></mrow><annotation encoding="application/x-tex">w \ll l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≪</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span></span></span></span>, 因此可近似为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>w</mi><mo>⋅</mo><mi>l</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(w \cdot l)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mclose">)</span></span></span></span>.</li>
+<li>总耗时 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>l</mi><mo>⋅</mo><mi>w</mi><mo>+</mo><mi>k</mi><mo>⋅</mo><msup><mi>w</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(l \cdot w + k \cdot w^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>. 一般情况下, <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi><mo>≪</mo><mi>l</mi></mrow><annotation encoding="application/x-tex">k \ll l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.73354em;vertical-align:-0.0391em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≪</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span></span></span></span>, 或可把 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> 视为常数, 此时总耗时为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>l</mi><mo>⋅</mo><mi>w</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(l \cdot w)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mclose">)</span></span></span></span>. 如果进一步把 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 也视为常数, 则最终时间复杂度仅为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>l</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(l)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mclose">)</span></span></span></span>.</li>
+</ul>
+</li>
+<li>空间上
+<ul>
+<li>主要存储消耗为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 个赛道对应的 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 个 <code>SimpleMultiSet</code> .</li>
+<li>每个 <code>SimpleMultiSet</code> 最多时需要存储 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> 个宽度为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 的substring. 简化来看, 如果把存储 substring 用的 dict 的装载因子视为常数, 则单个 dict 占用空间 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>w</mi><mo>⋅</mo><mi>k</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(w \cdot k)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mclose">)</span></span></span></span>.</li>
+<li>总占用空间 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>k</mi><mo>⋅</mo><msup><mi>w</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(k \cdot w^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>, 如果把 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span> 均视为常数, 那么整体空间复杂度仅为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>.</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2020/tra-1/leetcode_record.png" alt="leetcode record"><br>
+(leetcode 上的耗时分析和 server 上的 Swift 版本有很大关系, 实际参考价值有限)</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/tra-1/" data-id="ckhbsqeni000ezjf71k6ra75k" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/tra-1/" data-id="ckhd9uh62001mdkf7a74h3p38" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/tra-1/#disqus_thread" class="article-comment-link">Comments</a>
       

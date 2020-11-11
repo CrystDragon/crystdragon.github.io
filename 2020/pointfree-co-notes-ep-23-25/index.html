@@ -27,6 +27,8 @@
     <link rel="icon" href="/favicon.png">
   
   
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -126,74 +128,23 @@
 <li>任意有&quot;包含&quot;关系的 plain structure</li>
 </ul>
 <p>例如, 针对<code>Optional</code>, 我们可以实现</p>
-<pre class="highlight"><code class="swift"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zip</span>&lt;A, B&gt;<span class="hljs-params">(<span class="hljs-number">_</span> lhs: Optional&lt;A&gt;, <span class="hljs-number">_</span> rhs: Optional&lt;B&gt;)</span></span> -&gt; <span class="hljs-type">Optional</span>&lt;(<span class="hljs-type">A</span>, <span class="hljs-type">B</span>)&gt; {
-  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> a = lhs, <span class="hljs-keyword">let</span> b = rhs <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> }
-  <span class="hljs-keyword">return</span> .some((a, b))
-}
-</code></pre>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">zip</span>&lt;A, B&gt;<span class="params">(<span class="number">_</span> lhs: Optional&lt;A&gt;, <span class="number">_</span> rhs: Optional&lt;B&gt;)</span></span> -&gt; <span class="type">Optional</span>&lt;(<span class="type">A</span>, <span class="type">B</span>)&gt; &#123;</span><br><span class="line">  <span class="keyword">guard</span> <span class="keyword">let</span> a = lhs, <span class="keyword">let</span> b = rhs <span class="keyword">else</span> &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">  <span class="keyword">return</span> .some((a, b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <a id="more"></a>
 <p>又例如, 针对 function: <code>() -&gt; T</code>, 我们可以实现</p>
-<pre class="highlight"><code class="swift"><span class="hljs-keyword">typealias</span> <span class="hljs-type">Function</span>&lt;<span class="hljs-type">T</span>&gt; = () -&gt; <span class="hljs-type">T</span>
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zip</span>&lt;A, B&gt;<span class="hljs-params">(
-  <span class="hljs-number">_</span> lhs: @escaping Function&lt;A&gt;,
-  <span class="hljs-number">_</span> rhs: @escaping Function&lt;B&gt;
-)</span></span> -&gt; <span class="hljs-type">Function</span>&lt;(<span class="hljs-type">A</span>, <span class="hljs-type">B</span>)&gt; {
-  <span class="hljs-keyword">return</span> {
-    (lhs(), rhs())
-  }
-}
-</code></pre>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typealias</span> <span class="type">Function</span>&lt;<span class="type">T</span>&gt; = () -&gt; <span class="type">T</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">zip</span>&lt;A, B&gt;<span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="number">_</span> lhs: @escaping Function&lt;A&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="number">_</span> rhs: @escaping Function&lt;B&gt;</span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span> -&gt; <span class="type">Function</span>&lt;(<span class="type">A</span>, <span class="type">B</span>)&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    (lhs(), rhs())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="swift-提供的-zip"><a class="markdownIt-Anchor" href="#swift-提供的-zip"></a> Swift 提供的 zip</h3>
 <p>在标准库中<code>zip(Sequence&lt;A&gt;, Sequence&lt;B&gt;) -&gt; Sequence&lt;(A, B)&gt;</code>就是一个通用的例子. (实为伪代码, 实际上 return type 是一个 concrete type)</p>
 <p>第一方许多 framework 也提供了 zip. 例如: Combine 给许多遵循<code>Publisher</code>的 concrete type, 增加了成员方法, 结构为<code>Publisher&lt;A&gt;.zip(Publisher&lt;B&gt;) -&gt; Publisher&lt;(A, B)&gt;</code>. (实为伪代码, 方法所在的类型和 return type 都是 concrete type, 泛型参数也稍有不同)</p>
 <h2 id="通用的二元-zip"><a class="markdownIt-Anchor" href="#通用的二元-zip"></a> 通用的二元 zip</h2>
 <p>给定一个映射<code>f: (A, B) -&gt; C</code>,  对任意一个包含<code>T</code>的结构<code>Struct&lt;T&gt;</code>, 我们一定可以给出映射<code>g: (Struct&lt;A&gt; , Struct&lt;B&gt;) -&gt; Struct&lt;C&gt;</code>.</p>
 <p>例如, 针对 callback function: <code>((T) -&gt; Void) -&gt; Void</code>的例子:</p>
-<pre class="highlight"><code class="swift"><span class="hljs-comment">// 给定 f</span>
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">f</span>&lt;A, B, C&gt;<span class="hljs-params">(<span class="hljs-number">_</span> lhs: A, <span class="hljs-number">_</span> rhs: B)</span></span> -&gt; <span class="hljs-type">C</span> { <span class="hljs-built_in">fatalError</span>() }
-
-<span class="hljs-comment">// 实现 g</span>
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">f</span>&lt;A, B, C&gt;<span class="hljs-params">(<span class="hljs-number">_</span> lhs: A, <span class="hljs-number">_</span> rhs: B)</span></span> -&gt; <span class="hljs-type">C</span> { <span class="hljs-built_in">fatalError</span>() }
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zip</span>&lt;A, B, C&gt;<span class="hljs-params">(
-  <span class="hljs-number">_</span> lhs: @escaping CallbackFunction&lt;A&gt;,
-  <span class="hljs-number">_</span> rhs: @escaping CallbackFunction&lt;B&gt;
-)</span></span> -&gt; <span class="hljs-type">CallbackFunction</span>&lt;<span class="hljs-type">C</span>&gt; {
-  <span class="hljs-keyword">return</span> { callback <span class="hljs-keyword">in</span>
-    <span class="hljs-keyword">var</span> lValue: <span class="hljs-type">A?</span>
-    <span class="hljs-keyword">var</span> rValue: <span class="hljs-type">B?</span>
-    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">check</span><span class="hljs-params">()</span></span> {
-      <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> lValue = lValue, <span class="hljs-keyword">let</span> rValue = rValue <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
-      callback(f(lValue, rValue))
-    }
-    
-    lhs { returnValue <span class="hljs-keyword">in</span>
-      lValue = returnValue
-      check()
-    }
-    rhs { returnValue <span class="hljs-keyword">in</span>
-      rValue = returnValue
-      check()
-    }
-  }
-}
-</code></pre>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 给定 f</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>&lt;A, B, C&gt;<span class="params">(<span class="number">_</span> lhs: A, <span class="number">_</span> rhs: B)</span></span> -&gt; <span class="type">C</span> &#123; <span class="built_in">fatalError</span>() &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 g</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>&lt;A, B, C&gt;<span class="params">(<span class="number">_</span> lhs: A, <span class="number">_</span> rhs: B)</span></span> -&gt; <span class="type">C</span> &#123; <span class="built_in">fatalError</span>() &#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">zip</span>&lt;A, B, C&gt;<span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="number">_</span> lhs: @escaping CallbackFunction&lt;A&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="number">_</span> rhs: @escaping CallbackFunction&lt;B&gt;</span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span> -&gt; <span class="type">CallbackFunction</span>&lt;<span class="type">C</span>&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; callback <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">var</span> lValue: <span class="type">A?</span></span><br><span class="line">    <span class="keyword">var</span> rValue: <span class="type">B?</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">()</span></span> &#123;</span><br><span class="line">      <span class="keyword">guard</span> <span class="keyword">let</span> lValue = lValue, <span class="keyword">let</span> rValue = rValue <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">      callback(f(lValue, rValue))</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    lhs &#123; returnValue <span class="keyword">in</span></span><br><span class="line">      lValue = returnValue</span><br><span class="line">      check()</span><br><span class="line">    &#125;</span><br><span class="line">    rhs &#123; returnValue <span class="keyword">in</span></span><br><span class="line">      rValue = returnValue</span><br><span class="line">      check()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>有时候称<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>g</mi></mrow><annotation encoding="application/x-tex">g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span></span></span></span>是 zip, 上文常见 zip 是这种定义下的一个特例, 即指定了<code>f(A, B) = (A, B)</code>.</li>
 <li>有时候称<code>f-&gt;g</code> 是 zip, 这个 zip 更高阶, 并且可以由<code>Struct</code>的结构唯一确定.</li>
 </ul>
 <p>例如, 高阶形式的<code>Array</code>的 zip 可以这么实现:</p>
-<pre class="highlight"><code class="swift"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zip</span>&lt;A, B, C&gt;<span class="hljs-params">(with f: @escaping <span class="hljs-params">(A, B)</span></span></span> -&gt; <span class="hljs-type">C</span>) -&gt; ([<span class="hljs-type">A</span>], [<span class="hljs-type">B</span>]) -&gt; [<span class="hljs-type">C</span>] {
-  <span class="hljs-keyword">return</span> { arrayA, arrayB <span class="hljs-keyword">in</span>
-    <span class="hljs-keyword">var</span> results: [<span class="hljs-type">C</span>] = []
-    <span class="hljs-keyword">let</span> maxCount = <span class="hljs-built_in">min</span>(arrayA.<span class="hljs-built_in">count</span>, arrayB.<span class="hljs-built_in">count</span>)
-    
-    <span class="hljs-keyword">for</span> index <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..&lt;maxCount {
-      results.append(f(arrayA[index], arrayB[index]))
-    }
-    <span class="hljs-keyword">return</span> results
-  }
-}
-</code></pre>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">zip</span>&lt;A, B, C&gt;<span class="params">(with f: @escaping <span class="params">(A, B)</span></span></span> -&gt; <span class="type">C</span>) -&gt; ([<span class="type">A</span>], [<span class="type">B</span>]) -&gt; [<span class="type">C</span>] &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; arrayA, arrayB <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">var</span> results: [<span class="type">C</span>] = []</span><br><span class="line">    <span class="keyword">let</span> maxCount = <span class="built_in">min</span>(arrayA.<span class="built_in">count</span>, arrayB.<span class="built_in">count</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">0</span>..&lt;maxCount &#123;</span><br><span class="line">      results.append(f(arrayA[index], arrayB[index]))</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> results</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="多元-zip"><a class="markdownIt-Anchor" href="#多元-zip"></a> 多元 zip</h2>
 <p>在二元 zip 的基础上, 把 f 的输入个数增加即可. 最常见的多元 zip 也是基于 tuple的, 即<code>f: (T1, T2, T3...) -&gt; (T1, T2, T3...)</code>.<br>
 当然参照二元的例子, 也有高阶的多元 zip.</p>
@@ -204,7 +155,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="ckhd9uh570009dkf7d3h32j4w" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="ckhdbeggl0009d3f7hza236q8" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -358,13 +309,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <!--for highlight to work-->
-<link rel="stylesheet"
+<!-- <link rel="stylesheet"
       href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
 <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
 </script>
 <script>
     hljs.initHighlightingOnLoad();
-</script>
+</script> -->
 
 
 

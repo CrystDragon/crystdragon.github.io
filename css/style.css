@@ -1208,8 +1208,10 @@ a.article-title:hover {
 .article-entry .gist .gist-file .gist-meta a:hover {
   text-decoration: underline;
 }
-pre .comment,
 pre .title {
+  color: #69c;
+}
+pre .comment {
   color: #999;
 }
 pre .variable,
@@ -1226,12 +1228,12 @@ pre .css .class,
 pre .css .pseudo {
   color: #f2777a;
 }
-pre .number,
 pre .preprocessor,
 pre .built_in,
 pre .literal,
 pre .params,
-pre .constant {
+pre .constant,
+pre .type {
   color: #f99157;
 }
 pre .class,
@@ -1244,7 +1246,8 @@ pre .value,
 pre .inheritance,
 pre .header,
 pre .ruby .symbol,
-pre .xml .cdata {
+pre .xml .cdata,
+pre .number {
   color: #9c9;
 }
 pre .css .hexcolor {

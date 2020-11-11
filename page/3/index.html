@@ -21,6 +21,8 @@
     <link rel="icon" href="/favicon.png">
   
   
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -129,7 +131,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/computer-security-notes/" data-id="ckhd9uh500001dkf78e4t43ii" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/computer-security-notes/" data-id="ckhdbeggc0001d3f7fa3ah665" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/computer-security-notes/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -202,7 +204,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="ckhd9uh530003dkf748sm4he8" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="ckhdbeggg0003d3f757fudq41" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/deallocation-thread-safety/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -286,12 +288,7 @@
 <h3 id="活用-string-backed-enum"><a class="markdownIt-Anchor" href="#活用-string-backed-enum"></a> 活用 “String-backed” enum</h3>
 <h4 id="背景知识"><a class="markdownIt-Anchor" href="#背景知识"></a> 背景知识</h4>
 <p>在众多基于 raw value 的 enum 中, raw value 是<code>String</code>的最为特殊, 因为这样的 enum 在定义各个 case 时, 可以省去显式写出用来初始化该 enum 的 raw value. 这种情况下, 编译器默认追加代码, 使用各个 case identifier 的同名字符串作为 raw value.</p>
-<pre class="highlight"><code class="swift"><span class="hljs-comment">// 各行 case 可以省略 // 之后的部分</span>
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">ImageIdentifier</span>: <span class="hljs-title">String</span> </span>{
-  <span class="hljs-keyword">case</span> centerButton <span class="hljs-comment">// = "centerButton"</span>
-  <span class="hljs-keyword">case</span> myFavorites <span class="hljs-comment">// = "myFavorites"</span>
-}
-</code></pre>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 各行 case 可以省略 // 之后的部分</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ImageIdentifier</span>: <span class="title">String</span> </span>&#123;</span><br><span class="line">  <span class="keyword">case</span> centerButton <span class="comment">// = "centerButton"</span></span><br><span class="line">  <span class="keyword">case</span> myFavorites <span class="comment">// = "myFavorites"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>另一方面, 这样的 enum 默认遵循<code>RawRepresentable</code>, 且关联类型<code>RawValue == String</code>. 这方便我们对于一系列有相同特征的 enum 依靠 protocol 提供统一操作.</p>
 <h4 id="案例"><a class="markdownIt-Anchor" href="#案例"></a> 案例</h4>
 <p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>
@@ -305,7 +302,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckhd9uh560006dkf7dzh0am9r" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="ckhdbeggp000ed3f768jma7fk" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -437,13 +434,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <!--for highlight to work-->
-<link rel="stylesheet"
+<!-- <link rel="stylesheet"
       href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
 <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
 </script>
 <script>
     hljs.initHighlightingOnLoad();
-</script>
+</script> -->
 
 
 

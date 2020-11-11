@@ -116,6 +116,34 @@
   </url>
   
   <url>
+    <loc>https://crystdragon.github.io/tags/pointfree-co/</loc>
+    <lastmod>2020-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/functional-programming/</loc>
+    <lastmod>2020-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/testing/</loc>
+    <lastmod>2020-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/xcode/</loc>
+    <lastmod>2020-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/tags/thread-safety/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
@@ -137,35 +165,7 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/tags/pointfree-co/</loc>
-    <lastmod>2020-11-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/functional-programming/</loc>
-    <lastmod>2020-11-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://crystdragon.github.io/tags/swiftui/</loc>
-    <lastmod>2020-11-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/testing/</loc>
-    <lastmod>2020-11-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/xcode/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -195,14 +195,14 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/architecture/</loc>
+    <loc>https://crystdragon.github.io/categories/diary/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/diary/</loc>
+    <loc>https://crystdragon.github.io/categories/computer-systems/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -216,7 +216,7 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/computer-systems/</loc>
+    <loc>https://crystdragon.github.io/categories/architecture/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

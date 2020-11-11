@@ -151,13 +151,6 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/tags/swift-concurrency/</loc>
-    <lastmod>2020-11-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://crystdragon.github.io/tags/swiftui/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
@@ -173,6 +166,13 @@
   
   <url>
     <loc>https://crystdragon.github.io/tags/xcode/</loc>
+    <lastmod>2020-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/swift-concurrency/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -216,14 +216,14 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/tra/</loc>
+    <loc>https://crystdragon.github.io/categories/computer-systems/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/computer-systems/</loc>
+    <loc>https://crystdragon.github.io/categories/tra/</loc>
     <lastmod>2020-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

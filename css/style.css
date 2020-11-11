@@ -1231,7 +1231,6 @@ pre .css .pseudo {
 pre .preprocessor,
 pre .built_in,
 pre .literal,
-pre .params,
 pre .constant,
 pre .type {
   color: #f99157;

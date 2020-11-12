@@ -15,7 +15,7 @@
 <meta property="og:description" content="普通 Practices  Availability checks 活用 “String-backed” enum  背景知识 案例     Tricks &amp; Patterns  给 protocol 增加 recursive constraints (before Swift 4.1) 泛型对象排除特例调用  问题 场景 实现   泛型类型按条件遵循 protocol (before">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-07-23T15:23:51.000Z">
-<meta property="article:modified_time" content="2020-11-12T11:33:26.725Z">
+<meta property="article:modified_time" content="2020-11-12T11:37:44.119Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
@@ -186,7 +186,7 @@
 <li><code>Array</code>的<code>SubSequence</code>: <code>ArraySlice</code>, 复用<code>Array</code>的 index, 即<code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;].dropFirst()</code>的<code>startIndex</code>是1, 而不是0.</li>
 <li><code>String</code>的<code>SubSequence</code>: <code>SubString</code>, 复用<code>String</code>的 index, 即<code>&quot;hello word&quot;.prefix(6)</code>的<code>endIndex</code>, 在原来 string 中可以索引出&quot;w&quot;.</li>
 </ul>
-<p><code>CountableRange</code>也应如此, 那么<code>(-10..&lt;10)[0]</code> 应该是多少呢, 如果把<code>CountableRange</code>的<code>firstIndex</code>一律定位0, 那么上述表达式会返回 range 中的第一个值&quot;-10&quot;. 但这是不符合<code>Collection</code>约定的, 因为<code>(-10..&lt;10).dropFirst()</code>的结果<code>-9..&lt;10</code>, <code>firstIndex</code>显然不应该是0, 因为<code>(-9..&lt;10)[0]</code>会返回9, 这就违反<code>Collection</code>和<code>SubSequence</code>中, 同一个 index 应该取得同样的 element 这个约定.</p>
+<p><code>CountableRange</code>也应如此, 那么<code>(-10..&lt;10)[0]</code> 应该是多少呢, 如果把<code>CountableRange</code>的<code>firstIndex</code>一律定位0, 那么上述表达式会返回 range 中的第一个值&quot;-10&quot;. 但这是不符合<code>Collection</code>约定的, 因为<code>(-10..&lt;10).dropFirst()</code>的结果<code>-9..&lt;10</code>, 仍然是一个<code>CountableRange</code>. 但它的<code>firstIndex</code>显然不应该是0, 因为<code>(-9..&lt;10)[0]</code>会返回9, 这就违反<code>Collection</code>和<code>SubSequence</code>中, 同一个 index 应该取得同样的 element 这个约定.</p>
 <p>所以 Swift Standard Library 决定, 针对一个<code>CountableRange</code>: <code>a..&lt;b</code>, 使用<code>a</code>作为其 <code>firstIndex</code>, 从而<code>(a..&lt;b)[a] == a</code>. 这一个理性但也许出人意料的表现, 确实可能导致一部分人的困惑. 于是 Swift 标准库采取了这样的办法: 当<code>CountableRange</code>的泛型参数就是<code>Int</code>时, 禁止调用<code>subscript</code>, 当泛型参数不是<code>Int</code>时, 没这个问题, 因为本身下标就不会是0, 因此不会出现理解问题.</p>
 <h4 id="实现"><a class="markdownIt-Anchor" href="#实现"></a> 实现</h4>
 <p>这个 trick 在 Swift 标准库源码的实现中称为: “Statically Unavailable &amp; Dynamically Available”. 换言之, 这个方法动态是存在的, 但是你的静态代码无法调到.</p>

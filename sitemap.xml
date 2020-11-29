@@ -88,6 +88,20 @@
 
   
   <url>
+    <loc>https://crystdragon.github.io/tags/cryptography/</loc>
+    <lastmod>2020-11-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/apple-platforms/</loc>
+    <lastmod>2020-11-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/tags/image/</loc>
     <lastmod>2020-11-29</lastmod>
     <changefreq>daily</changefreq>
@@ -103,20 +117,6 @@
   
   <url>
     <loc>https://crystdragon.github.io/tags/avfoundation/</loc>
-    <lastmod>2020-11-29</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/cryptography/</loc>
-    <lastmod>2020-11-29</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/apple-platforms/</loc>
     <lastmod>2020-11-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -188,13 +188,6 @@
 
   
   <url>
-    <loc>https://crystdragon.github.io/categories/apple-platforms/</loc>
-    <lastmod>2020-11-29</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://crystdragon.github.io/categories/notes/</loc>
     <lastmod>2020-11-29</lastmod>
     <changefreq>daily</changefreq>
@@ -202,7 +195,7 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/diary/</loc>
+    <loc>https://crystdragon.github.io/categories/apple-platforms/</loc>
     <lastmod>2020-11-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -210,6 +203,13 @@
   
   <url>
     <loc>https://crystdragon.github.io/categories/architecture/</loc>
+    <lastmod>2020-11-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/categories/diary/</loc>
     <lastmod>2020-11-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

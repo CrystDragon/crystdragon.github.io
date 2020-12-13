@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>TRA-3 | Lincoln&#39;s SafeHouse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Tip: 在 Swift 中实现 protected 对应的功能 Receive: 了解 Swift Runtime 实现 Algorithm: Longest Valid Parentheses  题目 实现 分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TRA-3">
+<meta property="og:url" content="https://crystdragon.github.io/2020/tra-3/">
+<meta property="og:site_name" content="Lincoln&#39;s SafeHouse">
+<meta property="og:description" content="Tip: 在 Swift 中实现 protected 对应的功能 Receive: 了解 Swift Runtime 实现 Algorithm: Longest Valid Parentheses  题目 实现 分析">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-12-13T10:41:54.000Z">
+<meta property="article:modified_time" content="2020-12-13T12:36:44.876Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln&#39;s SafeHouse" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln&#39;s SafeHouse</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Home of a Swifter on Apple platforms</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-tra-3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/tra-3/" class="article-date">
+  <time datetime="2020-12-13T10:41:54.000Z" itemprop="datePublished">2020-12-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tra/">TRA</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      TRA-3
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#tip-%E5%9C%A8-swift-%E4%B8%AD%E5%AE%9E%E7%8E%B0-protected-%E5%AF%B9%E5%BA%94%E7%9A%84%E5%8A%9F%E8%83%BD">Tip: 在 Swift 中实现 protected 对应的功能</a></li>
+<li><a href="#receive-%E4%BA%86%E8%A7%A3-swift-runtime-%E5%AE%9E%E7%8E%B0">Receive: 了解 Swift Runtime 实现</a></li>
+<li><a href="#algorithm-longest-valid-parentheses">Algorithm: Longest Valid Parentheses</a>
+<ul>
+<li><a href="#%E9%A2%98%E7%9B%AE">题目</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
+<li><a href="#%E5%88%86%E6%9E%90">分析</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<hr>
+<a id="more"></a>
+<h2 id="tip-在-swift-中实现-protected-对应的功能"><a class="markdownIt-Anchor" href="#tip-在-swift-中实现-protected-对应的功能"></a> Tip: 在 Swift 中实现 protected 对应的功能</h2>
+<p>无论是 ObjC 还是 Swift, 都没有提供原生的 protected 概念.</p>
+<p>在 ObjC 中, 经常把那些对应 protected 的方法定义在一个特殊的 .h 文件中, 要求子类的实现者在需要调用这些方法时, 引用这个头文件. 这当然只是一个 trick, 因为事实上没有办法避免非子类实现者也引用这个头文件, 再加上 ObjC 的 runtime 的存在, 本质上并没有办法阻止这些方法暴露出去. 而在 Swift 中, 由于<a href="https://developer.apple.com/swift/blog/?id=11" target="_blank" rel="noopener">一些设计方面的理由</a>, protected 被认为是不必要的. 而因为 Swift 没有头文件的概念, 之前 ObjC 中的 trick 根本无法实施, 从而只能靠 comment 或者 documentation 约定来指明哪些方法应被视作 protected.</p>
+<p>跳出原有的思维, 来看一看 protected 能完成的任务, 通常我们需要做到这样的效果.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span> <span class="class"><span class="keyword">class</span> <span class="title">Base</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">routine</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> value = step1()</span><br><span class="line">    value = step2(value)</span><br><span class="line">    step3(value)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">step1</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    <span class="number">100</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">open</span> <span class="function"><span class="keyword">func</span> <span class="title">step2</span><span class="params">(<span class="number">_</span> input: Int)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    input</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">step3</span><span class="params">(<span class="number">_</span> value: Int)</span></span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(value)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// MARK: protected methods</span></span><br><span class="line">  <span class="keyword">final</span> <span class="function"><span class="keyword">func</span> <span class="title">util1</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    <span class="type">Int</span>(<span class="type">Date</span>.timeIntervalSinceReferenceDate)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">final</span> <span class="function"><span class="keyword">func</span> <span class="title">util2</span><span class="params">(<span class="number">_</span> value: Int)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    (value * <span class="number">3</span> + <span class="number">50</span>) / <span class="number">2</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>: <span class="title">Base</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">step2</span><span class="params">(<span class="number">_</span> input: Int)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    util1() + util2(input)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> object: <span class="type">Base</span> = <span class="type">Derived</span>()</span><br><span class="line">object.routine()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 无法阻止</span></span><br><span class="line">object.util1()</span><br></pre></td></tr></table></figure>
+<p>这个 <code>Base</code> 类提供了一个 <code>routine</code> 方法作为其 API, 其内部实现把步骤分为 3 步, 其中开始和结束步骤是固定的, 允许子类通过重写第二个步骤来扩展基类的功能. 同时基类提供了一系列 protected 方法, 供子类在扩展过程中调用. 在上面的实现中, 我们通过 comment, 将基类中的一些方法标注为 protected, 但这样显然无法阻止它们被基类实现者以外的 code 访问.</p>
+<p>为了解决这个问题, 我们可以把那些只允许子类调用的 protected 方法标记成 private, 同时改写允许子类扩展功能的那部分方法的接口, 把 protected 方法作为 closure 参数注入到这个待扩展的方法中.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span> <span class="class"><span class="keyword">class</span> <span class="title">Base</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">routine</span><span class="params">()</span></span> &#123; </span><br><span class="line">    <span class="keyword">var</span> value = step1()</span><br><span class="line">    <span class="comment">// note: 这里用到了 partial application 语法. 当然也可以构造一个临时的 closure, 包一层调用.</span></span><br><span class="line">    value = step2(value, <span class="keyword">self</span>.util1, <span class="keyword">self</span>.util2)</span><br><span class="line">    step3(value)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">step1</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">step3</span><span class="params">(<span class="number">_</span> value: Int)</span></span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">open</span> <span class="function"><span class="keyword">func</span> <span class="title">step2</span><span class="params">(<span class="number">_</span> input: Int, </span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="number">_</span> util1: <span class="params">()</span></span></span> -&gt; <span class="type">Int</span>, </span><br><span class="line">    <span class="number">_</span> util2: (<span class="type">Int</span>) -&gt; <span class="type">Int</span></span><br><span class="line">  ) -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    input</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">util1</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">util2</span><span class="params">(<span class="number">_</span> value: Int)</span></span> -&gt; <span class="type">Int</span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>: <span class="title">Base</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">step2</span><span class="params">(<span class="number">_</span> input: Int, </span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="number">_</span> util1: <span class="params">()</span></span></span> -&gt; <span class="type">Int</span>,</span><br><span class="line">    <span class="number">_</span> util2: (<span class="type">Int</span>) -&gt; <span class="type">Int</span></span><br><span class="line">  ) -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    util1() + util2(input)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> object: <span class="type">Base</span> = <span class="type">Derived</span>()</span><br><span class="line">object.routine()</span><br><span class="line"></span><br><span class="line"><span class="comment">// compiler error</span></span><br><span class="line">object.util1()</span><br></pre></td></tr></table></figure>
+<p>当 protected 方法比较多时, 上面的方式可能造成允许子类扩展功能的那些方法拥有太长的签名, 此时可以通过进一步把 protected 方法用 struct 或 protocol 包装一下, 作为 1 个参数传递给子类. 只要注意把封装了 protected 方法的类型定义为 private, 就可以保证这些方法不可能在允许子类扩展的那个方法以外的地方被调用.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ProtectedMethods</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">util1</span><span class="params">()</span></span>  -&gt; <span class="type">Int</span></span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">util2</span><span class="params">(<span class="number">_</span> value: Int)</span></span> -&gt; <span class="type">Int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">open</span> <span class="class"><span class="keyword">class</span> <span class="title">Base</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Protected</span>: <span class="title">ProtectedMethods</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">unowned</span> <span class="keyword">let</span> base: <span class="type">Base</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(<span class="number">_</span> base: <span class="type">Base</span>) &#123;</span><br><span class="line">      <span class="keyword">self</span>.base = base</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">util1</span><span class="params">()</span></span>  -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">      base.util1()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">util2</span><span class="params">(<span class="number">_</span> value: Int)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">      base.util2(value)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">routine</span><span class="params">()</span></span> &#123; </span><br><span class="line">    <span class="keyword">var</span> value = step1()</span><br><span class="line">    value = step2(value, <span class="type">Protected</span>(<span class="keyword">self</span>))</span><br><span class="line">    step3(value)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">step1</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123; <span class="comment">/* same as before */</span>&#125;</span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">step3</span><span class="params">(<span class="number">_</span> value: Int)</span></span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">open</span> <span class="function"><span class="keyword">func</span> <span class="title">step2</span><span class="params">(<span class="number">_</span> input: Int, <span class="number">_</span> protected: ProtectedMethods)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    input</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">util1</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">util2</span><span class="params">(<span class="number">_</span> value: Int)</span></span> -&gt; <span class="type">Int</span> &#123; <span class="comment">/* same as before */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>: <span class="title">Base</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">step2</span><span class="params">(<span class="number">_</span> input: Int, <span class="number">_</span> protected: ProtectedMethods)</span></span> &#123;</span><br><span class="line">    protected.util1() + protected.util2(input)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到, 只要跳出其他语言中 protected 使用姿势的思维限制, 通过调整 API 的设计, 我们也能在 Swift 中达到类似的效果.</p>
+<h2 id="receive-了解-swift-runtime-实现"><a class="markdownIt-Anchor" href="#receive-了解-swift-runtime-实现"></a> Receive: 了解 Swift Runtime 实现</h2>
+<p>最近我在阅读一位前 Apple 雇员, 前 Swift Core Team 成员 Jordan Rose 今年在其 blog 上写的 Swift 系列文章. 业界系统性介绍 Swift 编译器的文章<a href="https://medium.com/@slavapestov/the-secret-life-of-types-in-swift-ff83c3c000a5" target="_blank" rel="noopener">少之又少</a>, 而有的一些, 从时间上说也不能代表 “state of the art” 的 Swift 实现. 因此他的这一系列文章必定让 Swift 爱好者受益匪浅.</p>
+<p>Jordan 最初是想在一台老式的运行 Mac OS 9 系统的电脑上运行 Swift, 为了达到这个纯粹是技术性追求的目的, 他需要对 Swift 编译器做一些调整, 使之能把输入的 Swift 源文件转换成能在 Mac OS 9 上运行的二进制文件. 作者说, 这个过程对他而言也是一个不断学习的过程, 加深了他对 Swift runtime 和编译器各个部分的理解, 于是决定把这部分分享给 Swift 社区.</p>
+<p>截止到目前一共有 7 篇介绍 Swift 原理的 blog:</p>
+<ul>
+<li><a href="https://belkadan.com/blog/2020/08/Swift-Runtime-Heap-Objects/" target="_blank" rel="noopener">The Swift Runtime: Heap Objects</a></li>
+<li><a href="https://belkadan.com/blog/2020/09/Swift-Runtime-Type-Layout/" target="_blank" rel="noopener">The Swift Runtime: Type Layout</a></li>
+<li><a href="https://belkadan.com/blog/2020/09/Swift-Runtime-Type-Metadata/" target="_blank" rel="noopener">The Swift Runtime: Type Metadata</a></li>
+<li><a href="https://belkadan.com/blog/2020/09/Swift-Runtime-Uniquing-Caches/" target="_blank" rel="noopener">The Swift Runtime: Uniquing Caches</a></li>
+<li><a href="https://belkadan.com/blog/2020/09/Swift-Runtime-Class-Metadata/" target="_blank" rel="noopener">The Swift Runtime: Class Metadata</a></li>
+<li><a href="https://belkadan.com/blog/2020/10/Swift-Runtime-Class-Metadata-Initialization/" target="_blank" rel="noopener">The Swift Runtime: Class Metadata Initialization</a></li>
+<li><a href="https://belkadan.com/blog/2020/10/Swift-Runtime-Enums/" target="_blank" rel="noopener">The Swift Runtime: Enums</a></li>
+</ul>
+<p>由于一些时间原因, 这一些列暂时是停更的状态, 但大佬说之后会继续.</p>
+<h2 id="algorithm-longest-valid-parentheses"><a class="markdownIt-Anchor" href="#algorithm-longest-valid-parentheses"></a> Algorithm: Longest Valid Parentheses</h2>
+<h3 id="题目"><a class="markdownIt-Anchor" href="#题目"></a> 题目</h3>
+<p>来自 <a href="https://leetcode.com/problems/longest-valid-parentheses/" target="_blank" rel="noopener">LeetCode</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Given a string containing just the characters '(' and ')', find the length of the longest valid (well-formed) parentheses substring.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">  Input: s = "(()"</span><br><span class="line">  Output: 2</span><br><span class="line">  Explanation: The longest valid parentheses substring is "()".</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">  Input: s = ")()())"</span><br><span class="line">  Output: 4</span><br><span class="line">  Explanation: The longest valid parentheses substring is "()()".</span><br></pre></td></tr></table></figure>
+<h3 id="实现"><a class="markdownIt-Anchor" href="#实现"></a> 实现</h3>
+<p>使用动态规划思想, 在遍历每个字符的过程中, 记录以当前字符为结束字符的最大匹配的括号长度. 这样下一个字符是否产生匹配, 以及匹配的长度可以完全由当前字符决定.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">longestValidParentheses</span><span class="params">(<span class="number">_</span> s: String)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> s.isEmpty &#123; <span class="keyword">return</span> <span class="number">0</span> &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">let</span> c1 = <span class="type">Character</span>(<span class="string">"("</span>).asciiValue!</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 保存最大的长度</span></span><br><span class="line">  <span class="keyword">var</span> runningLength = <span class="number">0</span></span><br><span class="line">  <span class="keyword">let</span> length = s.utf8.<span class="built_in">count</span></span><br><span class="line">  <span class="keyword">return</span> s.withCString &#123; pointer <span class="keyword">in</span></span><br><span class="line">    <span class="comment">// 保存各个字符对应的最大长度</span></span><br><span class="line">    <span class="keyword">var</span> bookkeeping = [<span class="number">0</span>]</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span>..&lt;length &#123;</span><br><span class="line">      <span class="keyword">let</span> current = pointer[i]</span><br><span class="line">      <span class="keyword">if</span> current == c1 &#123;</span><br><span class="line">        <span class="comment">// 当前字符为 "(", 不可能匹配</span></span><br><span class="line">        bookkeeping.append(<span class="number">0</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 当前字符为 ")"</span></span><br><span class="line">        <span class="comment">// 找到之前位置 (i - 1) 的字符对应匹配的开始的前一个字符</span></span><br><span class="line">        <span class="keyword">let</span> evenSide = i - <span class="number">1</span> - bookkeeping[i - <span class="number">1</span>]</span><br><span class="line">        <span class="keyword">guard</span> evenSide &gt;= <span class="number">0</span> &amp;&amp; pointer[evenSide] == c1 <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">// 若该字符是 ")", 说明不可能匹配</span></span><br><span class="line">          bookkeeping.append(<span class="number">0</span>)</span><br><span class="line">          <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 该字符是 "(", 说明可以匹配. 匹配的长度是: 在前一个字符的匹配长度基础上, 增加前一个字符匹配开始处再前一个字符对应的匹配长度</span></span><br><span class="line">        <span class="keyword">let</span> maxLength = i - evenSide + <span class="number">1</span> +</span><br><span class="line">          (evenSide &gt; <span class="number">0</span> ? bookkeeping[evenSide - <span class="number">1</span>] : <span class="number">0</span>)</span><br><span class="line">        bookkeeping.append(maxLength)</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 更新全局 max</span></span><br><span class="line">        <span class="keyword">if</span> maxLength &gt; runningLength &#123;</span><br><span class="line">          runningLength = maxLength</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> runningLength</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实现中使用了<code>withCString</code>, 在不产生 copy 的情况下允许了 random access 的 indexing 操作, 增强了性能.</p>
+<h3 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h3>
+<p>由于使用动态规划思想, 上面的实现只使用一次遍历, 时间复杂度仅为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault">n</span><span class="mclose">)</span></span></span></span>. 事实上在 leetcode 上的运行结果也是 “super fast” 的😁.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/tra-3/" data-id="ckin03rqq0000vpf7fedt27we" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/tra-3/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/tra-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">TRA-2</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/tra-3/">TRA-3</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-2/">TRA-2</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-1/">TRA-1</a>
+          </li>
+        
+          <li>
+            <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
+          </li>
+        
+          <li>
+            <a href="/2020/testing-in-xcode/">Testing in Xcode</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2020/tra-3/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<!--for katex to work-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<!--for highlight to work-->
+<!-- <link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
+</script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script> -->
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

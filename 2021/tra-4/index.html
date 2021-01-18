@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>TRA-4 | Lincoln&#39;s SafeHouse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Tip: 按 function 类型直接引用成员方法  背景: 全局方法 问题: 成员方法  self 不是 comparator 的参数 self 是 comparator 的参数     Receive: Swift UI 布局系统探究 Algorithm: N-皇后问题  题目 解答">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TRA-4">
+<meta property="og:url" content="https://crystdragon.github.io/2021/tra-4/">
+<meta property="og:site_name" content="Lincoln&#39;s SafeHouse">
+<meta property="og:description" content="Tip: 按 function 类型直接引用成员方法  背景: 全局方法 问题: 成员方法  self 不是 comparator 的参数 self 是 comparator 的参数     Receive: Swift UI 布局系统探究 Algorithm: N-皇后问题  题目 解答">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2021-01-18T07:52:57.000Z">
+<meta property="article:modified_time" content="2021-01-18T10:32:26.332Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln&#39;s SafeHouse" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln&#39;s SafeHouse</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Home of a Swifter on Apple platforms</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-tra-4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2021/tra-4/" class="article-date">
+  <time datetime="2021-01-18T07:52:57.000Z" itemprop="datePublished">2021-01-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tra/">TRA</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      TRA-4
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#tip-%E6%8C%89-function-%E7%B1%BB%E5%9E%8B%E7%9B%B4%E6%8E%A5%E5%BC%95%E7%94%A8%E6%88%90%E5%91%98%E6%96%B9%E6%B3%95">Tip: 按 function 类型直接引用成员方法</a>
+<ul>
+<li><a href="#%E8%83%8C%E6%99%AF-%E5%85%A8%E5%B1%80%E6%96%B9%E6%B3%95">背景: 全局方法</a></li>
+<li><a href="#%E9%97%AE%E9%A2%98-%E6%88%90%E5%91%98%E6%96%B9%E6%B3%95">问题: 成员方法</a>
+<ul>
+<li><a href="#self-%E4%B8%8D%E6%98%AF-comparator-%E7%9A%84%E5%8F%82%E6%95%B0">self 不是 comparator 的参数</a></li>
+<li><a href="#self-%E6%98%AF-comparator-%E7%9A%84%E5%8F%82%E6%95%B0">self 是 comparator 的参数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#receive-swift-ui-%E5%B8%83%E5%B1%80%E7%B3%BB%E7%BB%9F%E6%8E%A2%E7%A9%B6">Receive: Swift UI 布局系统探究</a></li>
+<li><a href="#algorithm-n-%E7%9A%87%E5%90%8E%E9%97%AE%E9%A2%98">Algorithm: N-皇后问题</a>
+<ul>
+<li><a href="#%E9%A2%98%E7%9B%AE">题目</a></li>
+<li><a href="#%E8%A7%A3%E7%AD%94">解答</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<hr>
+<a id="more"></a>
+<h2 id="tip-按-function-类型直接引用成员方法"><a class="markdownIt-Anchor" href="#tip-按-function-类型直接引用成员方法"></a> Tip: 按 function 类型直接引用成员方法</h2>
+<h3 id="背景-全局方法"><a class="markdownIt-Anchor" href="#背景-全局方法"></a> 背景: 全局方法</h3>
+<p>在 Swift 中实名函数可以直接用作 function 类型, 这在 functional 编程中非常有用.</p>
+<p>例如: <code>Array.sort(by:)</code> 接受一个类型为 <code>(Element, Element) -&gt; Bool</code> 的 comparator, 如果我们有一个函数就是这样的类型, 那么可以如下直接调用.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/// 奇数始终在偶数前</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">compare</span><span class="params">(<span class="number">_</span> lhs: Int, <span class="number">_</span> rhs: Int)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">  <span class="keyword">switch</span> (lhs.isMultiple(of: <span class="number">2</span>), rhs.isMultiple(of: <span class="number">2</span>)) &#123;</span><br><span class="line">    <span class="keyword">case</span> (<span class="literal">true</span>, <span class="literal">true</span>), (<span class="literal">false</span>, <span class="literal">false</span>):</span><br><span class="line">      <span class="keyword">return</span> lhs &lt; rhs</span><br><span class="line">    <span class="keyword">case</span> (<span class="number">_</span>, <span class="keyword">let</span> isEven):</span><br><span class="line">      <span class="keyword">return</span> isEven</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</span><br><span class="line">array.<span class="built_in">sort</span>(by: compare)  </span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line">array.<span class="built_in">sort</span> &#123;</span><br><span class="line">  compare($<span class="number">0</span>, $<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="问题-成员方法"><a class="markdownIt-Anchor" href="#问题-成员方法"></a> 问题: 成员方法</h3>
+<p>在实际开发中, 我们不可能把所有方法定义成全局的 free function 或 static function, 而是会把逻辑定义成某个类型的实例方法. 这种情况下, 也有办法直接引用方法的名字, 而不用显式创建一个临时的 closure.</p>
+<h4 id="self-不是-comparator-的参数"><a class="markdownIt-Anchor" href="#self-不是-comparator-的参数"></a> self 不是 comparator 的参数</h4>
+<p>当我们想引用的成员函数, 其显式的参数和返回值与接受的 function 类型一致, 那么可以直接用 <code>obj.foo</code> 的方式引用. 当 function 为 non-escaping 时, 且 <code>obj</code> 为 <code>self</code> 时, 可进一步省略, 直接传递 <code>foo</code>.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Manager</span> </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> storage = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">compare</span><span class="params">(<span class="number">_</span> lhs: Int, <span class="number">_</span> rhs: Int)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">    <span class="comment">/// 省略</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Manager</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">perform</span><span class="params">()</span></span> &#123;</span><br><span class="line">    storage.<span class="built_in">sort</span>(by: compare)</span><br><span class="line">    <span class="comment">// 等价于</span></span><br><span class="line">    storage.<span class="built_in">sort</span>(by: <span class="keyword">self</span>.compare)</span><br><span class="line">    <span class="comment">// 等价于</span></span><br><span class="line">    storage.<span class="built_in">sort</span> &#123;</span><br><span class="line">      <span class="keyword">self</span>.compare($<span class="number">0</span>, $<span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种 Swift 语法称为 partial application: 在上述的例子中, 为了实际执行 <code>compare</code>, 我们本需要提供 <code>self</code> 和 <code>lhs</code>, <code>rhs</code> 3 个参数, 但是我们在传递给 <code>sort</code> 时, 只&quot;部分地&quot;提供了 self 参数, 而不提供 <code>lhs</code> 和 <code>rhs</code>, 这也是 “partial” 的含义.</p>
+<p>通用地:<br>
+一个 <code>Object</code> 类型的任何实例成员方法 <code>foo</code>, 如果其签名是 <code>(Param0, Param1, Param2...) -&gt; ReturnType</code>.<br>
+那么对一个该类型的对象 <code>object</code>, 可以直接引用 <code>object.foo</code>, 得到的是一个隐式创建的 closure, 其类型就是 <code>(Param0, Param1, Param2...) -&gt; ReturnType</code>.<br>
+需要注意, 当 <code>Object</code> 是 class 时, 这里创建的隐式 closure 从语义上对 self 有一个强引用, 注意使用时不要在 code 中产生循环强引用.</p>
+<h4 id="self-是-comparator-的参数"><a class="markdownIt-Anchor" href="#self-是-comparator-的参数"></a> self 是 comparator 的参数</h4>
+<p>有时候我们想引用的成员函数, 显式的参数和返回值与接受的 function 类型本不一致, 但算上隐式的 <code>self</code> 后, 就一致了. 这种情况也是很常见的, 例如:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Answer</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> grade: <span class="type">Int</span></span><br><span class="line">  <span class="keyword">init</span>(<span class="number">_</span> grade: <span class="type">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">self</span>.grade = grade</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">isBetter</span><span class="params">(than another: Answer)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">    grade &gt; another.grade</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> answers = [<span class="type">Answer</span>(<span class="number">10</span>), <span class="type">Answer</span>(<span class="number">50</span>), <span class="type">Answer</span>(<span class="number">100</span>)]</span><br><span class="line">answers.<span class="built_in">sort</span> &#123;</span><br><span class="line">  $<span class="number">0</span>.isBetter(than: $<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们也不想显式传建一个临时 closure, 那么我们可以使用类型名而不是对象名作为 qualifier 来引用这个方法, 例如 <code>Answer.isBetter</code>.<br>
+这种引用方式非 full-application, 也非 partial-application, 而是 non-application.</p>
+<p>在目前的 Swift 语言实现下, 一个 <code>Object</code> 类型的任何实例成员方法 <code>foo</code>, 如果其签名是 <code>(Param0, Param1, Param2...) -&gt; ReturnType</code>.<br>
+那么直接引用 <code>Object.foo</code>, 也会得到一个 closure. 但需要注意, 其类型并不是 <code>(Object, Param0, Param1, Param2...) -&gt; ReturnType</code>, 而是它的 curried 形式: <code>(Object) -&gt; (Param0, Param1, Param2...) -&gt; ReturnType</code>.</p>
+<p>因此, 针对上面这个例子, 是无法直接引用 <code>Answer.isBetter</code>的. 试图调用 <code>answers.sort(by: Answer.isBetter)</code> 会产生编译错误.</p>
+<p>此时, 在条件允许的情况下, 我们可以通过定义一个泛型的自定义的运算符, 把 curried 形式的函数转化为非 curried 形式, 之后就可以传递给目标参数了. 这本身也是 functional programming 的一个应用.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">prefix</span> <span class="keyword">operator</span> ~</span><br><span class="line"></span><br><span class="line"><span class="comment">// 针对二元操作</span></span><br><span class="line"><span class="keyword">prefix</span> <span class="function"><span class="keyword">func</span> ~ &lt;A, B, C&gt;<span class="params">(<span class="number">_</span> curried: @escaping <span class="params">(A)</span></span></span> -&gt; (<span class="type">B</span>) -&gt; <span class="type">C</span>) -&gt; (<span class="type">A</span>, <span class="type">B</span>) -&gt; <span class="type">C</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; lhs, rhs <span class="keyword">in</span></span><br><span class="line">    curried(lhs)(rhs)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 此时可以直接引用成员函数名</span></span><br><span class="line">answers.<span class="built_in">sort</span>(by: ~<span class="type">Answer</span>.isBetter)</span><br></pre></td></tr></table></figure>
+<h2 id="receive-swift-ui-布局系统探究"><a class="markdownIt-Anchor" href="#receive-swift-ui-布局系统探究"></a> Receive: Swift UI 布局系统探究</h2>
+<p>iOS 13 时, Apple 引入了原生 Swift framework SwiftUI. 他的优点十分明显, 但学习曲线并不平坦. 我个人认为, 至少有 2 个方面需要初学者花时间熟悉:</p>
+<ul>
+<li>数据驱动. SwiftUI 针对不同生命期的 data, 提供了一些列 property wrapper, 在描述 View 时, UI 和 data 之间会创建隐式的绑定. 理解不同的 data wrapper 和驱动机制是关键之一.</li>
+<li>布局系统. 和 UIKit 中显式或依赖 constraints 自动地操纵 frame/bounds 不同, SwiftUI 通过嵌套不同的 View 对象和调用 modifiers 来完成布局的描述. 从本质上说, 这是一个黑盒, 而 Apple 的文档并不特别详尽(尽管最近的几个版本 Apple 已经在改善文档方面作出了巨大的努力).</li>
+</ul>
+<p>针对后一个问题, 整个社区始终在不断的学习和研究之中. <a href="http://Objc.io" target="_blank" rel="noopener">Objc.io</a> 之前推出的<a href="https://www.objc.io/books/thinking-in-swiftui/" target="_blank" rel="noopener">一本书籍</a>和最近的一系列 video “<a href="https://talk.objc.io/collections/swiftui-layout-explained" target="_blank" rel="noopener">SwiftUI Layout Explained</a>” 对系统性地理解 SwiftUI 的布局流程有很大帮助.</p>
+<h2 id="algorithm-n-皇后问题"><a class="markdownIt-Anchor" href="#algorithm-n-皇后问题"></a> Algorithm: N-皇后问题</h2>
+<h3 id="题目"><a class="markdownIt-Anchor" href="#题目"></a> 题目</h3>
+<p>来自 <a href="https://leetcode.com/problems/n-queens/" target="_blank" rel="noopener">leetcode</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">The n-queens puzzle is the problem of placing n queens on an n x n chessboard </span><br><span class="line">such that no two queens attack each other.</span><br><span class="line"></span><br><span class="line">Given an integer n, return all distinct solutions to the n-queens puzzle.</span><br><span class="line"></span><br><span class="line">Each solution contains a distinct board configuration of the n-queens' placement, </span><br><span class="line">where 'Q' and '.' both indicate a queen and an empty space, respectively.</span><br><span class="line"></span><br><span class="line">Example:</span><br><span class="line">  Input: n = 4</span><br><span class="line">  Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]</span><br><span class="line">  Explanation: There exist two distinct solutions.</span><br></pre></td></tr></table></figure>
+<h3 id="解答"><a class="markdownIt-Anchor" href="#解答"></a> 解答</h3>
+<p>使用深度遍历和回溯技巧即可完成所有可能布局的遍历, 这里给出递归方式的实现.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">solveNQueens</span><span class="params">(<span class="number">_</span> n: Int)</span></span> -&gt; [[<span class="type">String</span>]] &#123;</span><br><span class="line">  <span class="comment">/// 存放每一行 queen 的列号, 初始化和所有后续操作都维护了以下不变量: 它一定是某个 0..&lt;n 的排列</span></span><br><span class="line">  <span class="keyword">var</span> placed = <span class="type">Array</span>(<span class="number">0</span>..&lt;n)</span><br><span class="line">  <span class="comment">/// 最终返回的所有的结果</span></span><br><span class="line">  <span class="keyword">var</span> allResults: [[<span class="type">String</span>]] = []</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// 将当前布局 data 转换成结果 string</span></span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">flush</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> rows: [<span class="type">String</span>] = []</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> <span class="number">0</span>..&lt;n &#123;</span><br><span class="line">      <span class="keyword">var</span> characters = <span class="type">Array</span>&lt;<span class="type">Character</span>&gt;(repeating: <span class="string">"."</span>, <span class="built_in">count</span>: n)</span><br><span class="line">      characters[placed[row]] = <span class="string">"Q"</span></span><br><span class="line">      rows.append(<span class="type">String</span>(characters))</span><br><span class="line">    &#125;</span><br><span class="line">    allResults.append(rows)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 核心的递归方法</span></span><br><span class="line">  <span class="comment">// 递归不变量:</span></span><br><span class="line">  <span class="comment">// 在每次该方法进入前, 我们保证当前 0..&lt;depth 行的数据都是合法的</span></span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">checkRecursive</span><span class="params">(<span class="number">_</span> depth: Int)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 递归终结</span></span><br><span class="line">    <span class="keyword">if</span> depth == n &#123;</span><br><span class="line">      flush()</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 递归逻辑: </span></span><br><span class="line">    <span class="comment">// 由于前 0..&lt;depth 的数据已经正确, 只需要考虑第 depth 行</span></span><br><span class="line">    <span class="keyword">for</span> exchangeIndex <span class="keyword">in</span> depth..&lt;n &#123;</span><br><span class="line">      <span class="comment">// 第 depth 行可能的列号, 一定选自剩余未排列的列号之一</span></span><br><span class="line">      <span class="keyword">if</span> validate(depth, exchangeIndex) &#123;</span><br><span class="line">        placed.swapAt(depth, exchangeIndex)</span><br><span class="line">        checkRecursive(depth + <span class="number">1</span>)</span><br><span class="line">        <span class="comment">// 回溯, 撤销前面的 swap 操作</span></span><br><span class="line">        placed.swapAt(depth, exchangeIndex)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 检查下一行, 如果将之和第 targetIndex 行的数据交换, 结果否合法</span></span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="title">validate</span><span class="params">(<span class="number">_</span> depth: Int, <span class="number">_</span> targetIndex: Int)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> target = placed[targetIndex]</span><br><span class="line">    <span class="comment">// 由于我们选择的数据结构, 天然保证了每行和每列不可能出现 2 个 queen, 只需要检查对角线方向</span></span><br><span class="line">    <span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">0</span>..&lt;depth &#123;</span><br><span class="line">      <span class="keyword">if</span> depth - index == <span class="built_in">abs</span>(target - placed[index]) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// main entry point</span></span><br><span class="line">  checkRecursive(<span class="number">0</span>)</span><br><span class="line">  <span class="keyword">return</span> allResults</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的核心优化是选取了一个适当的数据结构来表示可能的的棋盘布局, 来省略大量的逻辑判断.</p>
+<!--more-->
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2021/tra-4/" data-id="ckk29vhjg0000mjf7ent1316j" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2021/tra-4/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/tra-3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">TRA-3</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/tra-4/">TRA-4</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-3/">TRA-3</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-2/">TRA-2</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-1/">TRA-1</a>
+          </li>
+        
+          <li>
+            <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2021/tra-4/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<!--for katex to work-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<!--for highlight to work-->
+<!-- <link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
+</script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script> -->
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

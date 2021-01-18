@@ -15,7 +15,7 @@
 <meta property="og:description" content="Tip: 按 function 类型直接引用成员方法  背景: 全局方法 问题: 成员方法  self 不是 comparator 的参数 self 是 comparator 的参数     Receive: Swift UI 布局系统探究 Algorithm: N-皇后问题  题目 解答">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2021-01-18T07:52:57.000Z">
-<meta property="article:modified_time" content="2021-01-18T10:32:26.332Z">
+<meta property="article:modified_time" content="2021-01-18T12:22:39.799Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta name="twitter:card" content="summary">
   
@@ -147,7 +147,7 @@
 <h2 id="receive-swift-ui-布局系统探究"><a class="markdownIt-Anchor" href="#receive-swift-ui-布局系统探究"></a> Receive: Swift UI 布局系统探究</h2>
 <p>iOS 13 时, Apple 引入了原生 Swift framework SwiftUI. 他的优点十分明显, 但学习曲线并不平坦. 我个人认为, 至少有 2 个方面需要初学者花时间熟悉:</p>
 <ul>
-<li>数据驱动. SwiftUI 针对不同生命期的 data, 提供了一些列 property wrapper, 在描述 View 时, UI 和 data 之间会创建隐式的绑定. 理解不同的 data wrapper 和驱动机制是关键之一.</li>
+<li>数据驱动. SwiftUI 针对不同生命期的 data, 提供了一系列 property wrapper, 在描述 View 时, UI 和 data 之间会创建隐式的绑定. 理解不同的 data wrapper 和驱动机制是关键之一.</li>
 <li>布局系统. 和 UIKit 中显式或依赖 constraints 自动地操纵 frame/bounds 不同, SwiftUI 通过嵌套不同的 View 对象和调用 modifiers 来完成布局的描述. 从本质上说, 这是一个黑盒, 而 Apple 的文档并不特别详尽(尽管最近的几个版本 Apple 已经在改善文档方面作出了巨大的努力).</li>
 </ul>
 <p>针对后一个问题, 整个社区始终在不断的学习和研究之中. <a href="http://Objc.io" target="_blank" rel="noopener">Objc.io</a> 之前推出的<a href="https://www.objc.io/books/thinking-in-swiftui/" target="_blank" rel="noopener">一本书籍</a>和最近的一系列 video “<a href="https://talk.objc.io/collections/swiftui-layout-explained" target="_blank" rel="noopener">SwiftUI Layout Explained</a>” 对系统性地理解 SwiftUI 的布局流程有很大帮助.</p>

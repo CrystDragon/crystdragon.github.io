@@ -15,7 +15,7 @@
 <meta property="og:description" content="背景 分析  无线程竞争 有线程竞争  强引用 弱引用 unsafe引用     总结    原文成于2017年11月   背景 最近在浏览 Swift Talk 的过程中, 思考了一个很有意思的问题. 如果一个对象通过NotificationCenter注册了一个通知, 然后在这个对象的deinit方法中执行了removeObserver. 假如在对象调用deinit的过程中对应的事件发生了,">
 <meta property="og:locale">
 <meta property="article:published_time" content="2020-07-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-07-28T11:26:44.145Z">
+<meta property="article:modified_time" content="2020-07-28T11:26:44.000Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Thread Safety">
 <meta property="article:tag" content="ARC">
@@ -117,10 +117,10 @@
 <hr>
 <h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
 <p>最近在浏览 Swift Talk 的过程中, 思考了一个很有意思的问题.</p>
-<p>如果一个对象通过<code>NotificationCenter</code>注册了一个通知, 然后在这个对象的<code>deinit</code>方法中执行了<code>removeObserver</code>. 假如在对象调用<code>deinit</code>的过程中对应的事件发生了, 并产生了一个通知, 此时会有什么现象? 当事件发生/投递的线程和对象<code>deinit</code>的线程不是一个线程时, 会导致崩溃吗? <a href="https://talk.objc.io/episodes/S01E28-typed-notifications-part-2" target="_blank" rel="noopener">Swift Talk #28最后5分钟内容</a></p>
+<p>如果一个对象通过<code>NotificationCenter</code>注册了一个通知, 然后在这个对象的<code>deinit</code>方法中执行了<code>removeObserver</code>. 假如在对象调用<code>deinit</code>的过程中对应的事件发生了, 并产生了一个通知, 此时会有什么现象? 当事件发生/投递的线程和对象<code>deinit</code>的线程不是一个线程时, 会导致崩溃吗? <a target="_blank" rel="noopener" href="https://talk.objc.io/episodes/S01E28-typed-notifications-part-2">Swift Talk #28最后5分钟内容</a></p>
 <p>这个问题我觉得很有意思, 之前都没有意识到过.</p>
 <p>事实上虽然这个问题是在&quot;Swift Talk&quot;中抛出, 但是并不是Swift独有的, OC 下的<code>dealloc</code>方法同样有这个问题. 另外, 虽然问题是以 Notification 为例, 但显然问题并不限于通知, 任何别的含有通知/回调机制的场景都会面临同样的问题.</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h2>
 <p>首先需要明确的是, 从安全角度来讲, 是有必要反注册的. 即使新的 API 也许不要求我们开发者显式调用<code>removeObserver</code>, 其内部也一定在合适的时机执行了等价的反注册. 下面都是以调用了<code>removeObserver</code>这个为前提进行讨论.</p>
 <p>其次, 考虑一下, 如果这边有问题, 会是什么类型的问题? 我认为至少可能有以下2类问题</p>
@@ -157,15 +157,15 @@
 <li>假如事件的投递先于<code>deinit</code>中<code>removeObserver</code>执行. 那么, 在事件产生的瞬间, 对象一定是活着的, 然后对象无论怎么处理这个事件, 只要<code>NotificationCenter</code>保证对象在回调结束前始终保证对监听者有一个 strong 引用, 那么在处理完成之前, 监听者<code>deinit</code>是不可能被调用的, 因此不会产生时序重叠. 而这是很容易保证的, 一方面无论是 Swift 还是 OC, 所有方法调用开始时的引用类型入参默认 +1 reference count, 因此<code>NotificationCenter</code>无论是直接向监听者发送方法, 还是把监听者作为参数传给回调方法, 在投递完成前都不会产生野指针问题.</li>
 <li>假如<code>deinit</code>中<code>removeObserver</code>的执行先于事件投递呢. …事实上, 这个 case 是不可能出现的, 但出现的原因和强引用的情况不同, 并不是&quot;<code>deinit</code>不可能被调用&quot;, 而是事件不可能完成投递. ARC 保证, 一旦一个对象的开始销毁, 所有对这个对象的弱引用都会在这个对象的<code>deinit</code>调用之前, 率先被设置成<code>nil</code>. 换句话说, 一旦监听者的<code>deinit</code>开始被触发, 即使<code>removeObserver</code>没有在第一 时间被调用, <code>NotificationCenter</code>也没有任何可能性知晓监听者的存在了, 从而没有任何办法触发通知到这个对象, 问题自然也不可能产生.</li>
 </ul>
-<p>事实上, 新版本的 iOS SDK (<a href="https://stackoverflow.com/questions/41119725/notificationcenter-addobserver/41120287%2341120287" target="_blank" rel="noopener">没记错的话是 &gt;= 9.0</a>) 中<code>NotificationCenter</code>就是使用了对监听者的 weak reference/类似技术来实现的. 这是皆大欢喜的局面了.</p>
+<p>事实上, 新版本的 iOS SDK (<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/41119725/notificationcenter-addobserver/41120287%2341120287">没记错的话是 &gt;= 9.0</a>) 中<code>NotificationCenter</code>就是使用了对监听者的 weak reference/类似技术来实现的. 这是皆大欢喜的局面了.</p>
 <h4 id="unsafe引用"><a class="markdownIt-Anchor" href="#unsafe引用"></a> unsafe引用</h4>
 <p>最后来考虑一下当今 ARC 环境下很少出现, 但不是不可能的情况: <code>NotificationCenter</code>的实现, 是在<code>addObserver</code>之后, 保留了一个对这个对象的 unsafe 引用.<br>
 注意: 即使我们在100%使用 ARC 的情况下编写 iOS 程序, 仍然有可能遇到这个情况, 这是因为即使我 们保证我们的代码里不出现任何 unsafe 引用, 我们链接到的官方 Cocoa 类库的内部仍然有可能因为历史原因使用了 unsafe 引用. 事实上, 在旧版本的 SDK 中, <code>NotificationCenter</code> 应该就是这样的.</p>
 <p><code>NotificationCenter</code>保存对监听者的 unsafe 引用, 和使用弱引用相比, 区别在于: 如果对象被释放, <code>NotificationCenter</code>仍然有一个野指针指向这个对象的尸骸, 因此确实可能在<code>deinit</code>开始调用但在<code>removeObserver</code>被调用前, 事件投递到监听者, 但在处理这个事件的过程中<code>this</code>指针所指向的内存区域已经部分/全部失效了.<br>
-事实上, 在多线程环境下对触发了对象的<code>deinit</code>是 Cocoa 早期开发一个经典的崩溃来源, 这类被称为&quot;The Dealloc Problem&quot;的问题当时非常难以100%避免. (<a href="https://www.objc.io/issues/2-concurrency/thread-safe-class-design/#the-deallocation-problem" target="_blank" rel="noopener">“The Dealloc Problem”</a><a href="https://developer.apple.com/library/archive/technotes/tn2109/_index.html#//apple_ref/doc/uid/DTS40010274-CH1-SUBSECTION11" target="_blank" rel="noopener">多数情况发生在UIKit</a>, 因为相当一部分UIKit组件不允许在非主线程被释放, 和此处问题背后的 principle 是相关的.)</p>
+事实上, 在多线程环境下对触发了对象的<code>deinit</code>是 Cocoa 早期开发一个经典的崩溃来源, 这类被称为&quot;The Dealloc Problem&quot;的问题当时非常难以100%避免. (<a target="_blank" rel="noopener" href="https://www.objc.io/issues/2-concurrency/thread-safe-class-design/#the-deallocation-problem">“The Dealloc Problem”</a><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/technotes/tn2109/_index.html#//apple_ref/doc/uid/DTS40010274-CH1-SUBSECTION11">多数情况发生在UIKit</a>, 因为相当一部分UIKit组件不允许在非主线程被释放, 和此处问题背后的 principle 是相关的.)</p>
 <p>当然也不是没有解决办法, 例如可以:</p>
 <ul>
-<li>消除多线程的可能性, 以<code>NotificationCenter</code>为例, 它有<a href="https://developer.apple.com/documentation/foundation/notificationcenter/1411723-addobserver" target="_blank" rel="noopener">一个 API</a> 允许我们指定消息投递发生的 queue. 即使消息产生在另一个 queue, <code>NotificationCenter</code>也会在我们指定的 queue 回调我们的方法, 如果我们可以保证对这个对象的所有操作也在这同一个线程中进行, 那么自然我们就从根本上避开了多线程的问题.</li>
+<li>消除多线程的可能性, 以<code>NotificationCenter</code>为例, 它有<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/foundation/notificationcenter/1411723-addobserver">一个 API</a> 允许我们指定消息投递发生的 queue. 即使消息产生在另一个 queue, <code>NotificationCenter</code>也会在我们指定的 queue 回调我们的方法, 如果我们可以保证对这个对象的所有操作也在这同一个线程中进行, 那么自然我们就从根本上避开了多线程的问题.</li>
 <li>另一个消除多线程的方法, 是在<code>deinit</code>中进行一些阻塞操作. 例如假设事件产生在 main thread, 但是这个对象的最后一个强引用消失在 non-main thread. 此时有些人会选择在对象的<code>deinit</code>中使<br>
 用<code>DispatchQueue.sync()</code> / <code>NSObject.perform(_:on:with:waitUntilDone:)</code> sync 到 main thread 结束来规避问题. 诚然这种方式也可以解决问题, 但也带来了 deadlock 的风险.</li>
 <li>最后一个方式是手动尽早消除<code>NotificationCenter</code>对监听者的引用, 例如尽早(在保证监听者一定存活的时候)调用<code>removeObserver</code>来断开两者的引用. 这种方式有时候只是尽可能减小问题发生的概率空间, 而没有完全消除问题, 因为并不是所有情况下你都可以保证你说的多早是不是够早.</li>
@@ -176,13 +176,13 @@
 <ul>
 <li>在使用需要主动反注册的回调机制时, 有必要思考一下调用反注册方法的时机. 如果在<code>deinit</code>中进行反注册, 并不是完全无风险的, 在涉及到多线程的情况下, 应该思考一下安全问题.</li>
 <li>在极大多数情况下, 如果涉及到多线程的回调, 我们只要保证监听方和被监听方各自的类是线程安全即可. 在不产生循环引用的前提下, 是在<code>deinit</code>中反注册还是在别的地方反注册并不是一个 big deal.</li>
-<li>在非 ARC 下, 需要作特殊注意, 在<code>deinit</code>中反注册有可能产生&quot;The Dealloc Problem&quot;. 此时需要一些额外的手段来尽可能规避问题. 感谢上帝, <a href="https://stackoverflow.com/questions/13910613/nsnotificationcenter-removeobserver-in-dealloc-and-thread-safety" target="_blank" rel="noopener">这类问题</a>现在已经非常罕见了.</li>
+<li>在非 ARC 下, 需要作特殊注意, 在<code>deinit</code>中反注册有可能产生&quot;The Dealloc Problem&quot;. 此时需要一些额外的手段来尽可能规避问题. 感谢上帝, <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/13910613/nsnotificationcenter-removeobserver-in-dealloc-and-thread-safety">这类问题</a>现在已经非常罕见了.</li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="cki37t3nu00038yf712io6veq" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="clo4c25dz0024fb3n2xyo2kk0" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/deallocation-thread-safety/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -229,7 +229,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/a/">A</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/">B</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/c/">C</a></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/draft/">Draft</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
     </div>
   </div>
 
@@ -239,7 +239,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/currying/" rel="tag">Currying</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
     </div>
   </div>
 
@@ -249,7 +249,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/currying/" style="font-size: 10px;">Currying</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
     </div>
   </div>
 
@@ -258,7 +258,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
     </div>
   </div>
 
@@ -271,23 +271,23 @@
       <ul>
         
           <li>
+            <a href="/2023/the-point-of-currrying/">科里化函数的作用</a>
+          </li>
+        
+          <li>
+            <a href="/2023/swift-cow-correctness/">编写 Copy-on-Write 的正确姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2023/clrs-notes/">CLRS Notes</a>
+          </li>
+        
+          <li>
             <a href="/2021/tra-4/">TRA-4</a>
           </li>
         
           <li>
             <a href="/2020/tra-3/">TRA-3</a>
-          </li>
-        
-          <li>
-            <a href="/2020/tra-2/">TRA-2</a>
-          </li>
-        
-          <li>
-            <a href="/2020/tra-1/">TRA-1</a>
-          </li>
-        
-          <li>
-            <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
           </li>
         
       </ul>

@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://crystdragon.github.io/2023/clrs-notes/</loc>
+    
+    <lastmod>2023-10-24</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/2023/the-point-of-currrying/</loc>
+    
+    <lastmod>2023-10-24</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/2023/swift-cow-correctness/</loc>
+    
+    <lastmod>2023-10-24</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/2021/tra-4/</loc>
     
     <lastmod>2021-01-18</lastmod>
@@ -102,6 +123,13 @@
 
   
   <url>
+    <loc>https://crystdragon.github.io/tags/clrs-3rd-ed/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/tags/cryptography/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
@@ -137,6 +165,48 @@
   </url>
   
   <url>
+    <loc>https://crystdragon.github.io/tags/pointfree-co/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/functional-programming/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/swiftui/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/testing/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/xcode/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/tags/swift-concurrency/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://crystdragon.github.io/tags/thread-safety/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
@@ -158,49 +228,14 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/tags/pointfree-co/</loc>
+    <loc>https://crystdragon.github.io/tags/cow/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/tags/functional-programming/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/testing/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/xcode/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/swiftui/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/swift-concurrency/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://crystdragon.github.io/tags/clrs-3rd-ed/</loc>
+    <loc>https://crystdragon.github.io/tags/currying/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -223,14 +258,14 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/architecture/</loc>
+    <loc>https://crystdragon.github.io/categories/diary/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/diary/</loc>
+    <loc>https://crystdragon.github.io/categories/algorithms/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -258,7 +293,35 @@
   </url>
   
   <url>
-    <loc>https://crystdragon.github.io/categories/algorithms/</loc>
+    <loc>https://crystdragon.github.io/categories/architecture/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/categories/draft/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/categories/a/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/categories/a/b/</loc>
+    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://crystdragon.github.io/categories/a/b/c/</loc>
     <lastmod>2023-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

@@ -64,14 +64,14 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-computer-security-notes" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-pointfree-co-notes-ep-23-25" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/computer-security-notes/" class="article-date">
-  <time datetime="2020-07-26T16:00:00.000Z" itemprop="datePublished">2020-07-27</time>
+    <a href="/2020/pointfree-co-notes-ep-23-25/" class="article-date">
+  <time datetime="2020-07-30T11:17:12.000Z" itemprop="datePublished">2020-07-30</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/computer-systems/">Computer Systems</a>►<a class="article-category-link" href="/categories/notes/">Notes</a>
+    <a class="article-category-link" href="/categories/notes/">Notes</a>►<a class="article-category-link" href="/categories/swift/">Swift</a>
   </div>
 
   </div>
@@ -82,7 +82,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/computer-security-notes/">Computer Security Notes</a>
+      <a class="article-title" href="/2020/pointfree-co-notes-ep-23-25/">Pointfree.co Notes Ep.#23-25</a>
     </h1>
   
 
@@ -91,48 +91,50 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p><ul class="markdownIt-TOC">
-<li><a href="#%E5%AF%86%E7%A0%81%E5%AD%A6%E6%A6%82%E5%BF%B5">密码学概念</a></li>
-<li><a href="#%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%AD%E7%9A%84-certificate-authority">互联网中的 Certificate Authority</a></li>
-<li><a href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84-chmod-chown">操作系统中的 chmod &amp; chown</a>
+<li><a href="#%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84-zip">最常见的 zip</a>
 <ul>
-<li><a href="#xcode-%E4%B8%8B-build-%E6%97%B6%E8%87%AA%E5%8A%A8%E5%8C%96%E6%8A%8A%E6%96%87%E4%BB%B6%E6%8B%B7%E8%B4%9D%E5%88%B0%E5%8F%97%E9%99%90%E7%9B%AE%E5%BD%95">Xcode 下 build 时自动化把文件拷贝到受限目录</a></li>
+<li><a href="#swift-%E6%8F%90%E4%BE%9B%E7%9A%84-zip">Swift 提供的 zip</a></li>
 </ul>
 </li>
-<li><a href="#case-mac-os-privilege-jobs">Case: Mac OS Privilege Jobs</a></li>
+<li><a href="#%E9%80%9A%E7%94%A8%E7%9A%84%E4%BA%8C%E5%85%83-zip">通用的二元 zip</a></li>
+<li><a href="#%E5%A4%9A%E5%85%83-zip">多元 zip</a></li>
+<li><a href="#zip%E5%92%8Cmap%E7%9A%84%E8%81%94%E7%B3%BB"><code>zip</code>和<code>map</code>的联系</a></li>
 </ul>
 </p>
+<p>这里记录了 <a target="_blank" rel="noopener" href="http://pointfree.co">pointfree.co</a> 上, 以下三期视频的 notes:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.pointfree.co/episodes/ep23-the-many-faces-of-zip-part-1">Ep #23. The Many Faces of Zip: Part 1</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.pointfree.co/episodes/ep24-the-many-faces-of-zip-part-2">Ep #24. The Many Faces of Zip: Part 2</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.pointfree.co/episodes/ep25-the-many-faces-of-zip-part-3">Ep #25. The Many Faces of Zip: Part 3</a></li>
+</ul>
 <hr>
-<p>原文成于2019年</p>
-<hr>
-<h2 id="密码学概念"><a class="markdownIt-Anchor" href="#密码学概念"></a> 密码学概念</h2>
+<p>zip的本质: 一个映射</p>
+<h2 id="最常见的-zip"><a class="markdownIt-Anchor" href="#最常见的-zip"></a> 最常见的 zip</h2>
+<p>考虑显然存在这样的映射<code>A, B -&gt; (A, B)</code>. 那么对任意一个包含<code>T</code>的结构<code>Struct&lt;T&gt;</code>, 我们一定可以给出映射<code>g: Struct&lt;A&gt; , Struct&lt;B&gt; -&gt; Struct&lt;(A, B)&gt;</code>. 这样的映射<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi></mrow><annotation encoding="application/x-tex">g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span></span></span>就是<code>zip</code>.</p>
+<p>这里的<code>Struct</code>可以是 Swift 中的许多有意义的结构, 比如:</p>
 <ul>
-<li>对称加密
-<ul>
-<li>需要 private 通道传递密钥.</li>
+<li>Optional</li>
+<li>Array</li>
+<li>function</li>
+<li>callback function</li>
+<li>任意有&quot;包含&quot;关系的 plain structure</li>
 </ul>
-</li>
-<li>非对称加密
-<ul>
-<li>实现 encryption (保证发送的东西没有别人知道): 传递方用接收方发布的公钥加密, 接收方用私钥解密.</li>
-<li>实现 authentication (保证发送的人不会是别人):  传递把 message 用自己的私钥加密, 作为 signature 和 message 一起发给接收方, 接收方收到后用传递方早前公开提供的公钥对 signature 进行解密, 验证能还原到 message.</li>
-</ul>
-</li>
-<li>混合加密: 用对称秘钥加密明文, 并用非对称秘钥加密对称秘钥.</li>
-</ul>
+<p>例如, 针对<code>Optional</code>, 我们可以实现</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">zip</span>&lt;<span class="type">A</span>, <span class="type">B</span>&gt;(<span class="keyword">_</span> <span class="params">lhs</span>: <span class="type">Optional</span>&lt;<span class="type">A</span>&gt;, <span class="keyword">_</span> <span class="params">rhs</span>: <span class="type">Optional</span>&lt;<span class="type">B</span>&gt;) -&gt; <span class="type">Optional</span>&lt;(<span class="type">A</span>, <span class="type">B</span>)&gt; &#123;</span><br><span class="line">  <span class="keyword">guard</span> <span class="keyword">let</span> a <span class="operator">=</span> lhs, <span class="keyword">let</span> b <span class="operator">=</span> rhs <span class="keyword">else</span> &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">  <span class="keyword">return</span> .some((a, b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
-            <a href="/2020/computer-security-notes/#more">Read More</a>
+            <a href="/2020/pointfree-co-notes-ep-23-25/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/computer-security-notes/" data-id="cki37t3nl00008yf776th5fto" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="clo4c25ds000afb3new2dgfdd" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/computer-security-notes/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
 
     </footer>
   </div>
@@ -141,83 +143,10 @@
 
 
   
-    <article id="post-deallocation-thread-safety" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-swift-practices-perls-2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/deallocation-thread-safety/" class="article-date">
-  <time datetime="2020-07-26T16:00:00.000Z" itemprop="datePublished">2020-07-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/apple-platforms/">Apple Platforms</a>►<a class="article-category-link" href="/categories/architecture/">Architecture</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/deallocation-thread-safety/">Deallocation 中的线程安全</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><ul class="markdownIt-TOC">
-<li><a href="#%E8%83%8C%E6%99%AF">背景</a></li>
-<li><a href="#%E5%88%86%E6%9E%90">分析</a>
-<ul>
-<li><a href="#%E6%97%A0%E7%BA%BF%E7%A8%8B%E7%AB%9E%E4%BA%89">无线程竞争</a></li>
-<li><a href="#%E6%9C%89%E7%BA%BF%E7%A8%8B%E7%AB%9E%E4%BA%89">有线程竞争</a>
-<ul>
-<li><a href="#%E5%BC%BA%E5%BC%95%E7%94%A8">强引用</a></li>
-<li><a href="#%E5%BC%B1%E5%BC%95%E7%94%A8">弱引用</a></li>
-<li><a href="#unsafe%E5%BC%95%E7%94%A8">unsafe引用</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
-</ul>
-</p>
-<hr>
-<p>原文成于2017年11月</p>
-<hr>
-<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>最近在浏览 Swift Talk 的过程中, 思考了一个很有意思的问题.</p>
-<p>如果一个对象通过<code>NotificationCenter</code>注册了一个通知, 然后在这个对象的<code>deinit</code>方法中执行了<code>removeObserver</code>. 假如在对象调用<code>deinit</code>的过程中对应的事件发生了, 并产生了一个通知, 此时会有什么现象? 当事件发生/投递的线程和对象<code>deinit</code>的线程不是一个线程时, 会导致崩溃吗? <a href="https://talk.objc.io/episodes/S01E28-typed-notifications-part-2" target="_blank" rel="noopener">Swift Talk #28最后5分钟内容</a></p>
-<p>这个问题我觉得很有意思, 之前都没有意识到过.</p>
-<p>事实上虽然这个问题是在&quot;Swift Talk&quot;中抛出, 但是并不是Swift独有的, OC 下的<code>dealloc</code>方法同样有这个问题. 另外, 虽然问题是以 Notification 为例, 但显然问题并不限于通知, 任何别的含有通知/回调机制的场景都会面临同样的问题.</p>
-        
-          <p class="article-more-link">
-            <a href="/2020/deallocation-thread-safety/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/deallocation-thread-safety/" data-id="cki37t3nu00038yf712io6veq" class="article-share-link">Share</a>
-      
-        <a href="https://crystdragon.github.io/2020/deallocation-thread-safety/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-swift-practices-perls-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/swift-practices-perls-1/" class="article-date">
-  <time datetime="2020-07-23T15:23:51.000Z" itemprop="datePublished">2020-07-23</time>
+    <a href="/2020/swift-practices-perls-2/" class="article-date">
+  <time datetime="2020-07-29T16:00:00.000Z" itemprop="datePublished">2020-07-30</time>
 </a>
     
   <div class="article-category">
@@ -232,7 +161,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>
+      <a class="article-title" href="/2020/swift-practices-perls-2/">Swift Practices &amp; Perls (2)</a>
     </h1>
   
 
@@ -241,68 +170,169 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p><ul class="markdownIt-TOC">
-<li><a href="#%E6%99%AE%E9%80%9A-practices">普通 Practices</a>
+<li><a href="#%E6%A0%87%E5%87%86%E5%BA%93%E6%8B%BE%E9%81%97">标准库拾遗</a>
 <ul>
-<li><a href="#availability-checks">Availability checks</a></li>
-<li><a href="#%E6%B4%BB%E7%94%A8-string-backed-enum">活用 “String-backed” enum</a>
+<li><a href="#string%E5%92%8C%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><code>String</code>和其他类型之间的转换</a></li>
+<li><a href="#comparisons">Comparisons</a></li>
+<li><a href="#lazy-or-not">Lazy or not</a></li>
+<li><a href="#compiler-synthesized-conformance">Compiler-synthesized conformance</a>
 <ul>
-<li><a href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86">背景知识</a></li>
-<li><a href="#%E6%A1%88%E4%BE%8B">案例</a></li>
+<li><a href="#%E4%BE%9D%E8%B5%96-compiler-synthesized-%E4%BB%A3%E7%A0%81%E7%9A%84%E9%80%BB%E8%BE%91%E6%B3%A8%E5%85%A5%E6%8A%80%E5%B7%A7">依赖 compiler-synthesized 代码的逻辑注入技巧</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a href="#tricks-patterns">Tricks &amp; Patterns</a>
 <ul>
-<li><a href="#%E7%BB%99-protocol-%E5%A2%9E%E5%8A%A0-recursive-constraints-before-swift-41">给 protocol 增加 recursive constraints (before Swift 4.1)</a></li>
-<li><a href="#%E6%B3%9B%E5%9E%8B%E5%AF%B9%E8%B1%A1%E6%8E%92%E9%99%A4%E7%89%B9%E4%BE%8B%E8%B0%83%E7%94%A8">泛型对象排除特例调用</a>
+<li><a href="#implementing-ghost-operator">Implementing “ghost operator”</a>
 <ul>
-<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
-<li><a href="#%E5%9C%BA%E6%99%AF">场景</a></li>
+<li><a href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF">问题背景</a></li>
+<li><a href="#%E9%97%AE%E9%A2%98%E7%9B%AE%E6%A0%87">问题目标</a></li>
 <li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
 </ul>
 </li>
-<li><a href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB%E5%9E%8B%E6%8C%89%E6%9D%A1%E4%BB%B6%E9%81%B5%E5%BE%AA-protocol-before-swift-41">泛型类型按条件遵循 protocol (before Swift 4.1)</a></li>
 </ul>
 </li>
 </ul>
 </p>
 <hr>
-<p>原文成于2018年</p>
+<p>下文部分内容成于2018年</p>
 <hr>
-<p>本文积累学习 Swift 过程中获取到的好技巧, 以及 Swift Standard Library 使用的优秀范式 (tricks).</p>
-<h2 id="普通-practices"><a class="markdownIt-Anchor" href="#普通-practices"></a> 普通 Practices</h2>
-<h3 id="availability-checks"><a class="markdownIt-Anchor" href="#availability-checks"></a> Availability checks</h3>
-<p>使用 availability checks 将超出指定的&quot;Base SDK&quot;版本的代码块隔离起来. 在运行时, 系统会根据运行环境动态 check 该代码是否执行.</p>
+<p>本文继续上一篇<a href="/2020/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>, 记录标准库学习过程中的技巧.</p>
+<h2 id="标准库拾遗"><a class="markdownIt-Anchor" href="#标准库拾遗"></a> 标准库拾遗</h2>
+<p>Swift 标准库提供的 API 强大而优雅. 这里归纳总结了一些网上不常见的点.</p>
+<h3 id="string和其他类型之间的转换"><a class="markdownIt-Anchor" href="#string和其他类型之间的转换"></a> <code>String</code>和其他类型之间的转换</h3>
+<p>一方面, 标准库中存在多个 protocol, 来关联自定义类型和<code>String</code>. 通常, 在需要按文本格式打印某个对象, 或涉及到用文本进行序列化/反序列化时, 可能会使用到这些 protocol.</p>
 <ul>
-<li><code>@available(iOS 9.0, *)</code>, method, type 定义时.</li>
-<li><code>if #available(iOS 9.0, *)</code>, 使用 method, type 时.</li>
-<li>支持 guard 作为 early exit.</li>
+<li><code>ExpressibleByStringLiteral</code> (旧名<code>StringLiteralConvertible</code>). 遵循该 protocol 的类型, 支持使用 string literal 初始化.</li>
+<li><code>CustomStringConvertible</code>和<code>CustomDebugStringConvertible</code>. 支持最基本的输出到一个<code>String</code>.</li>
+<li><code>LosslessStringConvertible</code>. 该 protocol 继承自 <code>CustomStringConvertible</code>. 与后者不同的是, 该 protocol 的遵循者必须提供和<code>String</code>之间双向的精确转化. 因此某种意义上说, 遵循本 protocol 的类型转化成的<code>String</code>可用范围更广, 不限于 debug/print. 因为不用担心2个不同的对象对应到同一个<code>String</code>.</li>
+<li><code>TextOutputStreamable</code>. 支持按流式增量添加到已有的 stream 的末尾. 因为支持增量添加, 所以遵循者实际实现时, 可能和其他输出<code>String</code>的 protocol 相比, 内存占用上可以有一些优化.</li>
 </ul>
-<p>可以替代相对应的早期的以下调用:<br>
-<code>UIDevice.current.systemVersion.compare(&quot;9.0&quot;, options: .numeric) == .orderedAscending</code></p>
-<h3 id="活用-string-backed-enum"><a class="markdownIt-Anchor" href="#活用-string-backed-enum"></a> 活用 “String-backed” enum</h3>
-<h4 id="背景知识"><a class="markdownIt-Anchor" href="#背景知识"></a> 背景知识</h4>
-<p>在众多基于 raw value 的 enum 中, raw value 是<code>String</code>的最为特殊, 因为这样的 enum 在定义各个 case 时, 可以省去显式写出用来初始化该 enum 的 raw value. 这种情况下, 编译器默认追加代码, 使用各个 case identifier 的同名字符串作为 raw value.</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 各行 case 可以省略 // 之后的部分</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ImageIdentifier</span>: <span class="title">String</span> </span>&#123;</span><br><span class="line">  <span class="keyword">case</span> centerButton <span class="comment">// = "centerButton"</span></span><br><span class="line">  <span class="keyword">case</span> myFavorites <span class="comment">// = "myFavorites"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>另一方面, 这样的 enum 默认遵循<code>RawRepresentable</code>, 且关联类型<code>RawValue == String</code>. 这方便我们对于一系列有相同特征的 enum 依靠 protocol 提供统一操作.</p>
-<h4 id="案例"><a class="markdownIt-Anchor" href="#案例"></a> 案例</h4>
-<p>下述技巧最早出现于<a href="https://web.archive.org/web/20200108191946/https://developer.apple.com/videos/play/wwdc2015/411/" target="_blank" rel="noopener">WWDC 2015, session 403</a>.<br>
-该 video 已经被 apple 从公开列表中移除, 此处提供的是 web.archive 上的缓存.<br>
-也可以尝试直接获取 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_hd_swift_in_practice.mp4?dl=1" target="_blank" rel="noopener">video</a> 和 <a href="https://devstreaming-cdn.apple.com/videos/wwdc/2015/4119flfsnsgmlfy/411/411_swift_in_practice.pdf?dl=1" target="_blank" rel="noopener">pdf</a>.</p>
+<p>另一方面, <code>String</code>本身也存在好几种 initializer. 标准库建议我们使用<code>String</code>的各种初始化方法, 而不要直接调用上面各个 protocol 定义的方法.</p>
+<ul>
+<li><code>init&lt;T&gt;(_ value: T, radix: Int = default, uppercase: Bool = default)</code>. 把<code>Int</code>按某个进制转换成<code>String</code>.</li>
+<li><code>init&lt;T&gt;(_ value: T) where T : LosslessStringConvertible</code>.</li>
+<li><code>init&lt;Subject&gt;(describing: Subject)</code>. 优先使用<code>TextOutputStreamable</code>的实现, 最后使用<code>CustomDebugStringConvertible</code>的实现, 偏向精准性.</li>
+<li><code>init&lt;Subject&gt;(reflecting: Subject)</code>. 优先使用<code>CustomDebugStringConvertible</code>, 最后使用<code>TextOutputStreamable</code>, 偏向debug.</li>
+</ul>
+<h3 id="comparisons"><a class="markdownIt-Anchor" href="#comparisons"></a> Comparisons</h3>
+<p>在STL中, 并非所有可比的对象都直接遵循<code>Comparable</code>, 但一定要求最终的底层 element 对象是遵循的.<br>
+对于不直接遵循<code>Comparable</code>的类型来说, 他们比较各自对象的方式无外乎通过 operator 或 method.</p>
         
           <p class="article-more-link">
-            <a href="/2020/swift-practices-perls-1/#more">Read More</a>
+            <a href="/2020/swift-practices-perls-2/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-1/" data-id="cki37t3o0000a8yf7attc3rdx" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-2/" data-id="clo4c25ds000bfb3nfn6w689y" class="article-share-link">Share</a>
       
-        <a href="https://crystdragon.github.io/2020/swift-practices-perls-1/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://crystdragon.github.io/2020/swift-practices-perls-2/#disqus_thread" class="article-comment-link">Comments</a>
       
       
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Image-Orientation" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/Image-Orientation/" class="article-date">
+  <time datetime="2020-07-27T16:00:00.000Z" itemprop="datePublished">2020-07-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/apple-platforms/">Apple Platforms</a>►<a class="article-category-link" href="/categories/notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/Image-Orientation/">Image Orientation</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E8%83%8C%E6%99%AF">背景</a>
+<ul>
+<li><a href="#%E4%BC%A0%E7%BB%9F%E7%9B%B8%E6%9C%BA">传统相机</a></li>
+<li><a href="#dslr">DSLR</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AF%B9%E5%9B%BE%E5%83%8F%E7%AE%97%E6%B3%95%E7%9A%84%E5%BD%B1%E5%93%8D">对图像算法的影响</a></li>
+<li><a href="#orientation-tag-%E7%9A%84%E8%A1%A8%E7%A4%BA">Orientation tag 的表示</a>
+<ul>
+<li><a href="#raw-exif-%E4%BF%A1%E6%81%AF">Raw exif 信息</a>
+<ul>
+<li><a href="#apple-api">Apple API</a></li>
+</ul>
+</li>
+<li><a href="#uiimage%E7%9B%B8%E5%85%B3-api"><code>UIImage</code>相关 API</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BD%BF%E7%94%A8-uikit-%E8%8E%B7%E5%8F%96uiimage%E6%97%B6-%E7%B3%BB%E7%BB%9F%E5%AF%B9imageorientation%E7%9A%84%E5%A1%AB%E5%85%85%E6%96%B9%E5%BC%8F">使用 UIKit 获取<code>UIImage</code>时, 系统对<code>imageOrientation</code>的填充方式</a>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E7%9B%B8%E5%AF%B9%E5%85%B3%E7%B3%BB">基本相对关系</a></li>
+<li><a href="#%E5%90%8E%E7%BD%AE%E6%91%84%E5%83%8F%E5%A4%B4">后置摄像头</a></li>
+<li><a href="#%E5%89%8D%E7%BD%AE%E6%91%84%E5%83%8F%E5%A4%B4">前置摄像头</a></li>
+</ul>
+</li>
+<li><a href="#case-face-detection-%E4%B8%AD%E7%9A%84%E5%9D%90%E6%A0%87%E5%8F%98%E6%8D%A2">Case: Face Detection 中的坐标变换</a></li>
+</ul>
+</p>
+<hr>
+<p>原文成于2018年12月</p>
+<hr>
+<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+<p>为什么存在 Image Orientation</p>
+<h3 id="传统相机"><a class="markdownIt-Anchor" href="#传统相机"></a> 传统相机</h3>
+<ul>
+<li>传统相机横向拍摄, 胶卷和照片也按横向方位固定尺寸.</li>
+<li>拍竖直方向的景的时候, 摄影师把相机旋转90度, 拍到的原始照片是横向的.</li>
+<li>要正确还原现场的情况, 需要手动把照片旋转90度.</li>
+</ul>
+<h3 id="dslr"><a class="markdownIt-Anchor" href="#dslr"></a> DSLR</h3>
+<ul>
+<li>用户的持相机方式和需求没有本质变化.</li>
+<li>仍然需要外部额外信息来帮助确定怎么旋转拍得的图像.
+<ul>
+<li>用户使用相机上的 UI, 手动输入旋转信息.</li>
+<li>根据硬件的重力加速计自动确定方向.</li>
+</ul>
+</li>
+<li>基于性能和效率原因, 并不会把 raw data 进行旋转生成一张新图片, 而是加上一个 tag, 这个 tag 就表示 image orientation.</li>
+<li>各端显示这样的图片时, 需要读取这个 tag, 并在渲染时给 raw data 加上一个 transform.</li>
+</ul>
+<h2 id="对图像算法的影响"><a class="markdownIt-Anchor" href="#对图像算法的影响"></a> 对图像算法的影响</h2>
+<p>当对某个图像执行某些算法时, 除了必要的图像 data 信息, 还可能需要已知的 orientation 信息. 例如很多人脸检测算法, 在有先验的 orientation 知识时, 通常能有更好的效果. 例如, Apple 的 CoreImage 支持人脸检测, <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/coreimage/cidetectorimageorientation">其 API 接受 orientation 参数</a>.</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/Image-Orientation/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/Image-Orientation/" data-id="clo4c25dq0005fb3nhkyi6i7y" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/Image-Orientation/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li></ul>
+
     </footer>
   </div>
   
@@ -314,7 +344,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/3/">« Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">Next »</a>
+    <a class="extend prev" rel="prev" href="/page/3/">« Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/5/">Next »</a>
   </nav>
 
 </section>
@@ -325,7 +355,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/a/">A</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/">B</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/c/">C</a></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/draft/">Draft</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
     </div>
   </div>
 
@@ -335,7 +365,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/currying/" rel="tag">Currying</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
     </div>
   </div>
 
@@ -345,7 +375,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/currying/" style="font-size: 10px;">Currying</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
     </div>
   </div>
 
@@ -354,7 +384,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
     </div>
   </div>
 
@@ -367,23 +397,23 @@
       <ul>
         
           <li>
+            <a href="/2023/the-point-of-currrying/">科里化函数的作用</a>
+          </li>
+        
+          <li>
+            <a href="/2023/swift-cow-correctness/">编写 Copy-on-Write 的正确姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2023/clrs-notes/">CLRS Notes</a>
+          </li>
+        
+          <li>
             <a href="/2021/tra-4/">TRA-4</a>
           </li>
         
           <li>
             <a href="/2020/tra-3/">TRA-3</a>
-          </li>
-        
-          <li>
-            <a href="/2020/tra-2/">TRA-2</a>
-          </li>
-        
-          <li>
-            <a href="/2020/tra-1/">TRA-1</a>
-          </li>
-        
-          <li>
-            <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
           </li>
         
       </ul>

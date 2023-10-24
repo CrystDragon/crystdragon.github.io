@@ -14,15 +14,15 @@
 <meta property="og:site_name" content="Lincoln&#39;s SafeHouse">
 <meta property="og:description" content="背景  传统相机 DSLR   对图像算法的影响 Orientation tag 的表示  Raw exif 信息  Apple API   UIImage相关 API   使用 UIKit 获取UIImage时, 系统对imageOrientation的填充方式  基本相对关系 后置摄像头 前置摄像头   Case: Face Detection 中的坐标变换    原文成于2018年12月">
 <meta property="og:locale">
-<meta property="og:image" content="https://crystdragon.github.io/.io//exif_orientation.png">
+<meta property="og:image" content="https://crystdragon.github.io/2020/Image-Orientation/exif_orientation.png">
 <meta property="article:published_time" content="2020-07-27T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T17:05:03.000Z">
+<meta property="article:modified_time" content="2023-10-24T13:47:19.745Z">
 <meta property="article:author" content="Lincoln Wu">
 <meta property="article:tag" content="Image">
 <meta property="article:tag" content="UIKit">
 <meta property="article:tag" content="AVFoundation">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://crystdragon.github.io/.io//exif_orientation.png">
+<meta name="twitter:image" content="https://crystdragon.github.io/2020/Image-Orientation/exif_orientation.png">
   
     <link rel="alternate" href="/atom.xml" title="Lincoln&#39;s SafeHouse" type="application/atom+xml">
   
@@ -125,9 +125,9 @@
 <li><a href="#case-face-detection-%E4%B8%AD%E7%9A%84%E5%9D%90%E6%A0%87%E5%8F%98%E6%8D%A2">Case: Face Detection 中的坐标变换</a></li>
 </ul>
 </p>
-<hr>
+<hr />
 <p>原文成于2018年12月</p>
-<hr>
+<hr />
 <h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
 <p>为什么存在 Image Orientation</p>
 <h3 id="传统相机"><a class="markdownIt-Anchor" href="#传统相机"></a> 传统相机</h3>
@@ -212,7 +212,7 @@
 </tbody>
 </table>
 <p>下图表述的是: 假设拍摄对象自然成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span></span></span></span> 图像时, 每一种 orientation 下, 存储在 raw data 中的图像姿态.</p>
-<p><img src="/.io//exif_orientation.png" alt="exif orientation"></p>
+<p><img src="exif_orientation.png" alt="exif orientation" /></p>
 <p>对表中的每一行有两种等价的解释:</p>
 <ul>
 <li>raw data中, 0th row, 0th column, 对应合理的真实场景中的哪条边.</li>
@@ -260,7 +260,7 @@
 </ul>
 </li>
 </ul>
-<p>需要注意的是, iOS 有些时候, 例如把带 exif orientation tag 的<code>CGImageDestination</code>存储到某个 file path 时, 似乎会把对应的 orientation 信息消耗掉, 最终存储的是已经旋转过的图片. 之所以这么做, 我想应该是系统为将来操作进行的一种简化. 再读取该文件时, 会发现没有对应的 orientation 信息了. 而另一些时候会把 exif 存储下来, 例如使用<code>UIImageJPEGRepresentation</code>的时候.<br>
+<p>需要注意的是, iOS 有些时候, 例如把带 exif orientation tag 的<code>CGImageDestination</code>存储到某个 file path 时, 似乎会把对应的 orientation 信息消耗掉, 最终存储的是已经旋转过的图片. 之所以这么做, 我想应该是系统为将来操作进行的一种简化. 再读取该文件时, 会发现没有对应的 orientation 信息了. 而另一些时候会把 exif 存储下来, 例如使用<code>UIImageJPEGRepresentation</code>的时候.<br />
 总之对于我们来说, 只需要依赖 API 就好, 不要自己去 cache orientation 的信息.</p>
 <h2 id="使用-uikit-获取uiimage时-系统对imageorientation的填充方式"><a class="markdownIt-Anchor" href="#使用-uikit-获取uiimage时-系统对imageorientation的填充方式"></a> 使用 UIKit 获取<code>UIImage</code>时, 系统对<code>imageOrientation</code>的填充方式</h2>
 <p>虽然对我们来说, <code>UIImagePickerController</code>返回的<code>UIImage</code>如何填充<code>imageOrientation</code>, 很多时候是一个透明的操作: 我们只需要取出<code>imageOrientation</code>, 对该值分情况进行操作就好. 但如果能进一步了解 iOS 填充<code>imageOrientation</code>的规则, 就可以在很多地方避免常识性错误. 一个最简单的例子就是, 用手机竖着拍人的时候, 返回的<code>imageOrientaion</code>不是<code>.up</code>.</p>
@@ -273,20 +273,20 @@
 <li>剩下2个除<code>.faceUp</code>和<code>.faceDown</code>的方位同理</li>
 </ul>
 <h3 id="前置摄像头"><a class="markdownIt-Anchor" href="#前置摄像头"></a> 前置摄像头</h3>
-<p>前置摄像头有一个mirror的概念, 因为在屏幕朝向拍摄者的情况下, 如果把前置摄像头实际拍摄到的景象直接展示到屏幕上, 会发现实际中物体运动的方向和屏幕上物体运动的方向不一致, 容易使人产生误解.<br>
+<p>前置摄像头有一个mirror的概念, 因为在屏幕朝向拍摄者的情况下, 如果把前置摄像头实际拍摄到的景象直接展示到屏幕上, 会发现实际中物体运动的方向和屏幕上物体运动的方向不一致, 容易使人产生误解.<br />
 因此一般情况下, 我们开发的软件会选择把拍到的图片<em>在旋转矫正完的基础上</em>作一次左右 mirror. (注意这里要先旋转, 再左右 mirror)</p>
-<hr>
+<hr />
 <p>实际上, <code>UIImagePickerController</code>在拍摄实时预览时使用的是 mirror 后的图, 但最终输出(也就是按下拍摄按钮后弹出的确认预览时的图)的是未 mirror 的图, 两者不是统一的.</p>
-<hr>
+<hr />
 <p>我们先看未 mirror 的情况</p>
 <ul>
 <li>前置相机和后置相机的安装方位相反, 对应 device 方位为<code>.landscapeRight</code>时, 为相机初始的正向安装方位, 此时生成的 image 未 mirror 情况下为: <code>.up</code>.</li>
 <li>手机方位为<code>.portrait</code>时, <em>在摄像头视角下</em> (不是在人眼的面朝屏幕的视角下), 相当于把相机<em>顺时针</em>旋转90度, 按上述分析, UIKit 生成的 image 朝向为<code>.right</code>.</li>
 </ul>
-<hr>
+<hr />
 <p>也就是说, 无论是前置还是后置摄像头, 在没有 mirror 的情况下, 只要手机是<code>.portrait</code>, UIKit 生成的 image 朝向一律为<code>.right</code>.</p>
-<hr>
-<p>如果需要 mirror, 只能是我们开发者把图像进行调整. 最快速的方法就是直接修改拿到的图像的<code>imageOrientation</code>. 但需要注意的是, 不能简单地在原来的 case 名字后加上&quot;Mirrored&quot;字样来解决. 这正是前文所说的, 因为&quot;~Mirrored&quot;表示的是把图像在<em>旋转前</em>先左右 mirror (或者等价地说, 要在旋转后的图上按新的旋转过的对称轴 mirror), 而我们预期的行为是先旋转, 最后再左右 mirror. 当左右翻转和某个特定的旋转操作结合时, mirror 发生的先后会导致不同的结果.<br>
+<hr />
+<p>如果需要 mirror, 只能是我们开发者把图像进行调整. 最快速的方法就是直接修改拿到的图像的<code>imageOrientation</code>. 但需要注意的是, 不能简单地在原来的 case 名字后加上&quot;Mirrored&quot;字样来解决. 这正是前文所说的, 因为&quot;~Mirrored&quot;表示的是把图像在<em>旋转前</em>先左右 mirror (或者等价地说, 要在旋转后的图上按新的旋转过的对称轴 mirror), 而我们预期的行为是先旋转, 最后再左右 mirror. 当左右翻转和某个特定的旋转操作结合时, mirror 发生的先后会导致不同的结果.<br />
 正确的 mirror 操作对应的 case 调整应该是:</p>
 <ul>
 <li><code>up</code> -&gt; <code>upMirrored</code></li>
@@ -321,7 +321,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/Image-Orientation/" data-id="clo4c25dq0005fb3nhkyi6i7y" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/Image-Orientation/" data-id="clo4fhcy30004kc3n1mi64q5l" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/Image-Orientation/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -368,7 +368,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/a/">A</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/">B</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/c/">C</a></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/draft/">Draft</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
     </div>
   </div>
 
@@ -378,7 +378,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/currying/" rel="tag">Currying</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
     </div>
   </div>
 
@@ -388,7 +388,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/currying/" style="font-size: 10px;">Currying</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
     </div>
   </div>
 
@@ -397,7 +397,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
     </div>
   </div>
 
@@ -410,23 +410,23 @@
       <ul>
         
           <li>
-            <a href="/2023/the-point-of-currrying/">科里化函数的作用</a>
-          </li>
-        
-          <li>
-            <a href="/2023/swift-cow-correctness/">编写 Copy-on-Write 的正确姿势</a>
-          </li>
-        
-          <li>
-            <a href="/2023/clrs-notes/">CLRS Notes</a>
-          </li>
-        
-          <li>
             <a href="/2021/tra-4/">TRA-4</a>
           </li>
         
           <li>
             <a href="/2020/tra-3/">TRA-3</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-2/">TRA-2</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-1/">TRA-1</a>
+          </li>
+        
+          <li>
+            <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
           </li>
         
       </ul>

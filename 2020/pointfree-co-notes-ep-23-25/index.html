@@ -111,7 +111,7 @@
 <li><a target="_blank" rel="noopener" href="https://www.pointfree.co/episodes/ep24-the-many-faces-of-zip-part-2">Ep #24. The Many Faces of Zip: Part 2</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.pointfree.co/episodes/ep25-the-many-faces-of-zip-part-3">Ep #25. The Many Faces of Zip: Part 3</a></li>
 </ul>
-<hr>
+<hr />
 <p>zip的本质: 一个映射</p>
 <h2 id="最常见的-zip"><a class="markdownIt-Anchor" href="#最常见的-zip"></a> 最常见的 zip</h2>
 <p>考虑显然存在这样的映射<code>A, B -&gt; (A, B)</code>. 那么对任意一个包含<code>T</code>的结构<code>Struct&lt;T&gt;</code>, 我们一定可以给出映射<code>g: Struct&lt;A&gt; , Struct&lt;B&gt; -&gt; Struct&lt;(A, B)&gt;</code>. 这样的映射<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi></mrow><annotation encoding="application/x-tex">g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span></span></span>就是<code>zip</code>.</p>
@@ -142,16 +142,16 @@
 <p>例如, 高阶形式的<code>Array</code>的 zip 可以这么实现:</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">zip</span>&lt;<span class="type">A</span>, <span class="type">B</span>, <span class="type">C</span>&gt;(<span class="params">with</span> <span class="params">f</span>: <span class="keyword">@escaping</span> (<span class="type">A</span>, <span class="type">B</span>) -&gt; <span class="type">C</span>) -&gt; ([<span class="type">A</span>], [<span class="type">B</span>]) -&gt; [<span class="type">C</span>] &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; arrayA, arrayB <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">var</span> results: [<span class="type">C</span>] <span class="operator">=</span> []</span><br><span class="line">    <span class="keyword">let</span> maxCount <span class="operator">=</span> <span class="built_in">min</span>(arrayA.count, arrayB.count)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">0</span><span class="operator">..&lt;</span>maxCount &#123;</span><br><span class="line">      results.append(f(arrayA[index], arrayB[index]))</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> results</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="多元-zip"><a class="markdownIt-Anchor" href="#多元-zip"></a> 多元 zip</h2>
-<p>在二元 zip 的基础上, 把 f 的输入个数增加即可. 最常见的多元 zip 也是基于 tuple的, 即<code>f: (T1, T2, T3...) -&gt; (T1, T2, T3...)</code>.<br>
+<p>在二元 zip 的基础上, 把 f 的输入个数增加即可. 最常见的多元 zip 也是基于 tuple的, 即<code>f: (T1, T2, T3...) -&gt; (T1, T2, T3...)</code>.<br />
 当然参照二元的例子, 也有高阶的多元 zip.</p>
 <h2 id="zip和map的联系"><a class="markdownIt-Anchor" href="#zip和map的联系"></a> <code>zip</code>和<code>map</code>的联系</h2>
-<p><code>map</code>可以看成是通用的多元 zip 的一个特例. 固定 f 中的输入个数为1个即可得到 map 的定义.<br>
+<p><code>map</code>可以看成是通用的多元 zip 的一个特例. 固定 f 中的输入个数为1个即可得到 map 的定义.<br />
 给定一个映射<code>f: A -&gt; B</code>,  对任意一个包含<code>T</code>的结构<code>Struct&lt;T&gt;</code>, 我们一定可以给出映射<code>g: Struct&lt;A&gt; -&gt; Struct&lt;B&gt;</code>.</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="clo4c25ds000afb3new2dgfdd" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="clo4fhcy50009kc3nc4fdbqnv" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -198,7 +198,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/a/">A</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/">B</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/a/b/c/">C</a></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/draft/">Draft</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
     </div>
   </div>
 
@@ -208,7 +208,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/currying/" rel="tag">Currying</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
     </div>
   </div>
 
@@ -218,7 +218,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/currying/" style="font-size: 10px;">Currying</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
     </div>
   </div>
 
@@ -227,7 +227,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
     </div>
   </div>
 
@@ -240,23 +240,23 @@
       <ul>
         
           <li>
-            <a href="/2023/the-point-of-currrying/">科里化函数的作用</a>
-          </li>
-        
-          <li>
-            <a href="/2023/swift-cow-correctness/">编写 Copy-on-Write 的正确姿势</a>
-          </li>
-        
-          <li>
-            <a href="/2023/clrs-notes/">CLRS Notes</a>
-          </li>
-        
-          <li>
             <a href="/2021/tra-4/">TRA-4</a>
           </li>
         
           <li>
             <a href="/2020/tra-3/">TRA-3</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-2/">TRA-2</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-1/">TRA-1</a>
+          </li>
+        
+          <li>
+            <a href="/2020/swiftui-notes/">SwiftUI Notes</a>
           </li>
         
       </ul>

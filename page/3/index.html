@@ -64,6 +64,99 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-swiftui-notes" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/swiftui-notes/" class="article-date">
+  <time datetime="2020-08-02T16:00:00.000Z" itemprop="datePublished">2020-08-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/apple-platforms/">Apple Platforms</a>►<a class="article-category-link" href="/categories/notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/swiftui-notes/">SwiftUI Notes</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#data-flow">Data Flow</a>
+<ul>
+<li><a href="#state">State</a>
+<ul>
+<li><a href="#state%E6%89%80%E6%8C%87%E7%A4%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%94%9F%E5%91%BD%E6%9C%9F"><code>State</code>所指示对象的生命期</a></li>
+<li><a href="#state-wrapper-%E7%9A%84%E8%AF%AD%E6%B3%95%E7%89%B9%E5%BE%81"><code>State</code> wrapper 的语法特征</a></li>
+</ul>
+</li>
+<li><a href="#observableobject">ObservableObject</a></li>
+<li><a href="#observedobject">ObservedObject</a></li>
+<li><a href="#stateobject-ios-14">StateObject (iOS 14+)</a>
+<ul>
+<li><a href="#%E8%AF%AD%E6%B3%95%E7%89%B9%E7%82%B9">语法特点</a></li>
+</ul>
+</li>
+<li><a href="#binding">Binding</a></li>
+</ul>
+</li>
+<li><a href="#framework-integration">Framework integration</a></li>
+<li><a href="#ui-tips">UI Tips</a>
+<ul>
+<li><a href="#%E5%BE%85%E7%A1%AE%E8%AE%A4%E7%9A%84%E7%82%B9">待确认的点</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<hr />
+<h2 id="data-flow"><a class="markdownIt-Anchor" href="#data-flow"></a> Data Flow</h2>
+<h3 id="state"><a class="markdownIt-Anchor" href="#state"></a> State</h3>
+<p>Property wrapper <code>State</code>只是一个映射, 并不真正开放空间存储变量, 真正的空间开辟是这样的过程:</p>
+<ul>
+<li><code>State</code>必须定义在某个<code>ViewA: View</code>中作为成员属性, 不能定义在别的地方, 也不能定义成optional, 也不能定义成static变量.</li>
+<li>SwiftUI 在<code>ViewA</code>对象生成时, 通过某种和<code>DynamicProperty</code>相关的机制(<a target="_blank" rel="noopener" href="https://medium.com/@kateinoigakukun/inside-swiftui-how-state-implemented-92a51c0cb5f6">可能是某种 reflection 机制</a>, 也可能是 compiler synthesize), 根据<code>State</code>中指示的 initial value, 在真正的 <em>view</em><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 对象中建立了一份数据, 并把<code>ViewA</code>和其所有<code>State</code>的成员变量作出了 Model -&gt; View 的关联.</li>
+<li>之后<code>ViewA.body</code>每次被重新调用 (例如 data change 导致的 update 或者 view 重新出现在屏幕上等) 前, 都会保证 <code>ViewA</code> 中可以访问到的值被更新到与内存中的运行时状态一致, 这样之后访问/操纵该值时, 本质上都是访问了对应的真正的与 view 关联的数据对象.</li>
+<li>在 SwiftUI 可以监控到的环境下调用到某个<code>State</code>的 getter 的前提下, 我们只要在任何地方触发这个<code>State</code>的 setter, 就有可能触发获取了 getter 的<code>body</code>的重新调用.
+<ul>
+<li>当<code>State</code> wrap 的类型是非<code>Equatable</code>时, 只要触发 setter, 即触发<code>body</code>被调用.</li>
+<li>当<code>State</code> wrap 的类型遵循<code>Equatable</code>时, 只有触发 setter 时的<code>newValue</code>和旧值不同时, 才会触发<code>body</code>.</li>
+</ul>
+</li>
+</ul>
+<p>注意在非 SwiftUI 体系下, <code>State</code>毫无作用, 甚至基本的 get/set 逻辑都不满足.</p>
+<h4 id="state所指示对象的生命期"><a class="markdownIt-Anchor" href="#state所指示对象的生命期"></a> <code>State</code>所指示对象的生命期</h4>
+<p>无论是<code>State</code>, 还是我们自定义的<code>struct ViewA</code>, 本质上都只是 recipe, 不是真正的运行时对象. 真正的运行时对象, 要么被 SwiftUI 很好地隐藏在真正的 runtime view 对象中, 要么在我们自定义的别的 reference type 中(类似下文的ObservableObject).</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/swiftui-notes/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2020/swiftui-notes/" data-id="clo4f81yr000iey3n5zdu6a0v" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2020/swiftui-notes/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-testing-in-xcode" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/testing-in-xcode/" class="article-date">
@@ -145,7 +238,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/testing-in-xcode/" data-id="clo5yfg72000t1e3naj5x7ins" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/testing-in-xcode/" data-id="clo4f81ys000jey3n2o3032ah" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/testing-in-xcode/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -224,109 +317,13 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="clo5yfg6y00091e3nh8ue59ht" class="article-share-link">Share</a>
+      <a data-url="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/" data-id="clo4f81yq000bey3n5rkmf7s1" class="article-share-link">Share</a>
       
         <a href="https://crystdragon.github.io/2020/pointfree-co-notes-ep-23-25/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-swift-practices-perls-2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/swift-practices-perls-2/" class="article-date">
-  <time datetime="2020-07-29T16:00:00.000Z" itemprop="datePublished">2020-07-30</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/swift/">Swift</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/swift-practices-perls-2/">Swift Practices &amp; Perls (2)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><ul class="markdownIt-TOC">
-<li><a href="#%E6%A0%87%E5%87%86%E5%BA%93%E6%8B%BE%E9%81%97">标准库拾遗</a>
-<ul>
-<li><a href="#string%E5%92%8C%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><code>String</code>和其他类型之间的转换</a></li>
-<li><a href="#comparisons">Comparisons</a></li>
-<li><a href="#lazy-or-not">Lazy or not</a></li>
-<li><a href="#compiler-synthesized-conformance">Compiler-synthesized conformance</a>
-<ul>
-<li><a href="#%E4%BE%9D%E8%B5%96-compiler-synthesized-%E4%BB%A3%E7%A0%81%E7%9A%84%E9%80%BB%E8%BE%91%E6%B3%A8%E5%85%A5%E6%8A%80%E5%B7%A7">依赖 compiler-synthesized 代码的逻辑注入技巧</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#tricks-patterns">Tricks &amp; Patterns</a>
-<ul>
-<li><a href="#implementing-ghost-operator">Implementing “ghost operator”</a>
-<ul>
-<li><a href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF">问题背景</a></li>
-<li><a href="#%E9%97%AE%E9%A2%98%E7%9B%AE%E6%A0%87">问题目标</a></li>
-<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</p>
-<hr />
-<p>下文部分内容成于2018年</p>
-<hr />
-<p>本文继续上一篇<a href="/2020/swift-practices-perls-1/">Swift Practices &amp; Perls (1)</a>, 记录标准库学习过程中的技巧.</p>
-<h2 id="标准库拾遗"><a class="markdownIt-Anchor" href="#标准库拾遗"></a> 标准库拾遗</h2>
-<p>Swift 标准库提供的 API 强大而优雅. 这里归纳总结了一些网上不常见的点.</p>
-<h3 id="string和其他类型之间的转换"><a class="markdownIt-Anchor" href="#string和其他类型之间的转换"></a> <code>String</code>和其他类型之间的转换</h3>
-<p>一方面, 标准库中存在多个 protocol, 来关联自定义类型和<code>String</code>. 通常, 在需要按文本格式打印某个对象, 或涉及到用文本进行序列化/反序列化时, 可能会使用到这些 protocol.</p>
-<ul>
-<li><code>ExpressibleByStringLiteral</code> (旧名<code>StringLiteralConvertible</code>). 遵循该 protocol 的类型, 支持使用 string literal 初始化.</li>
-<li><code>CustomStringConvertible</code>和<code>CustomDebugStringConvertible</code>. 支持最基本的输出到一个<code>String</code>.</li>
-<li><code>LosslessStringConvertible</code>. 该 protocol 继承自 <code>CustomStringConvertible</code>. 与后者不同的是, 该 protocol 的遵循者必须提供和<code>String</code>之间双向的精确转化. 因此某种意义上说, 遵循本 protocol 的类型转化成的<code>String</code>可用范围更广, 不限于 debug/print. 因为不用担心2个不同的对象对应到同一个<code>String</code>.</li>
-<li><code>TextOutputStreamable</code>. 支持按流式增量添加到已有的 stream 的末尾. 因为支持增量添加, 所以遵循者实际实现时, 可能和其他输出<code>String</code>的 protocol 相比, 内存占用上可以有一些优化.</li>
-</ul>
-<p>另一方面, <code>String</code>本身也存在好几种 initializer. 标准库建议我们使用<code>String</code>的各种初始化方法, 而不要直接调用上面各个 protocol 定义的方法.</p>
-<ul>
-<li><code>init&lt;T&gt;(_ value: T, radix: Int = default, uppercase: Bool = default)</code>. 把<code>Int</code>按某个进制转换成<code>String</code>.</li>
-<li><code>init&lt;T&gt;(_ value: T) where T : LosslessStringConvertible</code>.</li>
-<li><code>init&lt;Subject&gt;(describing: Subject)</code>. 优先使用<code>TextOutputStreamable</code>的实现, 最后使用<code>CustomDebugStringConvertible</code>的实现, 偏向精准性.</li>
-<li><code>init&lt;Subject&gt;(reflecting: Subject)</code>. 优先使用<code>CustomDebugStringConvertible</code>, 最后使用<code>TextOutputStreamable</code>, 偏向debug.</li>
-</ul>
-<h3 id="comparisons"><a class="markdownIt-Anchor" href="#comparisons"></a> Comparisons</h3>
-<p>在STL中, 并非所有可比的对象都直接遵循<code>Comparable</code>, 但一定要求最终的底层 element 对象是遵循的.<br />
-对于不直接遵循<code>Comparable</code>的类型来说, 他们比较各自对象的方式无外乎通过 operator 或 method.</p>
-        
-          <p class="article-more-link">
-            <a href="/2020/swift-practices-perls-2/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://crystdragon.github.io/2020/swift-practices-perls-2/" data-id="clo5yfg6z000d1e3n480fdyu5" class="article-share-link">Share</a>
-      
-        <a href="https://crystdragon.github.io/2020/swift-practices-perls-2/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
     </footer>
   </div>
   
@@ -349,7 +346,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithms/">Algorithms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/draft/">Draft</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
     </div>
   </div>
 
@@ -359,7 +356,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clrs-3rd-ed/" rel="tag">CLRS (3rd ed.)</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/currying/" rel="tag">Currying</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
     </div>
   </div>
 
@@ -369,7 +366,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/clrs-3rd-ed/" style="font-size: 10px;">CLRS (3rd ed.)</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/currying/" style="font-size: 10px;">Currying</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
     </div>
   </div>
 
@@ -395,6 +392,10 @@
           </li>
         
           <li>
+            <a href="/2023/the-point-of-currrying/">科里化函数的作用</a>
+          </li>
+        
+          <li>
             <a href="/2021/tra-4/">TRA-4</a>
           </li>
         
@@ -404,10 +405,6 @@
         
           <li>
             <a href="/2020/tra-2/">TRA-2</a>
-          </li>
-        
-          <li>
-            <a href="/2020/tra-1/">TRA-1</a>
           </li>
         
       </ul>

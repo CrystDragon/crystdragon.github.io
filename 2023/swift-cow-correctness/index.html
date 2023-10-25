@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+
+  
+  <title>讨论编写 Copy-on-Write 的正确姿势 | Lincoln&#39;s SafeHouse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="基本形式 并发语境下的正确性  Case 1: 最优情况 Case 2: 冗余拷贝情况 Case 3: 剩余情况   可能的错误, 来自他处     基本形式 Swift 语言严格区分 value semantics (值语义) 和 reference semantics (引用语义). Copy on write 是一种代码范式, 它结合了操作对象时由值语义带来的安全性, 和引用语义带来的便捷">
+<meta property="og:type" content="article">
+<meta property="og:title" content="讨论编写 Copy-on-Write 的正确姿势">
+<meta property="og:url" content="https://crystdragon.github.io/2023/swift-cow-correctness/">
+<meta property="og:site_name" content="Lincoln&#39;s SafeHouse">
+<meta property="og:description" content="基本形式 并发语境下的正确性  Case 1: 最优情况 Case 2: 冗余拷贝情况 Case 3: 剩余情况   可能的错误, 来自他处     基本形式 Swift 语言严格区分 value semantics (值语义) 和 reference semantics (引用语义). Copy on write 是一种代码范式, 它结合了操作对象时由值语义带来的安全性, 和引用语义带来的便捷">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-10-25T15:34:37.083Z">
+<meta property="article:modified_time" content="2023-10-25T16:18:02.557Z">
+<meta property="article:author" content="Lincoln Wu">
+<meta property="article:tag" content="COW">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Lincoln&#39;s SafeHouse" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 7.0.0-rc2"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lincoln&#39;s SafeHouse</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://crystdragon.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-swift-cow-correctness" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2023/swift-cow-correctness/" class="article-date">
+  <time datetime="2023-10-25T15:34:37.083Z" itemprop="datePublished">2023-10-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/swift/">Swift</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      讨论编写 Copy-on-Write 的正确姿势
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><ul class="markdownIt-TOC">
+<li><a href="#%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F">基本形式</a></li>
+<li><a href="#%E5%B9%B6%E5%8F%91%E8%AF%AD%E5%A2%83%E4%B8%8B%E7%9A%84%E6%AD%A3%E7%A1%AE%E6%80%A7">并发语境下的正确性</a>
+<ul>
+<li><a href="#case-1-%E6%9C%80%E4%BC%98%E6%83%85%E5%86%B5">Case 1: 最优情况</a></li>
+<li><a href="#case-2-%E5%86%97%E4%BD%99%E6%8B%B7%E8%B4%9D%E6%83%85%E5%86%B5">Case 2: 冗余拷贝情况</a></li>
+<li><a href="#case-3-%E5%89%A9%E4%BD%99%E6%83%85%E5%86%B5">Case 3: 剩余情况</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%AF%E8%83%BD%E7%9A%84%E9%94%99%E8%AF%AF-%E6%9D%A5%E8%87%AA%E4%BB%96%E5%A4%84">可能的错误, 来自他处</a></li>
+</ul>
+</p>
+<hr />
+<h2 id="基本形式"><a class="markdownIt-Anchor" href="#基本形式"></a> 基本形式</h2>
+<p>Swift 语言严格区分 value semantics (值语义) 和 reference semantics (引用语义). Copy on write 是一种代码范式, 它结合了操作对象时由值语义带来的安全性, 和引用语义带来的便捷性和高性能.</p>
+<span id="more"></span>
+<p>考虑一个对象被拷贝到另一个变量.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Object</span> &#123;</span><br><span class="line">  <span class="comment">// all kinds of data stored</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> o1 <span class="operator">=</span> <span class="type">Object</span>()</span><br><span class="line"><span class="keyword">var</span> o2 <span class="operator">=</span> o1 <span class="comment">// &lt;- Copy operation</span></span><br></pre></td></tr></table></figure>
+<p>通常而言, 对于简单而小巧的对象, 上面的拷贝操作是非常快速的. 然而当 <code>Object</code> 中包含了大量成员变量, 或者其包含了动态尺寸的对象 (如一块内存大小不明确的 buffer, 或者不定长度的数列), 此时的拷贝操作就可能非常耗时. 然而, 如果简单定义成 <code>class Object</code> 又给程序带来了 shared mutable state 即 “共享对象的意外修改” 这一陷阱.</p>
+<p>COW 通过将核心数据定义成 reference type, 并使用 value type 进行包装解决这一问题. 部分 Swift 语言特性底层是用 COW 实现的 (例如 <code>indirect enum</code> 对 <code>self</code> 修改时), 另外也有大量标准库类型使用 COW 实现.</p>
+<p>我们自定义的类型也可以手工实现 COW.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CoreData</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> value: <span class="type">Int</span></span><br><span class="line">  <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">value</span>: <span class="type">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">self</span>.value <span class="operator">=</span> value</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">func</span> <span class="title function_">mutate</span>() &#123;</span><br><span class="line">    value <span class="operator">+=</span> <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> <span class="title class_">DataBox</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">var</span> data: <span class="type">CoreData</span></span><br><span class="line">  <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">value</span>: <span class="type">Int</span>) &#123;</span><br><span class="line">    data <span class="operator">=</span> <span class="type">CoreData</span>(value)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">mutating</span> <span class="keyword">func</span> <span class="title function_">mutate</span>() &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="operator">!</span><span class="built_in">isKnownUniquelyReferenced</span>(<span class="operator">&amp;</span>data) &#123;  <span class="comment">// &lt;- (A)</span></span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;deep copy happened&quot;</span>)</span><br><span class="line">      data <span class="operator">=</span> <span class="type">CoreData</span>(data.value)           <span class="comment">// &lt;- (B)</span></span><br><span class="line">    &#125;</span><br><span class="line">    data.mutate()                           <span class="comment">// &lt;- (C)</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>DataBox</code> 是暴露给外部使用的唯一接口. 使用者创建 <code>DataBox</code> 类型的对象后, 当没有任何修改操作时, 程序仅仅是对底层数据增加引用计数; 当发生修改时, 如果底层数据非独占, 则先进行 copy, 后再对独占的数据进行修改.<br />
+这里把 <code>DataBox.mutate()</code> 标记成 <code>mutating</code>, 体现了 Swift 如此设计带来的<em>语法和语义的统一</em>: 一方面在语义上提示即使是 reference type 的底层数据在通过 <code>DataBox</code> 这一接口修改时, 形式上必须符合 value type 的特征; 另一方面在语法上确实允许了对成员变量 <code>var data</code> 进行重新赋值.</p>
+<h2 id="并发语境下的正确性"><a class="markdownIt-Anchor" href="#并发语境下的正确性"></a> 并发语境下的正确性</h2>
+<p>上述实现在单线程下的正确性是显而易见的, 那么在并发语境下, 这样的写法是 ok 的吗? 在网上经常可以看到一些写法, 给 <code>DataBox</code> 增加了一些锁, 并使用这个锁包裹了整个 <code>mutate</code> 操作.</p>
+<p>这是有必要的吗? 首先需要说明的是, 对于单一的 value type 变量, 例如 <code>d1</code>, 它的所有 mutating 方法本身就不应该在不同的线程中被随意调用, 正如我们知道不能在不同的线程中不加思索地修改一个 <code>Int</code> 或一个 <code>Array</code>, 这很显然破坏了多线程安全. 所以单看这一点不构成加锁的原因. 那么如果假定一个变量只是单一操作, 在涉及多变量的时候, 还会有别的问题吗? 下文解释这一问题.</p>
+<p>以 2 个变量为例, 常见的并发操作为如下情形</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> d1: <span class="type">DataBox</span>(<span class="number">0</span>)</span><br><span class="line"><span class="keyword">var</span> d2 <span class="operator">=</span> d1</span><br><span class="line"></span><br><span class="line"><span class="comment">// thread 1</span></span><br><span class="line">d1.mutate()</span><br><span class="line"></span><br><span class="line"><span class="comment">// thread 2 </span></span><br><span class="line">d2.mutate()</span><br></pre></td></tr></table></figure>
+<p>我们考察 <code>d1</code> 和 <code>d2</code> 中各自 <code>mutate</code> 中的 3 个子逻辑的先后关系, 进行分类讨论. 注意到</p>
+<ul>
+<li><code>isKnownUniquelyReferenced</code> 的实现是线程安全的. 即使是同一底层地址, 只要是来自不同的变量, 其返回值就是真实的, 因此<a target="_blank" rel="noopener" href="https://forums.swift.org/t/isknownuniquelyreferenced-thread-safety/22933/5">可以视作原子操作</a>. <code>d1</code>, <code>d2</code> 各自的 (A) 语句执行时间上一定有先后, 而不可能交叠. 不失一般性, 我们假设 <code>d1.A</code> 始终早于 <code>d2.A</code>.</li>
+<li>各自的 (B) 语句, 如果存在, 则是对当前底层对象的 read 操作.</li>
+<li>各自的 © 语句, 如果存在, 则是对当前底层对象的 write 操作.</li>
+</ul>
+<h3 id="case-1-最优情况"><a class="markdownIt-Anchor" href="#case-1-最优情况"></a> Case 1: 最优情况</h3>
+<p>假设 <code>d2.A</code> 在 <code>d1.B</code> 执行完成后开始. 即整体时间序列为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">|d1.A| -&gt; |d1.B| -&gt; |d1.C|</span><br><span class="line">               |d2.A| -&gt; |d2.C|</span><br></pre></td></tr></table></figure>
+<p>此时, 由于 <code>d1.B</code> 完成了深拷贝, <code>d2.A</code> 的 <code>isKnownUniquelyReferenced</code> 将返回 <code>true</code> 从而 <code>d2</code> 不需要进行任何拷贝. <code>d1</code>, <code>d2</code> 两者没有对同一底层对象引用的任何和操作.</p>
+<h3 id="case-2-冗余拷贝情况"><a class="markdownIt-Anchor" href="#case-2-冗余拷贝情况"></a> Case 2: 冗余拷贝情况</h3>
+<p>假设 <code>d2.A</code> 在 <code>d1.B</code> 开始执行前返回. 即整体时间序列为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">|d1.A| -&gt;  ...  |d1.B| -&gt; |d1.C|</span><br><span class="line">          |d2.A| -&gt; |d2.B| -&gt; |d2.C|</span><br></pre></td></tr></table></figure>
+<p>此时, 由于 <code>d1.B</code> 中并没有完成对旧底层对象的引用 release, 因此 <code>d1</code> 和 <code>d2</code> 的 <code>isKnownUniquelyReferenced</code> 都返回 <code>false</code>, 之后两者分别对初始的底层对象进行 read 操作并执行深拷贝 (B), 再之后两者各自操作时都已经在不同的引用上了.</p>
+<p>可以看到, 在这种情形时, 虽然我们例子中从头到尾只有 2 个变量 <code>d1</code> 和 <code>d2</code>, 但是实际运行时, 确实从头到尾生成了 3 个 <code>CoreData</code> 对象: 1 个是最初被 <code>d1</code> 和 <code>d2</code> 共同引用的, 2 个是各自深拷贝出的. 这也是一个例子解释为什么 <code>isKnownUniquelyReferenced</code> 在多线程下并不能真正用作&quot;语义上对象是否独占&quot;的精确判断. 当然, 在这里, 我们只是产生了一次冗余拷贝, 对程序的正确性没有任何影响.</p>
+<h3 id="case-3-剩余情况"><a class="markdownIt-Anchor" href="#case-3-剩余情况"></a> Case 3: 剩余情况</h3>
+<p>剩余的即是 <code>d2.A</code> 和 <code>d1.B</code> 在运行时间上有交叠的情况了. 仔细研究可以确定关键之处是在于 <code>d1.B</code> 中在对旧的底层 <code>CoreData</code> 引用进行 read 操作并生成新底层对象后, 何时 release 旧对象的引用.</p>
+<p>然而通过上面 2 种 case 的分析, 可以看到, 无论细微的时序如何, 无论 <code>d2</code> 的 <code>isKnownUniquelyReferenced</code> 返回 <code>true</code> 还是 <code>false</code>, 都无关紧要.<br />
+* 如果返回 <code>true</code>, 正如 case 1 一样, 它确保了 <code>d1</code> 中对底层对象的最后一丝引用已经消失, 从而 <code>d2</code> 后续无论对底层引用如果 read/write 都是独占操作.<br />
+* 如果返回 <code>false</code>, 那么和 case 2 相同, <code>d1</code> 和 <code>d2</code> 两者对共享的旧引用只有拷贝前的 read 操作, 即使并行也是安全的.</p>
+<h2 id="可能的错误-来自他处"><a class="markdownIt-Anchor" href="#可能的错误-来自他处"></a> 可能的错误, 来自他处</h2>
+<p>到这里, 我们可以看到, 不增加额外任何的同步机制, 只要如上面的代码使用 <code>isKnownUniquelyReferenced</code>, 我们就可以保证多线程下的拷贝安全, 从而放心地这样实现 COW.</p>
+<p>然而, 是否仍有某种时序, 能使上文中 <code>d1</code> 和 <code>d2</code> 对底层对象的操作出现读写竞争呢? 例如是否可以构造出某种时序, 其中 <code>d2.B</code> 对底层对象的 read 操作 和 <code>d1.C</code> 对底层对象的 write 操作作用在同一个对象上, 且是并行的?</p>
+<p>如果要构造这样的时序, 我们必须使 <code>d1</code> 的 <code>isKnownUniquelyReferenced</code> 返回 true, 而使 <code>d2</code> 的 <code>isKnownUniquelyReferenced</code> 返回 false. 这等价于要让 <code>d2</code> 对 <code>d1.data</code> 的 retain 延迟到 <code>d1.A</code> 执行后. 我们似乎可以写出这样的代码:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> data1 <span class="operator">=</span> <span class="type">DataBox</span>(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="type">DispatchQueue</span>(label: <span class="string">&quot;back thread&quot;</span>).async &#123;</span><br><span class="line">  <span class="keyword">var</span> data2 <span class="operator">=</span> data1</span><br><span class="line">  data2.mutate()</span><br><span class="line">&#125;</span><br><span class="line">data1.mutate()</span><br></pre></td></tr></table></figure>
+<p>确实如此. 上面的代码确实有概率产生 read/write 竞争. 可能导致 <code>data2</code> copy 过来的数据是损坏的.</p>
+<p>然而, 发生错误的原因, 并非是来自上文的 COW 实现, 而是来自更上层使用者. 变量 <code>data1</code> 在上面的代码里的使用其实已经违反了线程安全: 它在 main thread 类被 write, 而在 back thread 里被 <code>read</code>, 而代码也并没有使用任何机制来确保 <code>data1</code> 的读写安全性. 事实上, 上文也提到, 一个 value type 变量, 在不同的线程被不加限制地读写, 是相当愚蠢的做法, 只不过在这个例子里可能比较隐晦.</p>
+<p>在历史代码中这样的编程错误并不容易被发现. 在某些情况下 Xcode 的 thread sanitizer 或者 Swift compiler 中对 “Law of Exclusivity” 机制的 Dynamic enforcement 可能可以在 debug 时帮我们发现问题. 也许是因为 value type 的强大, 部分使用场景中开发者可能对其过分自信, 使其没有意识到即使强如 value type, 在使用时也是需要考虑线程安全的. 如今 Swift 编译器也在不断进步, 使一些相关问题在编译期被暴露出来.</p>
+<p>对 value type 在线程安全方面的使用姿势, 有一个好的准则: 只要涉及到 mutation, 就应该确保 <strong>copy 操作发生在任何可能的异步之前</strong>. 如果将 <code>data2</code> 的初始化放到 <code>async</code> 之前, 那就没有问题了.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> data1 <span class="operator">=</span> <span class="type">DataBox</span>(<span class="number">3</span>)</span><br><span class="line"><span class="keyword">var</span> data2 <span class="operator">=</span> data1</span><br><span class="line"></span><br><span class="line"><span class="type">DispatchQueue</span>(label: <span class="string">&quot;back thread&quot;</span>).async &#123;</span><br><span class="line">  data2.mutate()</span><br><span class="line">&#125;</span><br><span class="line">data1.mutate()</span><br></pre></td></tr></table></figure>
+<p>一种更加安全<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>且 local friendly 的方式是使用 capture list 创建中间变量 (capture list 中的变量创建是在 closure 创建时).</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> data1 <span class="operator">=</span> <span class="type">DataBox</span>(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="type">DispatchQueue</span>(label: <span class="string">&quot;back thread&quot;</span>).async &#123; [data1] <span class="keyword">in</span></span><br><span class="line">  <span class="keyword">var</span> data2 <span class="operator">=</span> data1</span><br><span class="line">  data2.mutate()</span><br><span class="line">&#125;</span><br><span class="line">data1.mutate()</span><br></pre></td></tr></table></figure>
+<p>此时从调用方的语义上看, 对 <code>data1</code> 和 <code>data2</code> 的操作是在独立的变量上操作的, 没有任何竞争. 即使我们怀疑 <code>DataBox</code> 内部是使用 COW 实现的, 可能有一些底层数据的共享, 我们也不用担心, 因为那里的正确性理应由恰当使用的 <code>isKnownUniquelyReferenced</code> 确保了. 这正印证了语言是否设计良好的标准之一: 每个 level 保证局部的正确性, 就可以获得整体的正确性.</p>
+<hr class="footnotes-sep" />
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>上面的写法的风险在于, 无法保证 <code>data2</code> 在 main thread 后面会不会被读写. 事实上, 上面的写法在完整开启 SWIFT_STRICT_CONCURRENCY 后, 会报 warning/error. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://crystdragon.github.io/2023/swift-cow-correctness/" data-id="clo5yfg6y000c1e3n8thjd9p3" class="article-share-link">Share</a>
+      
+        <a href="https://crystdragon.github.io/2023/swift-cow-correctness/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cow/" rel="tag">COW</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2021/tra-4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">TRA-4</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/apple-platforms/">Apple Platforms</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">Architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/computer-systems/">Computer Systems</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/diary/">Diary</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/notes/">Notes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">Swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tra/">TRA</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/arc/" rel="tag">ARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/avfoundation/" rel="tag">AVFoundation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apple-platforms/" rel="tag">Apple Platforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cow/" rel="tag">COW</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cryptography/" rel="tag">Cryptography</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">Functional Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/image/" rel="tag">Image</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notificationcenter/" rel="tag">NotificationCenter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift-concurrency/" rel="tag">Swift Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swiftui/" rel="tag">SwiftUI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/testing/" rel="tag">Testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread-safety/" rel="tag">Thread Safety</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uikit/" rel="tag">UIKit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/" rel="tag">Xcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pointfree-co/" rel="tag">pointfree.co</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/arc/" style="font-size: 10px;">ARC</a> <a href="/tags/avfoundation/" style="font-size: 10px;">AVFoundation</a> <a href="/tags/apple-platforms/" style="font-size: 20px;">Apple Platforms</a> <a href="/tags/cow/" style="font-size: 10px;">COW</a> <a href="/tags/cryptography/" style="font-size: 10px;">Cryptography</a> <a href="/tags/functional-programming/" style="font-size: 10px;">Functional Programming</a> <a href="/tags/image/" style="font-size: 10px;">Image</a> <a href="/tags/notificationcenter/" style="font-size: 10px;">NotificationCenter</a> <a href="/tags/swift-concurrency/" style="font-size: 10px;">Swift Concurrency</a> <a href="/tags/swiftui/" style="font-size: 10px;">SwiftUI</a> <a href="/tags/testing/" style="font-size: 10px;">Testing</a> <a href="/tags/thread-safety/" style="font-size: 10px;">Thread Safety</a> <a href="/tags/uikit/" style="font-size: 10px;">UIKit</a> <a href="/tags/xcode/" style="font-size: 10px;">Xcode</a> <a href="/tags/pointfree-co/" style="font-size: 10px;">pointfree.co</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/swift-cow-correctness/">讨论编写 Copy-on-Write 的正确姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2021/tra-4/">TRA-4</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-3/">TRA-3</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-2/">TRA-2</a>
+          </li>
+        
+          <li>
+            <a href="/2020/tra-1/">TRA-1</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Lincoln Wu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'crystdragon';
+  
+  var disqus_url = 'https://crystdragon.github.io/2023/swift-cow-correctness/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<!--for katex to work-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<!--for highlight to work-->
+<!-- <link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/tomorrow-night-eighties.min.css">
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js">
+</script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script> -->
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
